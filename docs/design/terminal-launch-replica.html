@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zeb terminal launch replica</title>
+    <style>
+      :root {
+        --zeb-bg: #09090d;
+        --zeb-terminal: #242a33;
+        --zeb-terminal-deep: #1f2530;
+        --zeb-border: rgba(255, 255, 255, 0.16);
+        --zeb-ink: #f3f4f6;
+        --zeb-muted: #8d9099;
+        --zeb-accent: #ff74d4;
+        --zeb-accent-2: #7dd7ff;
+        --zeb-command: #82d9ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background: var(--zeb-bg);
+        color: var(--zeb-ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .wrap {
+        width: min(92%, 820px);
+      }
+
+      .terminal {
+        overflow: hidden;
+        border: 1px solid var(--zeb-border);
+        border-radius: 8px;
+        background: var(--zeb-terminal);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.32);
+      }
+
+      .chrome {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 34px;
+        padding: 0 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        background: var(--zeb-terminal-deep);
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 999px;
+      }
+
+      .dot:nth-child(1) {
+        background: #ff5f57;
+      }
+
+      .dot:nth-child(2) {
+        background: #ffbd2e;
+      }
+
+      .dot:nth-child(3) {
+        background: #28c840;
+      }
+
+      .screen {
+        margin: 0;
+        padding: 34px 42px 38px;
+        min-height: 430px;
+        font-family:
+          "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono",
+          monospace;
+        font-size: 18px;
+        line-height: 1.45;
+        white-space: pre;
+      }
+
+      .prompt {
+        color: var(--zeb-accent);
+        font-weight: 800;
+      }
+
+      .go {
+        color: #c3de83;
+      }
+
+      .path {
+        color: var(--zeb-ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .status,
+      .welcome {
+        color: var(--zeb-muted);
+      }
+
+      .mark {
+        position: relative;
+        display: inline-block;
+        margin: 8px 0 10px;
+        color: var(--zeb-ink);
+      }
+
+      .cell {
+        display: inline-block;
+        animation: terminal-pulse 3.8s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+        animation-delay: calc(var(--i) * 80ms);
+      }
+
+      .cell[data-kind="cap"] {
+        color: #d8dade;
+      }
+
+      .cell[data-kind="mass"] {
+        color: #f4f4f5;
+      }
+
+      .cell[data-kind="edge"] {
+        color: #a8abb3;
+      }
+
+      .scan {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 4ch;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(125, 215, 255, 0.32),
+          rgba(255, 116, 212, 0.18),
+          transparent
+        );
+        animation: terminal-scan 4.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+        pointer-events: none;
+      }
+
+      .title {
+        color: var(--zeb-accent);
+        font-weight: 800;
+      }
+
+      .commands {
+        color: var(--zeb-command);
+      }
+
+      @keyframes terminal-pulse {
+        0%,
+        100% {
+          opacity: 0.78;
+          transform: translateY(0);
+        }
+        38% {
+          color: var(--zeb-accent-2);
+          opacity: 1;
+          transform: translateY(-1px);
+        }
+        56% {
+          color: var(--zeb-accent);
+          opacity: 0.96;
+        }
+      }
+
+      @keyframes terminal-scan {
+        0% {
+          transform: translateX(-5ch);
+          opacity: 0;
+        }
+        18% {
+          opacity: 1;
+        }
+        68% {
+          transform: translateX(13ch);
+          opacity: 0.65;
+        }
+        100% {
+          transform: translateX(16ch);
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cell,
+        .scan {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="terminal" aria-label="Zeb terminal launch preview">
+        <div class="chrome" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <pre class="screen"><span class="prompt">›</span> <span class="go">go</span> run <span class="path">./cmd/zeb</span> tui
+
+<span class="status">   charging Zeb</span>
+
+<span class="mark" id="mark"><span class="scan"></span></span>
+
+<span class="welcome">   Welcome to Zeb, the Zebra Link CLI</span>
+   <span class="title">Zeb</span>
+<span class="welcome">   Welcome to Zeb, the Zebra Link CLI. Press q to quit.</span>
+   <span class="commands">auth  space  spec  status  links</span></pre>
+      </section>
+    </main>
+
+    <script>
+      const logo = [
+        "          ",
+        "▄▄▄▄▄▄▄▄▄ ",
+        "▀▀▀▀▀████ ",
+        "   ▄███▀  ",
+        " ▄███▀    ",
+        "█████████ ",
+        "          ",
+      ];
+
+      const mark = document.querySelector("#mark");
+      let index = 0;
+
+      for (const line of logo) {
+        const row = document.createElement("span");
+        row.setAttribute("aria-hidden", "true");
+        for (const glyph of [...line]) {
+          if (glyph === " ") {
+            row.append(document.createTextNode(" "));
+            continue;
+          }
+          const cell = document.createElement("span");
+          cell.className = "cell";
+          cell.style.setProperty("--i", String(index));
+          cell.dataset.kind = glyph === "█" ? "mass" : glyph === "▀" ? "edge" : "cap";
+          cell.textContent = glyph;
+          row.append(cell);
+          index += 1;
+        }
+        mark.append(row, document.createTextNode("\n"));
+      }
+    </script>
+  </body>
+</html>
+

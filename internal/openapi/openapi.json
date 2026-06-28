@@ -1,0 +1,6238 @@
+{
+  "components": {
+    "parameters": {},
+    "schemas": {
+      "AddLinksToCollectionResponse": {
+        "properties": {
+          "added": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "alreadyMember": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "added",
+          "alreadyMember"
+        ],
+        "type": "object"
+      },
+      "ApiError": {
+        "properties": {
+          "error": {
+            "properties": {
+              "code": {
+                "description": "Machine-readable error code. Stable across versions; safe to switch on.",
+                "example": "UNAUTHORIZED",
+                "type": "string"
+              },
+              "details": {
+                "additionalProperties": {},
+                "description": "Optional structured context — field paths, retry-after seconds, etc.",
+                "type": "object"
+              },
+              "message": {
+                "description": "Human-readable explanation. Subject to change.",
+                "example": "Missing or invalid API key.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "BulkCreateCollectionRowResult": {
+        "oneOf": [
+          {
+            "properties": {
+              "collection": {
+                "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "createdBy": {
+                    "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "createdVia": {
+                    "enum": [
+                      "web",
+                      "import",
+                      "api",
+                      "chat"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "id": {
+                    "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "rules": {
+                    "type": "null"
+                  },
+                  "spaceId": {
+                    "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "manual"
+                    ],
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "spaceId",
+                  "name",
+                  "description",
+                  "type",
+                  "rules",
+                  "createdBy",
+                  "createdVia",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                "type": "object"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "success": {
+                "enum": [
+                  true
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "success",
+              "collection"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "error": {
+                "properties": {
+                  "code": {
+                    "description": "Stable machine code. Per-row: `INVALID_NAME`. Whole-request (every row carries it): `WORKSPACE_NOT_MEMBER`, `READ_ONLY`, `TIER_FEATURE_REQUIRED`, `COLLECTION_LIMIT_REACHED`, `BULK_TOO_LARGE`.",
+                    "type": "string"
+                  },
+                  "details": {},
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "name": {
+                "description": "The row's requested name, echoed for failed rows.",
+                "type": "string"
+              },
+              "success": {
+                "enum": [
+                  false
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "success",
+              "error"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "BulkCreateCollectionsInput": {
+        "properties": {
+          "items": {
+            "items": {
+              "properties": {
+                "description": {
+                  "maxLength": 2000,
+                  "type": "string"
+                },
+                "name": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "type": "object"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "BulkCreateCollectionsResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkCreateCollectionRowResult"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "BulkCreateLinksInput": {
+        "properties": {
+          "collection": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "properties": {
+                "activatesAt": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "deactivatesAt": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "domain": {
+                  "maxLength": 253,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "fallback": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "target_root"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "url"
+                          ],
+                          "type": "string"
+                        },
+                        "url": {
+                          "maxLength": 2048,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "metadata": {
+                  "properties": {
+                    "description": {
+                      "maxLength": 2000,
+                      "type": "string"
+                    },
+                    "siteName": {
+                      "maxLength": 300,
+                      "type": "string"
+                    },
+                    "title": {
+                      "maxLength": 500,
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "namespace": {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                "path": {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                "scheduleTimezone": {
+                  "maxLength": 64,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "showCountdownPage": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "targetUrl": {
+                  "format": "uri",
+                  "maxLength": 2048,
+                  "type": "string"
+                },
+                "title": {
+                  "maxLength": 200,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "targetUrl"
+              ],
+              "type": "object"
+            },
+            "maxItems": 250,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "BulkCreateLinksResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkCreateRowResult"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "BulkCreateRowResult": {
+        "oneOf": [
+          {
+            "properties": {
+              "index": {
+                "type": "integer"
+              },
+              "link": {
+                "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "createdBy": {
+                    "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "createdVia": {
+                    "enum": [
+                      "web",
+                      "import",
+                      "api",
+                      "chat",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "fallback": {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "target_root"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "url"
+                            ],
+                            "type": "string"
+                          },
+                          "url": {
+                            "maxLength": 2048,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "url"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hostname": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "shortDomainId": {
+                    "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "shortUrl": {
+                    "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "spaceId": {
+                    "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "targetUrl": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "spaceId",
+                  "shortDomainId",
+                  "hostname",
+                  "path",
+                  "shortUrl",
+                  "targetUrl",
+                  "title",
+                  "isActive",
+                  "fallback",
+                  "createdBy",
+                  "createdVia",
+                  "createdAt"
+                ],
+                "type": "object"
+              },
+              "source": {
+                "description": "`custom` if the row supplied `path`, else `auto`.",
+                "enum": [
+                  "auto",
+                  "custom"
+                ],
+                "type": "string"
+              },
+              "success": {
+                "enum": [
+                  true
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "success",
+              "link",
+              "source"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "error": {
+                "properties": {
+                  "code": {
+                    "description": "Stable machine code. For bulk create: `INVALID_URL`, `URL_TOO_LONG`, `PATH_TAKEN`, `PATH_TOO_SHORT`, `PATH_TOO_DEEP`, `PATH_INVALID_FORMAT`, `DOMAIN_NOT_FOUND`, `DOMAIN_NOT_ACCESSIBLE`, `DOMAIN_REQUIRES_UPGRADE` (per-row); `WORKSPACE_NOT_MEMBER`, `READ_ONLY`, `COLLECTION_NOT_FOUND`, `COLLECTION_NOT_MANUAL`, `BULK_TOO_LARGE` (whole-request — every row carries the same error).",
+                    "type": "string"
+                  },
+                  "details": {},
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "success": {
+                "enum": [
+                  false
+                ],
+                "type": "boolean"
+              },
+              "targetUrl": {
+                "description": "The row's target URL, echoed so the caller can name the failed row.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index",
+              "success",
+              "error"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "BulkDeleteLinksInput": {
+        "properties": {
+          "linkIds": {
+            "items": {
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            },
+            "maxItems": 250,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "linkIds"
+        ],
+        "type": "object"
+      },
+      "BulkDeleteLinksResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkDeleteRowResult"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "BulkDeleteRowResult": {
+        "oneOf": [
+          {
+            "properties": {
+              "linkId": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "success": {
+                "enum": [
+                  true
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "linkId",
+              "success"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "error": {
+                "properties": {
+                  "code": {
+                    "description": "Stable machine code. For bulk create: `INVALID_URL`, `URL_TOO_LONG`, `PATH_TAKEN`, `PATH_TOO_SHORT`, `PATH_TOO_DEEP`, `PATH_INVALID_FORMAT`, `DOMAIN_NOT_FOUND`, `DOMAIN_NOT_ACCESSIBLE`, `DOMAIN_REQUIRES_UPGRADE` (per-row); `WORKSPACE_NOT_MEMBER`, `READ_ONLY`, `COLLECTION_NOT_FOUND`, `COLLECTION_NOT_MANUAL`, `BULK_TOO_LARGE` (whole-request — every row carries the same error).",
+                    "type": "string"
+                  },
+                  "details": {},
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "linkId": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "success": {
+                "enum": [
+                  false
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "linkId",
+              "success",
+              "error"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "BulkUpdateLinksInput": {
+        "properties": {
+          "updates": {
+            "items": {
+              "properties": {
+                "activatesAt": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "deactivatesAt": {
+                  "format": "date-time",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "fallback": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "target_root"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "url"
+                          ],
+                          "type": "string"
+                        },
+                        "url": {
+                          "maxLength": 2048,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "linkId": {
+                  "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                  "type": "string"
+                },
+                "metadata": {
+                  "properties": {
+                    "description": {
+                      "maxLength": 2000,
+                      "type": "string"
+                    },
+                    "siteName": {
+                      "maxLength": 300,
+                      "type": "string"
+                    },
+                    "title": {
+                      "maxLength": 500,
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "path": {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                "scheduleTimezone": {
+                  "maxLength": 64,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "showCountdownPage": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "targetUrl": {
+                  "format": "uri",
+                  "maxLength": 2048,
+                  "type": "string"
+                },
+                "title": {
+                  "maxLength": 200,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "linkId"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "updates"
+        ],
+        "type": "object"
+      },
+      "BulkUpdateLinksResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkUpdateRowResult"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "type": "object"
+      },
+      "BulkUpdateRowResult": {
+        "oneOf": [
+          {
+            "properties": {
+              "index": {
+                "type": "integer"
+              },
+              "link": {
+                "properties": {
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "createdBy": {
+                    "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "createdVia": {
+                    "enum": [
+                      "web",
+                      "import",
+                      "api",
+                      "chat",
+                      null
+                    ],
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "fallback": {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "target_root"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "url"
+                            ],
+                            "type": "string"
+                          },
+                          "url": {
+                            "maxLength": 2048,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "url"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "hostname": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "shortDomainId": {
+                    "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "shortUrl": {
+                    "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "spaceId": {
+                    "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  },
+                  "targetUrl": {
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "spaceId",
+                  "shortDomainId",
+                  "hostname",
+                  "path",
+                  "shortUrl",
+                  "targetUrl",
+                  "title",
+                  "isActive",
+                  "fallback",
+                  "createdBy",
+                  "createdVia",
+                  "createdAt"
+                ],
+                "type": "object"
+              },
+              "linkId": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "pathChanged": {
+                "type": "boolean"
+              },
+              "success": {
+                "enum": [
+                  true
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "linkId",
+              "success",
+              "link",
+              "pathChanged"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "error": {
+                "properties": {
+                  "code": {
+                    "description": "Stable machine code. For bulk create: `INVALID_URL`, `URL_TOO_LONG`, `PATH_TAKEN`, `PATH_TOO_SHORT`, `PATH_TOO_DEEP`, `PATH_INVALID_FORMAT`, `DOMAIN_NOT_FOUND`, `DOMAIN_NOT_ACCESSIBLE`, `DOMAIN_REQUIRES_UPGRADE` (per-row); `WORKSPACE_NOT_MEMBER`, `READ_ONLY`, `COLLECTION_NOT_FOUND`, `COLLECTION_NOT_MANUAL`, `BULK_TOO_LARGE` (whole-request — every row carries the same error).",
+                    "type": "string"
+                  },
+                  "details": {},
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ],
+                "type": "object"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "linkId": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "success": {
+                "enum": [
+                  false
+                ],
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "linkId",
+              "success",
+              "error"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "Collection": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "createdVia": {
+            "enum": [
+              "web",
+              "import",
+              "api",
+              "chat"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rules": {
+            "description": "Array of Condition objects when type='smart'; null when 'manual'.",
+            "items": {},
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "spaceId": {
+            "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "manual",
+              "smart"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "spaceId",
+          "name",
+          "description",
+          "type",
+          "rules",
+          "createdBy",
+          "createdVia",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "CollectionWithCount": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Collection"
+          },
+          {
+            "properties": {
+              "linkCount": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "linkCount"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "CollectionWithCountResponse": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "createdVia": {
+            "enum": [
+              "web",
+              "import",
+              "api",
+              "chat"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "linkCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rules": {
+            "items": {},
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "spaceId": {
+            "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "manual",
+              "smart"
+            ],
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "spaceId",
+          "name",
+          "description",
+          "type",
+          "rules",
+          "createdBy",
+          "createdVia",
+          "createdAt",
+          "updatedAt",
+          "linkCount"
+        ],
+        "type": "object"
+      },
+      "ConvertSmartToManualResponse": {
+        "properties": {
+          "collection": {
+            "properties": {
+              "id": {
+                "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "rules": {
+                "type": "null"
+              },
+              "type": {
+                "enum": [
+                  "manual"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "rules"
+            ],
+            "type": "object"
+          },
+          "materialized": {
+            "description": "Number of links inserted into the junction at conversion time.",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "collection",
+          "materialized"
+        ],
+        "type": "object"
+      },
+      "CreateCollectionInput": {
+        "properties": {
+          "description": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "status"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "enum": [
+                        "active",
+                        "inactive"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "targetHost"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "isAnyOf"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "shortDomain"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "isAnyOf"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "hasCollection"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "createdVia"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "enum": [
+                        "web",
+                        "api",
+                        "chat",
+                        "import"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "created"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "inTheLast"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "unit": {
+                          "enum": [
+                            "minutes",
+                            "hours",
+                            "days"
+                          ],
+                          "type": "string"
+                        },
+                        "value": {
+                          "exclusiveMinimum": 0,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "unit"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "search"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "contains"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "clicks"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "greaterThan",
+                        "lessThan"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "uniqueClicks"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "greaterThan",
+                        "lessThan"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "clicked"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "inTheLast"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "unit": {
+                          "enum": [
+                            "minutes",
+                            "hours",
+                            "days"
+                          ],
+                          "type": "string"
+                        },
+                        "value": {
+                          "exclusiveMinimum": 0,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "unit"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "manual",
+              "smart"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "CreateCollectionResponse": {
+        "properties": {
+          "collection": {
+            "$ref": "#/components/schemas/Collection"
+          }
+        },
+        "required": [
+          "collection"
+        ],
+        "type": "object"
+      },
+      "CreateLinkInput": {
+        "properties": {
+          "activatesAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "collection": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "deactivatesAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "domain": {
+            "maxLength": 253,
+            "minLength": 1,
+            "type": "string"
+          },
+          "fallback": {
+            "oneOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "target_root"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
+                  },
+                  "url": {
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "metadata": {
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "siteName": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "title": {
+                "maxLength": 500,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "namespace": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "scheduleTimezone": {
+            "maxLength": 64,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "showCountdownPage": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "targetUrl": {
+            "format": "uri",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetUrl"
+        ],
+        "type": "object"
+      },
+      "CreateLinkResponse": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "source": {
+            "description": "`custom` when the caller supplied `path`; `auto` when the path was allocated.",
+            "enum": [
+              "auto",
+              "custom"
+            ],
+            "type": "string"
+          },
+          "targetReachable": {
+            "description": "Advisory reachability of `targetUrl`: `true` if it resolved to a live page, `false` if unreachable, `null` when not checked. Only probed when the request passes `?verify=true`. Never blocks creation — a link is always returned. (401/403 count as reachable.)",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "link",
+          "source",
+          "targetReachable"
+        ],
+        "type": "object"
+      },
+      "DeleteCollectionResponse": {
+        "properties": {
+          "deletedCollectionId": {
+            "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deletedCollectionId"
+        ],
+        "type": "object"
+      },
+      "DeleteLinkResponse": {
+        "properties": {
+          "deletedLinkId": {
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deletedLinkId"
+        ],
+        "type": "object"
+      },
+      "Domain": {
+        "properties": {
+          "hostname": {
+            "description": "The domain hostname (e.g. \"zlnk.to\") — pass this as `domain` on link-create. Clients never need the `id`.",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "tier": {
+            "description": "Access tier for platform domains; `null` for custom domains.",
+            "enum": [
+              "free",
+              "premium",
+              "agency",
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "enum": [
+              "platform",
+              "custom"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "hostname",
+          "type",
+          "tier"
+        ],
+        "type": "object"
+      },
+      "GetLinkResponse": {
+        "properties": {
+          "link": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "createdBy": {
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "createdVia": {
+                "enum": [
+                  "web",
+                  "import",
+                  "api",
+                  "chat",
+                  null
+                ],
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fallback": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "target_root"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "url"
+                        ],
+                        "type": "string"
+                      },
+                      "url": {
+                        "maxLength": 2048,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "url"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hostname": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "isActive": {
+                "type": "boolean"
+              },
+              "path": {
+                "type": "string"
+              },
+              "shortDomainId": {
+                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "shortUrl": {
+                "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                "format": "uri",
+                "type": "string"
+              },
+              "spaceId": {
+                "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "targetUrl": {
+                "format": "uri",
+                "type": "string"
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "spaceId",
+              "shortDomainId",
+              "hostname",
+              "path",
+              "shortUrl",
+              "targetUrl",
+              "title",
+              "isActive",
+              "fallback",
+              "createdBy",
+              "createdVia",
+              "createdAt"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "link"
+        ],
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "api": {
+            "enum": [
+              "v1"
+            ],
+            "type": "string"
+          },
+          "ok": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "api"
+        ],
+        "type": "object"
+      },
+      "Link": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "createdVia": {
+            "enum": [
+              "web",
+              "import",
+              "api",
+              "chat",
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fallback": {
+            "description": "Where a visitor goes when the link is off. `null` inherits the domain default, then the system default (a branded inactive page). `target_root` redirects to the destination's root domain; `url` redirects to an explicit URL.",
+            "oneOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "target_root"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
+                  },
+                  "url": {
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ],
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hostname": {
+            "description": "Hostname of the link's domain (e.g. \"zlnk.to\").",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          },
+          "shortDomainId": {
+            "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "shortUrl": {
+            "description": "Canonical, copy-paste-ready short link (e.g. \"https://zlnk.to/abc\"). Use this directly — do NOT reassemble it from `hostname` + `path`, which carries a leading slash and double-slashes if joined naively.",
+            "format": "uri",
+            "type": "string"
+          },
+          "spaceId": {
+            "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "targetUrl": {
+            "format": "uri",
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "spaceId",
+          "shortDomainId",
+          "hostname",
+          "path",
+          "shortUrl",
+          "targetUrl",
+          "title",
+          "isActive",
+          "fallback",
+          "createdBy",
+          "createdVia",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "LinkInCollectionRow": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "createdVia": {
+            "enum": [
+              "web",
+              "import",
+              "api",
+              "chat",
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          },
+          "shortDomainId": {
+            "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "spaceId": {
+            "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "targetUrl": {
+            "format": "uri",
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "spaceId",
+          "shortDomainId",
+          "hostname",
+          "path",
+          "targetUrl",
+          "title",
+          "isActive",
+          "createdBy",
+          "createdVia",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "ListCollectionsResponse": {
+        "properties": {
+          "collections": {
+            "items": {
+              "$ref": "#/components/schemas/CollectionWithCount"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "collections"
+        ],
+        "type": "object"
+      },
+      "ListDomainsResponse": {
+        "properties": {
+          "domains": {
+            "items": {
+              "$ref": "#/components/schemas/Domain"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "domains"
+        ],
+        "type": "object"
+      },
+      "ListLinkRow": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "createdVia": {
+            "enum": [
+              "web",
+              "import",
+              "api",
+              "chat",
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fallback": {
+            "description": "Where a visitor goes when the link is off. `null` inherits the domain default, then the system default (a branded inactive page). `target_root` redirects to the destination's root domain; `url` redirects to an explicit URL.",
+            "oneOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "target_root"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
+                  },
+                  "url": {
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ],
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hostname": {
+            "description": "Hostname of the link's domain (e.g. \"zlnk.to\").",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string"
+          },
+          "shortDomainId": {
+            "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "shortUrl": {
+            "description": "Canonical, copy-paste-ready short link (e.g. \"https://zlnk.to/abc\"). Use this directly — do NOT reassemble it from `hostname` + `path`, which carries a leading slash and double-slashes if joined naively.",
+            "format": "uri",
+            "type": "string"
+          },
+          "spaceId": {
+            "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "targetUrl": {
+            "format": "uri",
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "spaceId",
+          "shortDomainId",
+          "hostname",
+          "path",
+          "shortUrl",
+          "targetUrl",
+          "title",
+          "isActive",
+          "fallback",
+          "createdBy",
+          "createdVia",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "ListLinksInCollectionResponse": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/LinkInCollectionRow"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "links",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "ListLinksResponse": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/ListLinkRow"
+            },
+            "type": "array"
+          },
+          "nextCursor": {
+            "description": "Opaque cursor for the next page. `null` when there are no more pages.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "links",
+          "nextCursor"
+        ],
+        "type": "object"
+      },
+      "MeResponse": {
+        "properties": {
+          "accessibleSpaces": {
+            "description": "Spaces this API key can act on. An all-scope key returns every space the user is a member of; a selected-scope key returns only the allowlisted spaces.",
+            "items": {
+              "properties": {
+                "id": {
+                  "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "owner",
+                    "admin",
+                    "member"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "role"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "apiKey": {
+            "properties": {
+              "id": {
+                "pattern": "^ak_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "prefix": {
+                "description": "First ~8 characters of the key, safe to log.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "prefix"
+            ],
+            "type": "object"
+          },
+          "user": {
+            "properties": {
+              "email": {
+                "format": "email",
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "user",
+          "accessibleSpaces",
+          "apiKey"
+        ],
+        "type": "object"
+      },
+      "RemoveLinksFromCollectionResponse": {
+        "properties": {
+          "removed": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "removed"
+        ],
+        "type": "object"
+      },
+      "UpdateCollectionInput": {
+        "properties": {
+          "description": {
+            "maxLength": 2000,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "status"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "enum": [
+                        "active",
+                        "inactive"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "targetHost"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "isAnyOf"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "shortDomain"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "isAnyOf"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "items": {
+                        "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "hasCollection"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "createdVia"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "is"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "enum": [
+                        "web",
+                        "api",
+                        "chat",
+                        "import"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "created"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "inTheLast"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "unit": {
+                          "enum": [
+                            "minutes",
+                            "hours",
+                            "days"
+                          ],
+                          "type": "string"
+                        },
+                        "value": {
+                          "exclusiveMinimum": 0,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "unit"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "search"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "contains"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "maxLength": 200,
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "clicks"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "greaterThan",
+                        "lessThan"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "uniqueClicks"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "greaterThan",
+                        "lessThan"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "clicked"
+                      ],
+                      "type": "string"
+                    },
+                    "negate": {
+                      "type": "boolean"
+                    },
+                    "operator": {
+                      "enum": [
+                        "inTheLast"
+                      ],
+                      "type": "string"
+                    },
+                    "value": {
+                      "properties": {
+                        "unit": {
+                          "enum": [
+                            "minutes",
+                            "hours",
+                            "days"
+                          ],
+                          "type": "string"
+                        },
+                        "value": {
+                          "exclusiveMinimum": 0,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "unit"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator",
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              ]
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateLinkInput": {
+        "properties": {
+          "activatesAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "deactivatesAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fallback": {
+            "oneOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "target_root"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
+                  },
+                  "url": {
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ],
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "siteName": {
+                "maxLength": 300,
+                "type": "string"
+              },
+              "title": {
+                "maxLength": 500,
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "path": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "scheduleTimezone": {
+            "maxLength": 64,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "showCountdownPage": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "targetUrl": {
+            "format": "uri",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "UpdateLinkResponse": {
+        "properties": {
+          "link": {
+            "properties": {
+              "createdAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "createdBy": {
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "createdVia": {
+                "enum": [
+                  "web",
+                  "import",
+                  "api",
+                  "chat",
+                  null
+                ],
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fallback": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "target_root"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "url"
+                        ],
+                        "type": "string"
+                      },
+                      "url": {
+                        "maxLength": 2048,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "url"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hostname": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "isActive": {
+                "type": "boolean"
+              },
+              "path": {
+                "type": "string"
+              },
+              "shortDomainId": {
+                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "shortUrl": {
+                "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                "format": "uri",
+                "type": "string"
+              },
+              "spaceId": {
+                "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": "string"
+              },
+              "targetUrl": {
+                "format": "uri",
+                "type": "string"
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "spaceId",
+              "shortDomainId",
+              "hostname",
+              "path",
+              "shortUrl",
+              "targetUrl",
+              "title",
+              "isActive",
+              "fallback",
+              "createdBy",
+              "createdVia",
+              "createdAt"
+            ],
+            "type": "object"
+          },
+          "pathChanged": {
+            "description": "`true` when the patch contained a `path` that differed from the current value.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "link",
+          "pathChanged"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "apiKey": {
+        "bearerFormat": "zeb_\u003culid\u003e",
+        "description": "Space-scoped API key. Provision via the dashboard; pass as `Authorization: Bearer zeb_…`.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Public REST API for Zebra Link. Space-scoped via API key. Every endpoint here is a thin call into a shared core function that the dashboard also uses — the two surfaces have identical semantics.",
+    "title": "Zebra Link API",
+    "version": "1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "description": "Returns a static `{ ok: true, api: 'v1' }`. Public — no auth. Use for uptime monitoring and to verify the API surface is reachable.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Service is reachable."
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "description": "Returns the user the API key acts as, the spaces the key is authorized for, and the key's own metadata. Useful for client-side key introspection: \"who am I, what can I do?\"",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Caller identity."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Identify the caller",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/collections": {
+      "get": {
+        "description": "Returns ALL collections in the space (no pagination — capped at 100 by plan limits) along with each one's current `linkCount`. Smart collections have their count computed live from rules. Order via `sort` (default `creation-date-desc`; same vocabulary as the link lists) — click-based sorts rank collections by their current members' click analytics.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Collection order (default `creation-date-desc`).",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "description": "Collection order (default `creation-date-desc`).",
+              "enum": [
+                "creation-date-desc",
+                "creation-date-asc",
+                "edit-date-desc",
+                "edit-date-asc",
+                "total-clicks-desc",
+                "total-clicks-asc",
+                "recent-clicks-desc",
+                "recent-clicks-asc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCollectionsResponse"
+                }
+              }
+            },
+            "description": "Collections in the space."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid sort."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "List collections",
+        "tags": [
+          "Collections"
+        ]
+      },
+      "post": {
+        "description": "Creates a manual or smart collection. Manual collections start empty and have links added via `POST /collections/{id}/links`. Smart collections compute membership at read time from a `rules` array (Condition objects).",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "description": {
+                    "maxLength": 2000,
+                    "type": "string"
+                  },
+                  "name": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "rules": {
+                    "items": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "status"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "enum": [
+                                "active",
+                                "inactive"
+                              ],
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "targetHost"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "isAnyOf"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "minItems": 1,
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "shortDomain"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "isAnyOf"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "items": {
+                                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                                "type": "string"
+                              },
+                              "minItems": 1,
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "hasCollection"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "createdVia"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "enum": [
+                                "web",
+                                "api",
+                                "chat",
+                                "import"
+                              ],
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "created"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "inTheLast"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "properties": {
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "exclusiveMinimum": 0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "search"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "contains"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "maxLength": 200,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "clicks"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "greaterThan",
+                                "lessThan"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "minimum": 0,
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "uniqueClicks"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "greaterThan",
+                                "lessThan"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "minimum": 0,
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "clicked"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "inTheLast"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "properties": {
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "exclusiveMinimum": 0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "type": {
+                    "enum": [
+                      "manual",
+                      "smart"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCollectionResponse"
+                }
+              }
+            },
+            "description": "Collection created."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only, collection limit reached, or tier doesn't include the collections feature."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Create a collection",
+        "tags": [
+          "Collections"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/collections/bulk": {
+      "post": {
+        "description": "Batch-creates up to 50 **manual** collections in a single transaction — ideal for an agent spinning up a set of folders at once. Smart collections are NOT creatable here (they need `rules`; use the single `POST /collections`). Names are not unique per space (duplicates are allowed). The plan-tier collection cap is enforced as all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "items": {
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "maxLength": 2000,
+                          "type": "string"
+                        },
+                        "name": {
+                          "maxLength": 200,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 50,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "items"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkCreateCollectionsResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; 207 (Multi-Status) when partially successful. Inspect each row's `success`."
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkCreateCollectionsResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; 207 (Multi-Status) when partially successful. Inspect each row's `success`."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Body wasn't valid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body failed schema validation."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Create many collections in one request",
+        "tags": [
+          "Collections"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/collections/{collectionId}": {
+      "delete": {
+        "description": "Hard-deletes the collection and cascades junction rows. Links themselves are not deleted.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteCollectionResponse"
+                }
+              }
+            },
+            "description": "Collection deleted."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found (or in a different space)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Delete a collection",
+        "tags": [
+          "Collections"
+        ]
+      },
+      "get": {
+        "description": "Returns one collection including its live `linkCount`. A collectionId in a different space returns 404.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "collection": {
+                      "$ref": "#/components/schemas/CollectionWithCountResponse"
+                    }
+                  },
+                  "required": [
+                    "collection"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Collection details."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found (or in a different space)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get one collection",
+        "tags": [
+          "Collections"
+        ]
+      },
+      "patch": {
+        "description": "Patches `name`, `description`, or `rules`. Setting `rules` on a manual collection is rejected. Setting `rules` on a smart collection replaces the rule set.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "description": {
+                    "maxLength": 2000,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "rules": {
+                    "items": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "status"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "enum": [
+                                "active",
+                                "inactive"
+                              ],
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "targetHost"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "isAnyOf"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "minItems": 1,
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "shortDomain"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "isAnyOf"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "items": {
+                                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                                "type": "string"
+                              },
+                              "minItems": 1,
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "hasCollection"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "createdVia"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "is"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "enum": [
+                                "web",
+                                "api",
+                                "chat",
+                                "import"
+                              ],
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "created"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "inTheLast"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "properties": {
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "exclusiveMinimum": 0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "search"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "contains"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "maxLength": 200,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "clicks"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "greaterThan",
+                                "lessThan"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "minimum": 0,
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "uniqueClicks"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "greaterThan",
+                                "lessThan"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "minimum": 0,
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "field": {
+                              "enum": [
+                                "clicked"
+                              ],
+                              "type": "string"
+                            },
+                            "negate": {
+                              "type": "boolean"
+                            },
+                            "operator": {
+                              "enum": [
+                                "inTheLast"
+                              ],
+                              "type": "string"
+                            },
+                            "value": {
+                              "properties": {
+                                "unit": {
+                                  "enum": [
+                                    "minutes",
+                                    "hours",
+                                    "days"
+                                  ],
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "exclusiveMinimum": 0,
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "collection": {
+                      "$ref": "#/components/schemas/CollectionWithCountResponse"
+                    }
+                  },
+                  "required": [
+                    "collection"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Collection updated."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found (or in a different space)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed or attempted to set rules on a manual collection."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Update a collection",
+        "tags": [
+          "Collections"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/collections/{collectionId}/convert-to-manual": {
+      "post": {
+        "description": "Materializes the smart collection's current rule-matches into the junction and flips `type='manual', rules=NULL` in one transaction. Rejects already-manual collections. The resulting manual collection no longer rotates as link state changes — it's a snapshot.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertSmartToManualResponse"
+                }
+              }
+            },
+            "description": "Conversion succeeded."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection is already manual."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Convert a smart collection to manual",
+        "tags": [
+          "Collections"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/collections/{collectionId}/links": {
+      "delete": {
+        "description": "Removes the listed link memberships from the collection (manual only). Idempotent — links that aren't members are no-ops.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "linkIds": {
+                    "items": {
+                      "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                      "type": "string"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "linkIds"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoveLinksFromCollectionResponse"
+                }
+              }
+            },
+            "description": "Links removed."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed or smart collection rejection."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Remove links from a manual collection",
+        "tags": [
+          "Collections"
+        ]
+      },
+      "get": {
+        "description": "Returns links that are members of the collection. For manual collections, walks the junction; for smart collections, evaluates the rules against the space's links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination via `?cursor=\u0026limit=` — a cursor is only valid under the sort that issued it.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "List order (default `creation-date-desc`).",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "description": "List order (default `creation-date-desc`).",
+              "enum": [
+                "creation-date-desc",
+                "creation-date-asc",
+                "edit-date-desc",
+                "edit-date-asc",
+                "total-clicks-desc",
+                "total-clicks-asc",
+                "recent-clicks-desc",
+                "recent-clicks-asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "pattern": "^\\d+$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListLinksInCollectionResponse"
+                }
+              }
+            },
+            "description": "Paginated list of links."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid cursor, sort, or limit."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "List links in a collection",
+        "tags": [
+          "Collections"
+        ]
+      },
+      "post": {
+        "description": "Adds the listed links to the collection (manual only). Idempotent — re-adding a link that's already a member counts as `alreadyMember`, not an error. Smart collections reject this — change the rules instead.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "collectionId",
+            "required": true,
+            "schema": {
+              "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "linkIds": {
+                    "items": {
+                      "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                      "type": "string"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "linkIds"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddLinksToCollectionResponse"
+                }
+              }
+            },
+            "description": "Links added."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Collection not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed, smart collection rejection, or link outside the space."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Add links to a manual collection",
+        "tags": [
+          "Collections"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/domains": {
+      "get": {
+        "description": "Returns the short domains this space can create links on (usable and enabled). Pass a returned `hostname` as the `domain` field on link-create — or omit `domain` entirely to use the space's default (first free platform) domain.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListDomainsResponse"
+                }
+              }
+            },
+            "description": "Available domains."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "List available domains",
+        "tags": [
+          "Domains"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links": {
+      "get": {
+        "description": "Returns the space's links with the domain hostname joined inline. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, capped at 100.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter to a single short domain (dom_* id).",
+            "in": "query",
+            "name": "shortDomain",
+            "required": false,
+            "schema": {
+              "description": "Filter to a single short domain (dom_* id).",
+              "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by link status.",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "description": "Filter by link status.",
+              "enum": [
+                "active",
+                "inactive"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "List order (default `creation-date-desc`).",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "description": "List order (default `creation-date-desc`).",
+              "enum": [
+                "creation-date-desc",
+                "creation-date-asc",
+                "edit-date-desc",
+                "edit-date-asc",
+                "total-clicks-desc",
+                "total-clicks-asc",
+                "recent-clicks-desc",
+                "recent-clicks-asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Opaque pagination cursor from a prior response. Only valid with the same `sort` it was issued under.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "description": "Opaque pagination cursor from a prior response. Only valid with the same `sort` it was issued under.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Page size, 1–100 (default 50).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "description": "Page size, 1–100 (default 50).",
+              "pattern": "^\\d+$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListLinksResponse"
+                }
+              }
+            },
+            "description": "Paginated list of links."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Invalid cursor, sort, or limit."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "List links",
+        "tags": [
+          "Links"
+        ]
+      },
+      "post": {
+        "description": "Creates a short link in the named space. `domain` is an optional hostname or dom_* id (e.g. \"zlnk.to\", from `GET …/domains`) — omit it to use the space's default domain. `collection` is an optional manual collection name or col_* id; duplicate names require an id. `path` is optional too — when omitted, one is auto-allocated under the namespace (default: root). The same `createLinkCore` runs for the dashboard.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "When `true`, probe the target once after creating the link and report `targetReachable` in the response. Adds a network round-trip; off by default. Never blocks creation.",
+            "in": "query",
+            "name": "verify",
+            "required": false,
+            "schema": {
+              "description": "When `true`, probe the target once after creating the link and report `targetReachable` in the response. Adds a network round-trip; off by default. Never blocks creation.",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "activatesAt": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "collection": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "deactivatesAt": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "domain": {
+                    "maxLength": 253,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "fallback": {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "target_root"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "url"
+                            ],
+                            "type": "string"
+                          },
+                          "url": {
+                            "maxLength": 2048,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "url"
+                        ],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "metadata": {
+                    "properties": {
+                      "description": {
+                        "maxLength": 2000,
+                        "type": "string"
+                      },
+                      "siteName": {
+                        "maxLength": 300,
+                        "type": "string"
+                      },
+                      "title": {
+                        "maxLength": 500,
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "namespace": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "path": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "scheduleTimezone": {
+                    "maxLength": 64,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "showCountdownPage": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "targetUrl": {
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 200,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "targetUrl"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLinkResponse"
+                }
+              }
+            },
+            "description": "Link created."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only — no active subscription."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed or path/domain/collection/URL rejected by the core."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Create a link",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/bulk": {
+      "delete": {
+        "description": "Deletes up to 250 links by id in a single batch (one `DELETE`; collection memberships cascade automatically). Rows fail independently — an id that's missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "linkIds": {
+                    "items": {
+                      "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                      "type": "string"
+                    },
+                    "maxItems": 250,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "linkIds"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkDeleteLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkDeleteLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Body wasn't valid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body failed schema validation."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Delete many links in one request",
+        "tags": [
+          "Links"
+        ]
+      },
+      "patch": {
+        "description": "Patches multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch (same shape as single-row PATCH). Rows fail independently with per-row error envelopes.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "updates": {
+                    "items": {
+                      "properties": {
+                        "activatesAt": {
+                          "format": "date-time",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "deactivatesAt": {
+                          "format": "date-time",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "fallback": {
+                          "oneOf": [
+                            {
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "target_root"
+                                  ],
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "url"
+                                  ],
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "maxLength": 2048,
+                                  "minLength": 1,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "url"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isActive": {
+                          "type": "boolean"
+                        },
+                        "linkId": {
+                          "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                          "type": "string"
+                        },
+                        "metadata": {
+                          "properties": {
+                            "description": {
+                              "maxLength": 2000,
+                              "type": "string"
+                            },
+                            "siteName": {
+                              "maxLength": 300,
+                              "type": "string"
+                            },
+                            "title": {
+                              "maxLength": 500,
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "path": {
+                          "maxLength": 128,
+                          "type": "string"
+                        },
+                        "scheduleTimezone": {
+                          "maxLength": 64,
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "showCountdownPage": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "targetUrl": {
+                          "format": "uri",
+                          "maxLength": 2048,
+                          "type": "string"
+                        },
+                        "title": {
+                          "maxLength": 200,
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "linkId"
+                      ],
+                      "type": "object"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "updates"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkUpdateLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkUpdateLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Body wasn't valid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body failed schema validation."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Patch many links in one request",
+        "tags": [
+          "Links"
+        ]
+      },
+      "post": {
+        "description": "Creates up to 250 links in a single atomic batch (the short codes are block-reserved from the per-domain counter, then inserted in one statement). Per-row outcomes are returned independently — a malformed URL or taken custom path fails just that row in `results`, never the batch. Set `collection` to a manual collection name or col_* id to add every created link to that collection in the same call; duplicate names require an id.\n\nNOTE: batch creation runs only CHEAP validation — URL *shape* and custom-path availability. Unlike the single-row `POST /links`, it does NOT fetch each destination to scrape a title/preview or check reachability (that round-trip per link isn't viable at batch scale), so `title` is taken from what you send.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "collection": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "items": {
+                    "items": {
+                      "properties": {
+                        "activatesAt": {
+                          "format": "date-time",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "deactivatesAt": {
+                          "format": "date-time",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "domain": {
+                          "maxLength": 253,
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "fallback": {
+                          "oneOf": [
+                            {
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "target_root"
+                                  ],
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "url"
+                                  ],
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "maxLength": 2048,
+                                  "minLength": 1,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "url"
+                              ],
+                              "type": "object"
+                            }
+                          ]
+                        },
+                        "metadata": {
+                          "properties": {
+                            "description": {
+                              "maxLength": 2000,
+                              "type": "string"
+                            },
+                            "siteName": {
+                              "maxLength": 300,
+                              "type": "string"
+                            },
+                            "title": {
+                              "maxLength": 500,
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "namespace": {
+                          "maxLength": 128,
+                          "type": "string"
+                        },
+                        "path": {
+                          "maxLength": 128,
+                          "type": "string"
+                        },
+                        "scheduleTimezone": {
+                          "maxLength": 64,
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "showCountdownPage": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "targetUrl": {
+                          "format": "uri",
+                          "maxLength": 2048,
+                          "type": "string"
+                        },
+                        "title": {
+                          "maxLength": 200,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "targetUrl"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 250,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "items"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkCreateLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkCreateLinksResponse"
+                }
+              }
+            },
+            "description": "Per-row results. HTTP 200 when every row succeeded or every row failed; HTTP 207 (Multi-Status) when the batch was partially successful. Inspect each row's `success` field to dispatch on the outcome."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Body wasn't valid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Request body failed schema validation."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Create many links in one request",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}": {
+      "delete": {
+        "description": "Hard-deletes the named link and invalidates its cache entry. There is no recovery. A linkId in a different space returns 404.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteLinkResponse"
+                }
+              }
+            },
+            "description": "Link deleted."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link not found (or in a different space)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Delete a link",
+        "tags": [
+          "Links"
+        ]
+      },
+      "get": {
+        "description": "Returns one link with its domain hostname joined inline. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetLinkResponse"
+                }
+              }
+            },
+            "description": "Link found."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link not found (or in a different space)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get a single link",
+        "tags": [
+          "Links"
+        ]
+      },
+      "patch": {
+        "description": "Patches the named link. Every body field is optional — omitting one leaves the column unchanged. `title: null` clears the title; `title: undefined` (omitting it) doesn't touch it. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "activatesAt": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "deactivatesAt": {
+                    "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "fallback": {
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "target_root"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "url"
+                            ],
+                            "type": "string"
+                          },
+                          "url": {
+                            "maxLength": 2048,
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "url"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "metadata": {
+                    "properties": {
+                      "description": {
+                        "maxLength": 2000,
+                        "type": "string"
+                      },
+                      "siteName": {
+                        "maxLength": 300,
+                        "type": "string"
+                      },
+                      "title": {
+                        "maxLength": 500,
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "path": {
+                    "maxLength": 128,
+                    "type": "string"
+                  },
+                  "scheduleTimezone": {
+                    "maxLength": 64,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "showCountdownPage": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "targetUrl": {
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 200,
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateLinkResponse"
+                }
+              }
+            },
+            "description": "Link updated."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only — no active subscription."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "API key is not authorized for the requested space."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link not found (or in a different space)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed or path/URL rejected by the core."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Update a link",
+        "tags": [
+          "Links"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "API host",
+      "url": "http://localhost:3000"
+    }
+  ],
+  "webhooks": {}
+}

@@ -1,0 +1,13 @@
+/zeb
+/bin/
+/dist/
+/coverage/
+*.test
+
+.DS_Store
+.env
+.env.*
+!.env.example
+
+/.cache/
+/tmp/
