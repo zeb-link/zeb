@@ -15,13 +15,24 @@ go test ./...
 go build ./cmd/zeb
 ```
 
+## Project Memory
+
+- `docs/ROADMAP.md` is the live checklist. Update it whenever command behavior
+  changes or when a next-step item is completed, added, or made stale.
+- `docs/HANDOFF.md` is the resume checkpoint for future agents. Keep it focused
+  on current shape, command model, and decisions that should survive context
+  resets.
+- `README.md` is user-facing orientation and should point to those docs instead
+  of duplicating a competing roadmap.
+
 ## Shape
 
 - Cobra owns normal command routing in `internal/cli`.
-- Bubble Tea, Bubbles, and Lip Gloss are reserved for interactive flows under
-  `zeb tui` and future login/space pickers.
+- Bubble Tea, Bubbles, and Lip Gloss power focused interactive flows under
+  `zeb tui`, `zeb context`, and future login/space pickers.
 - `zeb <url...>` and `zeb links create <url...>` are the primary create-link
-  surfaces. The TUI is context/selection support, not a dashboard replacement.
+  command surfaces. The TUI may support fast link browsing/creation and
+  context selection, but it is not a dashboard replacement.
 - `internal/api` is the one place that should set auth headers and perform HTTP
   requests.
 - `internal/config` owns `~/.zlink/credentials.json` and `~/.zlink/config.json`.

@@ -86,7 +86,7 @@ func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 				return err
 			}
 			if collection.Type == "smart" {
-				return fmt.Errorf("collection %q is smart; choose a manual collection or run zeb collection none", collection.Name)
+				return fmt.Errorf("collection %q is smart; choose a collection that can accept new links or run zeb collection none", collection.Name)
 			}
 			cfg, err := config.LoadConfig()
 			if err != nil {
@@ -110,7 +110,7 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 	var use bool
 	cmd := &cobra.Command{
 		Use:   "create <name>",
-		Short: "Create a manual collection",
+		Short: "Create a collection",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := strings.TrimSpace(args[0])
@@ -124,7 +124,6 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 			response, err := ctx.Client.CreateCollection(context.Background(), ctx.SpaceID, api.CreateCollectionInput{
 				Name:        name,
 				Description: description,
-				Type:        "manual",
 			})
 			if err != nil {
 				return err

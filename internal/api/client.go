@@ -74,7 +74,6 @@ type ListCollectionsResponse struct {
 type CreateCollectionInput struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
-	Type        string `json:"type"`
 }
 
 type CreateCollectionResponse struct {
@@ -90,17 +89,19 @@ type Link struct {
 	ShortURL      string  `json:"shortUrl,omitempty"`
 	TargetURL     string  `json:"targetUrl"`
 	Title         *string `json:"title"`
+	Description   *string `json:"description"`
 	IsActive      bool    `json:"isActive"`
 	CreatedAt     string  `json:"createdAt"`
 }
 
 type CreateLinkInput struct {
-	TargetURL  string `json:"targetUrl"`
-	Domain     string `json:"domain,omitempty"`
-	Path       string `json:"path,omitempty"`
-	Namespace  string `json:"namespace,omitempty"`
-	Title      string `json:"title,omitempty"`
-	Collection string `json:"collection,omitempty"`
+	TargetURL   string `json:"targetUrl"`
+	Domain      string `json:"domain,omitempty"`
+	Path        string `json:"path,omitempty"`
+	Namespace   string `json:"namespace,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Collection  string `json:"collection,omitempty"`
 }
 
 type CreateLinkResponse struct {

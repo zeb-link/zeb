@@ -154,7 +154,7 @@ func runCreateLinks(root *rootOptions, options *createLinksOptions, args []strin
 				return err
 			}
 			if collection.Type == "smart" {
-				return fmt.Errorf("collection %q is smart; choose a manual collection for new links", collection.Name)
+				return fmt.Errorf("collection %q is smart; choose a collection that can accept new links", collection.Name)
 			}
 			collectionID = collection.ID
 			collectionLabel = collection.Name

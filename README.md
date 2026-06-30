@@ -4,7 +4,7 @@ Go scaffold for Zeb, the next Zebra Link CLI.
 
 This project is intentionally small right now: it wires the command framework,
 local config/auth storage, a minimal HTTP client, an OpenAPI sync command, link
-listing/creation, and a Bubble Tea playground for interaction design.
+listing/creation, and a Bubble Tea TUI for link browsing and create context.
 
 ## Stack
 
@@ -22,7 +22,6 @@ go run ./cmd/zeb --help
 go run ./cmd/zeb spec sync
 go run ./cmd/zeb auth login --api-url http://localhost:3000 --api-key zeb_...
 go run ./cmd/zeb https://example.com
-go run ./cmd/zeb playground
 go run ./cmd/zeb tui
 go run ./cmd/zeb tui --preview --frames 10
 go run ./cmd/zeb tui --preview --intro signal-sweep --frames 10
@@ -96,7 +95,6 @@ zeb config path
 zeb spec sync
 zeb spec path
 zeb status
-zeb playground
 zeb tui
 zeb tui --preview
 ```
@@ -118,19 +116,15 @@ primitive, then format the result.
 
 ## Command Posture
 
-Zeb is still a command CLI first. The Bubble Tea surfaces are for focused
-interactive flows, previews, and context selection, not for recreating the whole
-dashboard in the terminal.
+Zeb is still a command CLI first. The Bubble Tea surface is for focused
+interactive flows, not for recreating the whole dashboard in the terminal.
 
-When a Bubble Tea surface is open, it owns keyboard input. To type commands
-inside that surface, we use an explicit command bar. The current playground
-command bar is fake-data only: it shows the equivalent `zeb ...` command that
-would run, but it does not call Core or create records.
-
-In the playground, `tab` and `shift+tab` move focus between the command input
-and the context controls. Plain `c` and `d` type normally while the command
-input is focused; they only cycle collection/domain while the context controls
-are focused.
+`zeb tui` loads live links, domains, and collections from Core. It plays a
+launch intro, then opens a link browser with a command input and footer context
+toolbar. Type an HTTP URL and press enter to create a real short link. Press
+`tab` to focus the footer controls; then `d` cycles the create domain, `c`
+cycles the create collection, and `r` refreshes links. Changed context is saved
+back to `~/.zlink/config.json` when the TUI exits.
 
 The launch intro is randomly selected for normal `zeb tui` sessions. Preview all
 variants with:
@@ -223,13 +217,13 @@ local Core server is running.
 
 ## Next Build Steps
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for a running stocktake. The short list:
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the live checklist and
+[docs/HANDOFF.md](docs/HANDOFF.md) for resume context. The short list:
 
-1. Pick client generation strategy from `internal/openapi/openapi.json`
-   (`oapi-codegen` is the likely default).
-2. Improve list/create output formatting and pagination ergonomics.
-3. Move interactive domain/collection selection into Bubble Tea once command
-   behavior is stable.
-4. Add contract tests around config precedence and API URL/path construction.
-5. Decide whether the playground command bar should execute real commands or
-   remain a fake-data design surface.
+1. Improve `zeb collections` output so it matches the polish of `zeb links`.
+2. Make link-list pagination usable; the CLI currently prints a raw
+   `Next cursor` without a matching human workflow.
+3. Add compact/table output and snapshot tests for human command output.
+4. Add OpenAPI client generation while keeping a small CLI wrapper for
+   auth/config, pagination behavior, and terminal output.
+5. Add more TUI affordances only where they support fast link work.

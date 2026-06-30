@@ -3,10 +3,13 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/kerns/zlink-zeb/internal/api"
+	"github.com/kerns/zlink-zeb/internal/config"
 	"github.com/kerns/zlink-zeb/internal/tui/intro"
 	"github.com/kerns/zlink-zeb/internal/tui/intro/gallery"
 	"github.com/kerns/zlink-zeb/internal/tui/shell"
@@ -46,8 +49,28 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			_, err = tea.NewProgram(shell.New(variant), tea.WithAltScreen()).Run()
-			return err
+			data, cfg, err := loadTUIData(root)
+			if err != nil {
+				return err
+			}
+			final, err := tea.NewProgram(shell.New(variant, data), tea.WithAltScreen()).Run()
+			if err != nil {
+				return err
+			}
+			model, ok := final.(shell.Model)
+			if !ok {
+				return fmt.Errorf("tui returned unexpected model")
+			}
+			if !model.ContextChanged() {
+				return nil
+			}
+			if model.DomainChanged() {
+				cfg.ActiveDomain = model.ActiveDomain()
+			}
+			if model.CollectionChanged() {
+				cfg.ActiveCollection = model.ActiveCollection()
+			}
+			return config.SaveConfig(cfg)
 		},
 	}
 	cmd.Flags().BoolVar(&preview, "preview", false, "print intro frames without opening the TUI")
@@ -56,6 +79,39 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 	cmd.Flags().BoolVar(&galleryMode, "gallery", false, "open a static intro comparison gallery")
 	cmd.Flags().IntVar(&galleryFrame, "gallery-frame", intro.FrameCount/2, "intro frame to render in --gallery")
 	return cmd
+}
+
+func loadTUIData(root *rootOptions) (shell.Data, config.Config, error) {
+	ctx, err := resolveAPIContext(root)
+	if err != nil {
+		return shell.Data{}, config.Config{}, err
+	}
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return shell.Data{}, config.Config{}, err
+	}
+	domains, err := ctx.Client.ListDomains(context.Background(), ctx.SpaceID)
+	if err != nil {
+		return shell.Data{}, config.Config{}, err
+	}
+	collections, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+	if err != nil {
+		return shell.Data{}, config.Config{}, err
+	}
+	links, err := ctx.Client.ListLinks(context.Background(), ctx.SpaceID, api.ListLinksOptions{Limit: 50})
+	if err != nil {
+		return shell.Data{}, config.Config{}, err
+	}
+	return shell.Data{
+		Client:           ctx.Client,
+		SpaceID:          ctx.SpaceID,
+		Links:            links.Links,
+		NextCursor:       links.NextCursor,
+		Domains:          domains.Domains,
+		Collections:      collections.Collections,
+		ActiveDomain:     cfg.ActiveDomain,
+		ActiveCollection: cfg.ActiveCollection,
+	}, cfg, nil
 }
 
 func resolveIntroVariant(name string) (intro.Variant, error) {

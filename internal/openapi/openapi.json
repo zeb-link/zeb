@@ -441,6 +441,7 @@
                     ]
                   },
                   "hostname": {
+                    "description": "Domain hostname for this short link.",
                     "type": "string"
                   },
                   "id": {
@@ -451,6 +452,7 @@
                     "type": "boolean"
                   },
                   "path": {
+                    "description": "Path component for this short link.",
                     "type": "string"
                   },
                   "shortDomainId": {
@@ -458,7 +460,7 @@
                     "type": "string"
                   },
                   "shortUrl": {
-                    "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                    "description": "Canonical short link URL for display, copy, and navigation.",
                     "format": "uri",
                     "type": "string"
                   },
@@ -669,6 +671,13 @@
                     "null"
                   ]
                 },
+                "description": {
+                  "maxLength": 2000,
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "fallback": {
                   "oneOf": [
                     {
@@ -864,6 +873,7 @@
                     ]
                   },
                   "hostname": {
+                    "description": "Domain hostname for this short link.",
                     "type": "string"
                   },
                   "id": {
@@ -874,6 +884,7 @@
                     "type": "boolean"
                   },
                   "path": {
+                    "description": "Path component for this short link.",
                     "type": "string"
                   },
                   "shortDomainId": {
@@ -881,7 +892,7 @@
                     "type": "string"
                   },
                   "shortUrl": {
-                    "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                    "description": "Canonical short link URL for display, copy, and navigation.",
                     "format": "uri",
                     "type": "string"
                   },
@@ -1016,7 +1027,7 @@
             "type": "string"
           },
           "rules": {
-            "description": "Array of Condition objects when type='smart'; null when 'manual'.",
+            "description": "Rules for smart collections returned by the API; `null` for normal collections.",
             "items": {},
             "type": [
               "array",
@@ -1028,6 +1039,7 @@
             "type": "string"
           },
           "type": {
+            "description": "Collection kind. API-created collections are `manual`; smart collections may be returned when they already exist.",
             "enum": [
               "manual",
               "smart"
@@ -1112,6 +1124,7 @@
             "type": "string"
           },
           "rules": {
+            "description": "Rules for smart collections returned by the API; `null` for normal collections.",
             "items": {},
             "type": [
               "array",
@@ -1123,6 +1136,7 @@
             "type": "string"
           },
           "type": {
+            "description": "Collection kind. API-created collections are `manual`; smart collections may be returned when they already exist.",
             "enum": [
               "manual",
               "smart"
@@ -1178,7 +1192,7 @@
             "type": "object"
           },
           "materialized": {
-            "description": "Number of links inserted into the junction at conversion time.",
+            "description": "Number of current matching links captured in the collection.",
             "minimum": 0,
             "type": "integer"
           }
@@ -1190,6 +1204,7 @@
         "type": "object"
       },
       "CreateCollectionInput": {
+        "additionalProperties": false,
         "properties": {
           "description": {
             "maxLength": 2000,
@@ -1199,368 +1214,10 @@
             "maxLength": 200,
             "minLength": 1,
             "type": "string"
-          },
-          "rules": {
-            "items": {
-              "oneOf": [
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "status"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "enum": [
-                        "active",
-                        "inactive"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "targetHost"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "isAnyOf"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "items": {
-                        "minLength": 1,
-                        "type": "string"
-                      },
-                      "minItems": 1,
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "shortDomain"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "isAnyOf"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "items": {
-                        "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
-                        "type": "string"
-                      },
-                      "minItems": 1,
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "hasCollection"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "createdVia"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "enum": [
-                        "web",
-                        "api",
-                        "chat",
-                        "import"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "created"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "inTheLast"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "properties": {
-                        "unit": {
-                          "enum": [
-                            "minutes",
-                            "hours",
-                            "days"
-                          ],
-                          "type": "string"
-                        },
-                        "value": {
-                          "exclusiveMinimum": 0,
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "value",
-                        "unit"
-                      ],
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "search"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "contains"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "maxLength": 200,
-                      "minLength": 1,
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "clicks"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "greaterThan",
-                        "lessThan"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "minimum": 0,
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "uniqueClicks"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "greaterThan",
-                        "lessThan"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "minimum": 0,
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "clicked"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "inTheLast"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "properties": {
-                        "unit": {
-                          "enum": [
-                            "minutes",
-                            "hours",
-                            "days"
-                          ],
-                          "type": "string"
-                        },
-                        "value": {
-                          "exclusiveMinimum": 0,
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "value",
-                        "unit"
-                      ],
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                }
-              ]
-            },
-            "minItems": 1,
-            "type": "array"
-          },
-          "type": {
-            "enum": [
-              "manual",
-              "smart"
-            ],
-            "type": "string"
           }
         },
         "required": [
-          "name",
-          "type"
+          "name"
         ],
         "type": "object"
       },
@@ -1591,6 +1248,13 @@
           },
           "deactivatesAt": {
             "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "maxLength": 2000,
             "type": [
               "string",
               "null"
@@ -1747,7 +1411,7 @@
       "Domain": {
         "properties": {
           "hostname": {
-            "description": "The domain hostname (e.g. \"zlnk.to\") — pass this as `domain` on link-create. Clients never need the `id`.",
+            "description": "Domain hostname for creating short links.",
             "type": "string"
           },
           "id": {
@@ -1808,6 +1472,12 @@
                   "null"
                 ]
               },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "fallback": {
                 "oneOf": [
                   {
@@ -1850,6 +1520,7 @@
                 ]
               },
               "hostname": {
+                "description": "Domain hostname for this short link.",
                 "type": "string"
               },
               "id": {
@@ -1860,6 +1531,7 @@
                 "type": "boolean"
               },
               "path": {
+                "description": "Path component for this short link.",
                 "type": "string"
               },
               "shortDomainId": {
@@ -1867,7 +1539,7 @@
                 "type": "string"
               },
               "shortUrl": {
-                "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                "description": "Canonical short link URL for display, copy, and navigation.",
                 "format": "uri",
                 "type": "string"
               },
@@ -1895,6 +1567,7 @@
               "shortUrl",
               "targetUrl",
               "title",
+              "description",
               "isActive",
               "fallback",
               "createdBy",
@@ -1953,6 +1626,13 @@
               "null"
             ]
           },
+          "description": {
+            "description": "User-authored description (not the scraped page metadata).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "fallback": {
             "description": "Where a visitor goes when the link is off. `null` inherits the domain default, then the system default (a branded inactive page). `target_root` redirects to the destination's root domain; `url` redirects to an explicit URL.",
             "oneOf": [
@@ -1996,7 +1676,7 @@
             ]
           },
           "hostname": {
-            "description": "Hostname of the link's domain (e.g. \"zlnk.to\").",
+            "description": "Domain hostname for this short link.",
             "type": "string"
           },
           "id": {
@@ -2007,6 +1687,7 @@
             "type": "boolean"
           },
           "path": {
+            "description": "Path component for this short link.",
             "type": "string"
           },
           "shortDomainId": {
@@ -2014,7 +1695,7 @@
             "type": "string"
           },
           "shortUrl": {
-            "description": "Canonical, copy-paste-ready short link (e.g. \"https://zlnk.to/abc\"). Use this directly — do NOT reassemble it from `hostname` + `path`, which carries a leading slash and double-slashes if joined naively.",
+            "description": "Canonical short link URL for display, copy, and navigation.",
             "format": "uri",
             "type": "string"
           },
@@ -2042,6 +1723,7 @@
           "shortUrl",
           "targetUrl",
           "title",
+          "description",
           "isActive",
           "fallback",
           "createdBy",
@@ -2074,6 +1756,7 @@
             ]
           },
           "hostname": {
+            "description": "Domain hostname for this short link.",
             "type": "string"
           },
           "id": {
@@ -2084,10 +1767,16 @@
             "type": "boolean"
           },
           "path": {
+            "description": "Path component for this short link.",
             "type": "string"
           },
           "shortDomainId": {
             "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "shortUrl": {
+            "description": "Canonical short link URL for display, copy, and navigation.",
+            "format": "uri",
             "type": "string"
           },
           "spaceId": {
@@ -2111,6 +1800,7 @@
           "shortDomainId",
           "hostname",
           "path",
+          "shortUrl",
           "targetUrl",
           "title",
           "isActive",
@@ -2171,6 +1861,13 @@
               "null"
             ]
           },
+          "description": {
+            "description": "User-authored description (not the scraped page metadata).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "fallback": {
             "description": "Where a visitor goes when the link is off. `null` inherits the domain default, then the system default (a branded inactive page). `target_root` redirects to the destination's root domain; `url` redirects to an explicit URL.",
             "oneOf": [
@@ -2214,7 +1911,7 @@
             ]
           },
           "hostname": {
-            "description": "Hostname of the link's domain (e.g. \"zlnk.to\").",
+            "description": "Domain hostname for this short link.",
             "type": "string"
           },
           "id": {
@@ -2225,6 +1922,7 @@
             "type": "boolean"
           },
           "path": {
+            "description": "Path component for this short link.",
             "type": "string"
           },
           "shortDomainId": {
@@ -2232,7 +1930,7 @@
             "type": "string"
           },
           "shortUrl": {
-            "description": "Canonical, copy-paste-ready short link (e.g. \"https://zlnk.to/abc\"). Use this directly — do NOT reassemble it from `hostname` + `path`, which carries a leading slash and double-slashes if joined naively.",
+            "description": "Canonical short link URL for display, copy, and navigation.",
             "format": "uri",
             "type": "string"
           },
@@ -2260,6 +1958,7 @@
           "shortUrl",
           "targetUrl",
           "title",
+          "description",
           "isActive",
           "fallback",
           "createdBy",
@@ -2404,6 +2103,7 @@
         "type": "object"
       },
       "UpdateCollectionInput": {
+        "additionalProperties": false,
         "properties": {
           "description": {
             "maxLength": 2000,
@@ -2416,356 +2116,6 @@
             "maxLength": 200,
             "minLength": 1,
             "type": "string"
-          },
-          "rules": {
-            "items": {
-              "oneOf": [
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "status"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "enum": [
-                        "active",
-                        "inactive"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "targetHost"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "isAnyOf"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "items": {
-                        "minLength": 1,
-                        "type": "string"
-                      },
-                      "minItems": 1,
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "shortDomain"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "isAnyOf"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "items": {
-                        "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
-                        "type": "string"
-                      },
-                      "minItems": 1,
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "hasCollection"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "createdVia"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "is"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "enum": [
-                        "web",
-                        "api",
-                        "chat",
-                        "import"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "created"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "inTheLast"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "properties": {
-                        "unit": {
-                          "enum": [
-                            "minutes",
-                            "hours",
-                            "days"
-                          ],
-                          "type": "string"
-                        },
-                        "value": {
-                          "exclusiveMinimum": 0,
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "value",
-                        "unit"
-                      ],
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "search"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "contains"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "maxLength": 200,
-                      "minLength": 1,
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "clicks"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "greaterThan",
-                        "lessThan"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "minimum": 0,
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "uniqueClicks"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "greaterThan",
-                        "lessThan"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "minimum": 0,
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                },
-                {
-                  "properties": {
-                    "field": {
-                      "enum": [
-                        "clicked"
-                      ],
-                      "type": "string"
-                    },
-                    "negate": {
-                      "type": "boolean"
-                    },
-                    "operator": {
-                      "enum": [
-                        "inTheLast"
-                      ],
-                      "type": "string"
-                    },
-                    "value": {
-                      "properties": {
-                        "unit": {
-                          "enum": [
-                            "minutes",
-                            "hours",
-                            "days"
-                          ],
-                          "type": "string"
-                        },
-                        "value": {
-                          "exclusiveMinimum": 0,
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "value",
-                        "unit"
-                      ],
-                      "type": "object"
-                    }
-                  },
-                  "required": [
-                    "field",
-                    "operator",
-                    "value"
-                  ],
-                  "type": "object"
-                }
-              ]
-            },
-            "minItems": 1,
-            "type": "array"
           }
         },
         "type": "object"
@@ -2781,6 +2131,13 @@
           },
           "deactivatesAt": {
             "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "maxLength": 2000,
             "type": [
               "string",
               "null"
@@ -2904,6 +2261,12 @@
                   "null"
                 ]
               },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "fallback": {
                 "oneOf": [
                   {
@@ -2946,6 +2309,7 @@
                 ]
               },
               "hostname": {
+                "description": "Domain hostname for this short link.",
                 "type": "string"
               },
               "id": {
@@ -2956,6 +2320,7 @@
                 "type": "boolean"
               },
               "path": {
+                "description": "Path component for this short link.",
                 "type": "string"
               },
               "shortDomainId": {
@@ -2963,7 +2328,7 @@
                 "type": "string"
               },
               "shortUrl": {
-                "description": "Canonical, copy-paste-ready short link. Use this directly rather than reassembling it from host + `path`.",
+                "description": "Canonical short link URL for display, copy, and navigation.",
                 "format": "uri",
                 "type": "string"
               },
@@ -2991,6 +2356,7 @@
               "shortUrl",
               "targetUrl",
               "title",
+              "description",
               "isActive",
               "fallback",
               "createdBy",
@@ -3021,7 +2387,7 @@
     }
   },
   "info": {
-    "description": "Public REST API for Zebra Link. Space-scoped via API key. Every endpoint here is a thin call into a shared core function that the dashboard also uses — the two surfaces have identical semantics.",
+    "description": "Public REST API for Zebra Link. Use bearer API keys to manage spaces, links, collections, and short domains.",
     "title": "Zebra Link API",
     "version": "1"
   },
@@ -3086,7 +2452,7 @@
     },
     "/api/v1/spaces/{spaceId}/collections": {
       "get": {
-        "description": "Returns ALL collections in the space (no pagination — capped at 100 by plan limits) along with each one's current `linkCount`. Smart collections have their count computed live from rules. Order via `sort` (default `creation-date-desc`; same vocabulary as the link lists) — click-based sorts rank collections by their current members' click analytics.",
+        "description": "Returns every collection in the space, capped at 100 by plan limits, with each collection's current `linkCount`. Smart collections calculate `linkCount` from their current matching links. Order via `sort` (default `creation-date-desc`; same vocabulary as the link lists); click-based sorts use the collection's current links.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3173,7 +2539,7 @@
         ]
       },
       "post": {
-        "description": "Creates a manual or smart collection. Manual collections start empty and have links added via `POST /collections/{id}/links`. Smart collections compute membership at read time from a `rules` array (Condition objects).",
+        "description": "Creates a normal collection. It starts empty; add links with `POST /collections/{collectionId}/links`.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3191,6 +2557,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "additionalProperties": false,
                 "properties": {
                   "description": {
                     "maxLength": 2000,
@@ -3200,368 +2567,10 @@
                     "maxLength": 200,
                     "minLength": 1,
                     "type": "string"
-                  },
-                  "rules": {
-                    "items": {
-                      "oneOf": [
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "status"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "enum": [
-                                "active",
-                                "inactive"
-                              ],
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "targetHost"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "isAnyOf"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "items": {
-                                "minLength": 1,
-                                "type": "string"
-                              },
-                              "minItems": 1,
-                              "type": "array"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "shortDomain"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "isAnyOf"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "items": {
-                                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
-                                "type": "string"
-                              },
-                              "minItems": 1,
-                              "type": "array"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "hasCollection"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "type": "boolean"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "createdVia"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "enum": [
-                                "web",
-                                "api",
-                                "chat",
-                                "import"
-                              ],
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "created"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "inTheLast"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "properties": {
-                                "unit": {
-                                  "enum": [
-                                    "minutes",
-                                    "hours",
-                                    "days"
-                                  ],
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "exclusiveMinimum": 0,
-                                  "type": "integer"
-                                }
-                              },
-                              "required": [
-                                "value",
-                                "unit"
-                              ],
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "search"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "contains"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "maxLength": 200,
-                              "minLength": 1,
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "clicks"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "greaterThan",
-                                "lessThan"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "minimum": 0,
-                              "type": "integer"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "uniqueClicks"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "greaterThan",
-                                "lessThan"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "minimum": 0,
-                              "type": "integer"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "clicked"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "inTheLast"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "properties": {
-                                "unit": {
-                                  "enum": [
-                                    "minutes",
-                                    "hours",
-                                    "days"
-                                  ],
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "exclusiveMinimum": 0,
-                                  "type": "integer"
-                                }
-                              },
-                              "required": [
-                                "value",
-                                "unit"
-                              ],
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "minItems": 1,
-                    "type": "array"
-                  },
-                  "type": {
-                    "enum": [
-                      "manual",
-                      "smart"
-                    ],
-                    "type": "string"
                   }
                 },
                 "required": [
-                  "name",
-                  "type"
+                  "name"
                 ],
                 "type": "object"
               }
@@ -3634,7 +2643,7 @@
     },
     "/api/v1/spaces/{spaceId}/collections/bulk": {
       "post": {
-        "description": "Batch-creates up to 50 **manual** collections in a single transaction — ideal for an agent spinning up a set of folders at once. Smart collections are NOT creatable here (they need `rules`; use the single `POST /collections`). Names are not unique per space (duplicates are allowed). The plan-tier collection cap is enforced as all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
+        "description": "Creates up to 50 normal collections in one request. Names do not have to be unique within a space. The collection cap is enforced all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3760,22 +2769,26 @@
     },
     "/api/v1/spaces/{spaceId}/collections/{collectionId}": {
       "delete": {
-        "description": "Hard-deletes the collection and cascades junction rows. Links themselves are not deleted.",
+        "description": "Permanently deletes the collection. Links in the collection are not deleted.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -3844,22 +2857,26 @@
         ]
       },
       "get": {
-        "description": "Returns one collection including its live `linkCount`. A collectionId in a different space returns 404.",
+        "description": "Returns one collection, including its current `linkCount`. A collectionId in a different space returns 404.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -3936,22 +2953,26 @@
         ]
       },
       "patch": {
-        "description": "Patches `name`, `description`, or `rules`. Setting `rules` on a manual collection is rejected. Setting `rules` on a smart collection replaces the rule set.",
+        "description": "Updates `name` or `description`. Rule editing is not supported by the public API.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -3961,6 +2982,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "additionalProperties": false,
                 "properties": {
                   "description": {
                     "maxLength": 2000,
@@ -3973,356 +2995,6 @@
                     "maxLength": 200,
                     "minLength": 1,
                     "type": "string"
-                  },
-                  "rules": {
-                    "items": {
-                      "oneOf": [
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "status"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "enum": [
-                                "active",
-                                "inactive"
-                              ],
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "targetHost"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "isAnyOf"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "items": {
-                                "minLength": 1,
-                                "type": "string"
-                              },
-                              "minItems": 1,
-                              "type": "array"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "shortDomain"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "isAnyOf"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "items": {
-                                "pattern": "^dom_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
-                                "type": "string"
-                              },
-                              "minItems": 1,
-                              "type": "array"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "hasCollection"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "type": "boolean"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "createdVia"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "is"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "enum": [
-                                "web",
-                                "api",
-                                "chat",
-                                "import"
-                              ],
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "created"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "inTheLast"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "properties": {
-                                "unit": {
-                                  "enum": [
-                                    "minutes",
-                                    "hours",
-                                    "days"
-                                  ],
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "exclusiveMinimum": 0,
-                                  "type": "integer"
-                                }
-                              },
-                              "required": [
-                                "value",
-                                "unit"
-                              ],
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "search"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "contains"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "maxLength": 200,
-                              "minLength": 1,
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "clicks"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "greaterThan",
-                                "lessThan"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "minimum": 0,
-                              "type": "integer"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "uniqueClicks"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "greaterThan",
-                                "lessThan"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "minimum": 0,
-                              "type": "integer"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        },
-                        {
-                          "properties": {
-                            "field": {
-                              "enum": [
-                                "clicked"
-                              ],
-                              "type": "string"
-                            },
-                            "negate": {
-                              "type": "boolean"
-                            },
-                            "operator": {
-                              "enum": [
-                                "inTheLast"
-                              ],
-                              "type": "string"
-                            },
-                            "value": {
-                              "properties": {
-                                "unit": {
-                                  "enum": [
-                                    "minutes",
-                                    "hours",
-                                    "days"
-                                  ],
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "exclusiveMinimum": 0,
-                                  "type": "integer"
-                                }
-                              },
-                              "required": [
-                                "value",
-                                "unit"
-                              ],
-                              "type": "object"
-                            }
-                          },
-                          "required": [
-                            "field",
-                            "operator",
-                            "value"
-                          ],
-                          "type": "object"
-                        }
-                      ]
-                    },
-                    "minItems": 1,
-                    "type": "array"
                   }
                 },
                 "type": "object"
@@ -4398,7 +3070,7 @@
                 }
               }
             },
-            "description": "Validation failed or attempted to set rules on a manual collection."
+            "description": "Validation failed."
           }
         },
         "security": [
@@ -4414,22 +3086,26 @@
     },
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/convert-to-manual": {
       "post": {
-        "description": "Materializes the smart collection's current rule-matches into the junction and flips `type='manual', rules=NULL` in one transaction. Rejects already-manual collections. The resulting manual collection no longer rotates as link state changes — it's a snapshot.",
+        "description": "Converts a smart collection into a fixed collection containing its current matching links. The collection no longer changes automatically as link state changes. Rejects collections that are already fixed.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -4494,7 +3170,7 @@
                 }
               }
             },
-            "description": "Collection is already manual."
+            "description": "Collection is already fixed."
           }
         },
         "security": [
@@ -4510,22 +3186,26 @@
     },
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/links": {
       "delete": {
-        "description": "Removes the listed link memberships from the collection (manual only). Idempotent — links that aren't members are no-ops.",
+        "description": "Removes the listed links from the collection. Links that are not in the collection are no-ops. Smart collections reject explicit membership changes.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -4614,7 +3294,7 @@
                 }
               }
             },
-            "description": "Validation failed or smart collection rejection."
+            "description": "Validation failed or the collection rejects explicit membership changes."
           }
         },
         "security": [
@@ -4622,28 +3302,32 @@
             "apiKey": []
           }
         ],
-        "summary": "Remove links from a manual collection",
+        "summary": "Remove links from a collection",
         "tags": [
           "Collections"
         ]
       },
       "get": {
-        "description": "Returns links that are members of the collection. For manual collections, walks the junction; for smart collections, evaluates the rules against the space's links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination via `?cursor=\u0026limit=` — a cursor is only valid under the sort that issued it.",
+        "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit`; a cursor is only valid under the sort that issued it.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -4759,22 +3443,26 @@
         ]
       },
       "post": {
-        "description": "Adds the listed links to the collection (manual only). Idempotent — re-adding a link that's already a member counts as `alreadyMember`, not an error. Smart collections reject this — change the rules instead.",
+        "description": "Adds the listed links to the collection. Re-adding a link that is already in the collection counts as `alreadyMember`, not an error. Smart collections reject explicit membership changes.",
         "parameters": [
           {
+            "description": "Space id (prefixed ULID).",
             "in": "path",
             "name": "spaceId",
             "required": true,
             "schema": {
+              "description": "Space id (prefixed ULID).",
               "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
           },
           {
+            "description": "Collection id (prefixed ULID).",
             "in": "path",
             "name": "collectionId",
             "required": true,
             "schema": {
+              "description": "Collection id (prefixed ULID).",
               "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             }
@@ -4863,7 +3551,7 @@
                 }
               }
             },
-            "description": "Validation failed, smart collection rejection, or link outside the space."
+            "description": "Validation failed, the collection rejects explicit membership changes, or a link is outside the space."
           }
         },
         "security": [
@@ -4871,7 +3559,7 @@
             "apiKey": []
           }
         ],
-        "summary": "Add links to a manual collection",
+        "summary": "Add links to a collection",
         "tags": [
           "Collections"
         ]
@@ -4879,7 +3567,7 @@
     },
     "/api/v1/spaces/{spaceId}/domains": {
       "get": {
-        "description": "Returns the short domains this space can create links on (usable and enabled). Pass a returned `hostname` as the `domain` field on link-create — or omit `domain` entirely to use the space's default (first free platform) domain.",
+        "description": "Returns the enabled short domains this space can use. Pass a returned `hostname` or `id` as the `domain` field when creating a link, or omit `domain` to use the space's default domain.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4938,7 +3626,7 @@
     },
     "/api/v1/spaces/{spaceId}/links": {
       "get": {
-        "description": "Returns the space's links with the domain hostname joined inline. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, capped at 100.",
+        "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, capped at 100.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5071,7 +3759,7 @@
         ]
       },
       "post": {
-        "description": "Creates a short link in the named space. `domain` is an optional hostname or dom_* id (e.g. \"zlnk.to\", from `GET …/domains`) — omit it to use the space's default domain. `collection` is an optional manual collection name or col_* id; duplicate names require an id. `path` is optional too — when omitted, one is auto-allocated under the namespace (default: root). The same `createLinkCore` runs for the dashboard.",
+        "description": "Creates a short link in the named space. `domain` is an optional hostname or `dom_*` id (e.g. \"zlnk.to\", from `GET …/domains`); omit it to use the space's default domain. `collection` is an optional `col_*` id or exact collection name; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions. When `path` is omitted, Zebra Link allocates one under the requested namespace, or the root namespace by default.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5102,6 +3790,24 @@
         "requestBody": {
           "content": {
             "application/json": {
+              "examples": {
+                "minimal": {
+                  "summary": "Auto-allocate on the default domain",
+                  "value": {
+                    "targetUrl": "https://example.com"
+                  }
+                },
+                "withOptions": {
+                  "summary": "Custom path, domain, and collection",
+                  "value": {
+                    "collection": "Launch links",
+                    "domain": "zlnk.to",
+                    "path": "launch",
+                    "targetUrl": "https://example.com",
+                    "title": "Launch page"
+                  }
+                }
+              },
               "schema": {
                 "properties": {
                   "activatesAt": {
@@ -5118,6 +3824,13 @@
                   },
                   "deactivatesAt": {
                     "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "description": {
+                    "maxLength": 2000,
                     "type": [
                       "string",
                       "null"
@@ -5272,7 +3985,7 @@
                 }
               }
             },
-            "description": "Validation failed or path/domain/collection/URL rejected by the core."
+            "description": "Validation failed or the path, domain, collection, or URL was rejected."
           }
         },
         "security": [
@@ -5288,7 +4001,7 @@
     },
     "/api/v1/spaces/{spaceId}/links/bulk": {
       "delete": {
-        "description": "Deletes up to 250 links by id in a single batch (one `DELETE`; collection memberships cascade automatically). Rows fail independently — an id that's missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
+        "description": "Deletes up to 250 links by id. Rows fail independently: an id that is missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5399,7 +4112,7 @@
         ]
       },
       "patch": {
-        "description": "Patches multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch (same shape as single-row PATCH). Rows fail independently with per-row error envelopes.",
+        "description": "Updates multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch, using the same body fields as single-link PATCH. Rows fail independently with per-row error envelopes.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5430,6 +4143,13 @@
                         },
                         "deactivatesAt": {
                           "format": "date-time",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "description": {
+                          "maxLength": 2000,
                           "type": [
                             "string",
                             "null"
@@ -5621,7 +4341,7 @@
         ]
       },
       "post": {
-        "description": "Creates up to 250 links in a single atomic batch (the short codes are block-reserved from the per-domain counter, then inserted in one statement). Per-row outcomes are returned independently — a malformed URL or taken custom path fails just that row in `results`, never the batch. Set `collection` to a manual collection name or col_* id to add every created link to that collection in the same call; duplicate names require an id.\n\nNOTE: batch creation runs only CHEAP validation — URL *shape* and custom-path availability. Unlike the single-row `POST /links`, it does NOT fetch each destination to scrape a title/preview or check reachability (that round-trip per link isn't viable at batch scale), so `title` is taken from what you send.",
+        "description": "Creates up to 250 links. Each row gets its own result; a malformed URL or unavailable custom path fails only that row. Set `collection` to a `col_*` id or exact collection name to add every created link to that collection; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions.\n\nBulk creation validates URL shape and path availability only. It does not probe each target URL, so no `targetReachable` field is returned. `title` is used when supplied.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5847,7 +4567,7 @@
     },
     "/api/v1/spaces/{spaceId}/links/{linkId}": {
       "delete": {
-        "description": "Hard-deletes the named link and invalidates its cache entry. There is no recovery. A linkId in a different space returns 404.",
+        "description": "Permanently deletes the named link. A linkId in a different space returns 404.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5935,7 +4655,7 @@
         ]
       },
       "get": {
-        "description": "Returns one link with its domain hostname joined inline. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "description": "Returns one link with canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. A linkId that exists in a different space returns 404.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6013,7 +4733,7 @@
         ]
       },
       "patch": {
-        "description": "Patches the named link. Every body field is optional — omitting one leaves the column unchanged. `title: null` clears the title; `title: undefined` (omitting it) doesn't touch it. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "description": "Patches the named link. Every body field is optional — omitting one leaves that field unchanged. `title: null` clears the title; `title: undefined` (omitting it) doesn't touch it. A linkId that exists in a different space returns 404 (existence is not leaked).",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6052,6 +4772,13 @@
                   },
                   "deactivatesAt": {
                     "format": "date-time",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "description": {
+                    "maxLength": 2000,
                     "type": [
                       "string",
                       "null"
@@ -6213,7 +4940,7 @@
                 }
               }
             },
-            "description": "Validation failed or path/URL rejected by the core."
+            "description": "Validation failed or the path or URL was rejected."
           }
         },
         "security": [

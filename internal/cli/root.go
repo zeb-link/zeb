@@ -60,7 +60,6 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		newDomainCommand(opts),
 		newDomainsCommand(opts),
 		newLinksCommand(opts),
-		newPlaygroundCommand(opts),
 		newSpaceCommand(opts),
 		newSpecCommand(opts),
 		newStatusCommand(opts),

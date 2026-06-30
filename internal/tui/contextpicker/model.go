@@ -171,7 +171,7 @@ func (m *Model) applyHighlighted() {
 	}
 	collection := m.collections[m.collectionIndex]
 	if collection.Type == "smart" {
-		m.message = fmt.Sprintf("%s is smart; new links need a manual collection or no collection.", collection.Name)
+		m.message = fmt.Sprintf("%s is smart; choose a collection that can accept new links or no collection.", collection.Name)
 		return
 	}
 	m.selection.CollectionChanged = true
