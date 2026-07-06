@@ -32,11 +32,12 @@ type Data struct {
 }
 
 type Model struct {
-	spinner      spinner.Model
-	commandInput textinput.Model
-	intro        intro.Variant
-	frame        int
-	showingIntro bool
+	spinner         spinner.Model
+	commandInput    textinput.Model
+	collectionInput textinput.Model
+	intro           intro.Variant
+	frame           int
+	showingIntro    bool
 
 	width  int
 	height int
@@ -52,12 +53,21 @@ type Model struct {
 	linkIndex         int
 	domainIndex       int
 	collectionIndex   int
-	contextFocused    bool
+	focus             focusArea
 	domainChanged     bool
 	collectionChanged bool
 	loading           bool
 	message           string
 }
+
+type focusArea int
+
+const (
+	focusInput focusArea = iota
+	focusDomain
+	focusCollection
+	focusNewCollection
+)
 
 type introTickMsg time.Time
 
@@ -71,6 +81,11 @@ type refreshResultMsg struct {
 	err      error
 }
 
+type createCollectionResultMsg struct {
+	response api.CreateCollectionResponse
+	err      error
+}
+
 func New(variant intro.Variant, data Data) Model {
 	commandInput := textinput.New()
 	commandInput.Prompt = "zeb > "
@@ -78,9 +93,15 @@ func New(variant intro.Variant, data Data) Model {
 	commandInput.CharLimit = 600
 	commandInput.Focus()
 
+	collectionInput := textinput.New()
+	collectionInput.Prompt = "collection > "
+	collectionInput.Placeholder = "new collection name"
+	collectionInput.CharLimit = 120
+
 	model := Model{
 		spinner:         spinner.New(spinner.WithSpinner(spinner.Dot)),
 		commandInput:    commandInput,
+		collectionInput: collectionInput,
 		intro:           variant,
 		showingIntro:    true,
 		width:           112,
@@ -91,7 +112,7 @@ func New(variant intro.Variant, data Data) Model {
 		nextCursor:      data.NextCursor,
 		domains:         data.Domains,
 		collections:     data.Collections,
-		message:         "Type a URL to create a link. Tab focuses context controls.",
+		message:         "Type a URL to create a link. Tab cycles domain and collection.",
 		domainIndex:     -1,
 		collectionIndex: -1,
 	}
@@ -127,40 +148,88 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+		if m.focus == focusNewCollection {
+			switch msg.String() {
+			case "ctrl+c":
+				return m, tea.Quit
+			case "esc":
+				m.cancelNewCollection()
+				return m, nil
+			case "enter":
+				name := strings.TrimSpace(m.collectionInput.Value())
+				if name == "" {
+					m.message = "Collection name cannot be blank."
+					return m, nil
+				}
+				m.loading = true
+				m.message = "Creating collection..."
+				return m, m.createCollectionCmd(name)
+			}
+		}
 		switch msg.String() {
 		case "ctrl+c", "esc":
 			return m, tea.Quit
 		case "q":
-			if m.contextFocused {
+			if m.focus != focusInput {
 				return m, tea.Quit
 			}
-		case "tab", "shift+tab", "backtab":
-			m.toggleFocus()
+		case "tab":
+			m.focusNext()
+			return m, m.focusCmd()
+		case "shift+tab", "backtab":
+			m.focusPrevious()
 			return m, m.focusCmd()
 		case "up":
-			m.moveLink(-1)
+			switch m.focus {
+			case focusInput:
+				m.moveLink(-1)
+			case focusDomain:
+				m.cycleDomain(-1)
+			case focusCollection:
+				m.cycleCollection(-1)
+			}
 			return m, nil
 		case "down":
-			m.moveLink(1)
+			switch m.focus {
+			case focusInput:
+				m.moveLink(1)
+			case focusDomain:
+				m.cycleDomain(1)
+			case focusCollection:
+				m.cycleCollection(1)
+			}
 			return m, nil
-		case "d":
-			if m.contextFocused {
-				m.cycleDomain()
+		case "left":
+			switch m.focus {
+			case focusDomain:
+				m.cycleDomain(-1)
+				return m, nil
+			case focusCollection:
+				m.cycleCollection(-1)
 				return m, nil
 			}
-		case "c":
-			if m.contextFocused {
-				m.cycleCollection()
+		case "right":
+			switch m.focus {
+			case focusDomain:
+				m.cycleDomain(1)
+				return m, nil
+			case focusCollection:
+				m.cycleCollection(1)
 				return m, nil
 			}
 		case "r":
-			if m.contextFocused {
+			if m.focus != focusInput {
 				m.loading = true
 				m.message = "Refreshing links..."
 				return m, m.refreshLinksCmd()
 			}
+		case "n":
+			if m.focus == focusCollection {
+				m.startNewCollection()
+				return m, m.focusCmd()
+			}
 		case "enter":
-			if !m.contextFocused {
+			if m.focus == focusInput {
 				value := strings.TrimSpace(m.commandInput.Value())
 				if value != "" {
 					if err := validateHTTPURL(value); err != nil {
@@ -171,6 +240,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.message = "Creating link..."
 					return m, m.createLinkCmd(value)
 				}
+			} else {
+				m.setFocus(focusInput)
+				return m, m.focusCmd()
 			}
 		}
 	case introTickMsg:
@@ -204,13 +276,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.linkIndex = clamp(m.linkIndex, 0, len(m.links)-1)
 		m.message = fmt.Sprintf("Loaded %d links", len(m.links))
 		return m, nil
+	case createCollectionResultMsg:
+		m.loading = false
+		if msg.err != nil {
+			m.message = msg.err.Error()
+			return m, nil
+		}
+		collection := msg.response.Collection
+		m.collections = append(m.collections, collection)
+		m.collectionIndex = m.indexForCollection(collection.ID)
+		m.collectionChanged = true
+		m.collectionInput.SetValue("")
+		m.setFocus(focusCollection)
+		m.message = fmt.Sprintf("Created collection %s; new links go there.", collection.Name)
+		return m, nil
 	}
 
 	var cmd tea.Cmd
 	m.spinner, cmd = m.spinner.Update(msg)
-	if !m.contextFocused && !m.showingIntro {
+	switch {
+	case m.focus == focusInput && !m.showingIntro:
 		var inputCmd tea.Cmd
 		m.commandInput, inputCmd = m.commandInput.Update(msg)
+		cmd = tea.Batch(cmd, inputCmd)
+	case m.focus == focusNewCollection && !m.showingIntro:
+		var inputCmd tea.Cmd
+		m.collectionInput, inputCmd = m.collectionInput.Update(msg)
 		cmd = tea.Batch(cmd, inputCmd)
 	}
 	return m, cmd
@@ -259,43 +350,79 @@ func (m Model) CollectionChanged() bool {
 	return m.collectionChanged
 }
 
-func (m Model) toggleFocus() {
-	m.contextFocused = !m.contextFocused
-	if m.contextFocused {
-		m.commandInput.Blur()
-		m.message = "Context controls focused. Press d for domain, c for collection, r to refresh."
+func (m *Model) focusNext() {
+	m.setFocus((m.focus + 1) % 3)
+}
+
+func (m *Model) focusPrevious() {
+	if m.focus == focusInput {
+		m.setFocus(focusCollection)
 		return
 	}
-	m.commandInput.Focus()
-	m.message = "Command line focused. Type a URL to create a link."
+	m.setFocus(m.focus - 1)
+}
+
+func (m *Model) setFocus(focus focusArea) {
+	m.focus = focus
+	if focus == focusInput {
+		m.commandInput.Focus()
+		m.collectionInput.Blur()
+		m.message = "Command line focused. Type a URL to create a link."
+		return
+	}
+	m.commandInput.Blur()
+	if focus == focusNewCollection {
+		m.collectionInput.Focus()
+		m.message = "Name the new collection, then press enter."
+		return
+	}
+	m.collectionInput.Blur()
+	switch focus {
+	case focusDomain:
+		m.message = "Domain picker focused. Use arrows to choose the domain."
+	case focusCollection:
+		m.message = "Collection picker focused. Use arrows to choose where new links go, or n for a new collection."
+	}
 }
 
 func (m Model) focusCmd() tea.Cmd {
-	if m.contextFocused {
+	if m.focus != focusInput && m.focus != focusNewCollection {
 		return nil
 	}
 	return textinput.Blink
+}
+
+func (m *Model) startNewCollection() {
+	m.collectionInput.SetValue("")
+	m.setFocus(focusNewCollection)
+}
+
+func (m *Model) cancelNewCollection() {
+	m.collectionInput.SetValue("")
+	m.setFocus(focusCollection)
+	m.message = "New collection cancelled."
 }
 
 func (m *Model) moveLink(delta int) {
 	m.linkIndex = clamp(m.linkIndex+delta, 0, len(m.links)-1)
 }
 
-func (m *Model) cycleDomain() {
-	if len(m.domainOptions()) == 0 {
+func (m *Model) cycleDomain(delta int) {
+	options := m.domainOptions()
+	if len(options) == 0 {
 		return
 	}
-	m.domainIndex = (m.domainIndex + 1) % len(m.domainOptions())
+	m.domainIndex = wrapIndex(m.domainIndex+delta, len(options))
 	m.domainChanged = true
 	m.message = "New links use domain " + domainLabel(m.domainOption().Hostname)
 }
 
-func (m *Model) cycleCollection() {
+func (m *Model) cycleCollection(delta int) {
 	options := m.collectionOptions()
 	if len(options) == 0 {
 		return
 	}
-	m.collectionIndex = (m.collectionIndex + 1) % len(options)
+	m.collectionIndex = wrapIndex(m.collectionIndex+delta, len(options))
 	m.collectionChanged = true
 	m.message = "New links go to " + collectionLabel(m.collectionOption())
 }
@@ -316,6 +443,13 @@ func (m Model) refreshLinksCmd() tea.Cmd {
 	return func() tea.Msg {
 		response, err := m.client.ListLinks(context.Background(), m.spaceID, api.ListLinksOptions{Limit: listLimit})
 		return refreshResultMsg{response: response, err: err}
+	}
+}
+
+func (m Model) createCollectionCmd(name string) tea.Cmd {
+	return func() tea.Msg {
+		response, err := m.client.CreateCollection(context.Background(), m.spaceID, api.CreateCollectionInput{Name: name})
+		return createCollectionResultMsg{response: response, err: err}
 	}
 }
 
@@ -366,28 +500,19 @@ func (m Model) renderLink(link api.Link, focused bool, width int) string {
 }
 
 func (m Model) renderFooter(width int) string {
-	domain := contextPill("d", "Domain", domainLabel(m.domainOption().Hostname), theme.Accent2, true, m.contextFocused)
-	collection := contextPill("c", "New links go to", collectionLabel(m.collectionOption()), theme.Accent, m.collectionOption().ID != "", m.contextFocused)
+	domain := contextPill("Domain", domainLabel(m.domainOption().Hostname), theme.Accent2, true, m.focus == focusDomain)
+	collection := contextPill("Collection", collectionLabel(m.collectionOption()), theme.Accent, m.collectionOption().ID != "", m.focus == focusCollection)
 	toolbar := lipgloss.JoinHorizontal(lipgloss.Center, domain, theme.MutedText.Render("  "), collection)
 
-	input := m.commandInput.View()
-	if m.contextFocused {
-		input = theme.MutedText.Render(m.commandInput.Prompt + m.commandInput.Value())
-	}
-	help := "tab context  ↑/↓ move  enter create  esc quit"
-	if m.contextFocused {
-		help = "d domain  c collection  r refresh  tab type  q quit"
-	}
-	if m.ContextChanged() {
-		help += "  · saves on quit"
-	}
-	left := lipgloss.JoinVertical(lipgloss.Left, toolbar, input, theme.MutedText.Render(m.message))
-	right := theme.MutedText.Render(help)
-	gap := width - lipgloss.Width(left) - lipgloss.Width(right) - 2
-	if gap < 2 {
-		gap = 2
-	}
-	body := lipgloss.JoinHorizontal(lipgloss.Top, left, strings.Repeat(" ", gap), right)
+	input := m.renderFooterInput()
+	help := footerHelp(m.focus, m.ContextChanged())
+	body := lipgloss.JoinVertical(
+		lipgloss.Left,
+		input,
+		toolbar,
+		theme.MutedText.Render(m.message),
+		help,
+	)
 	return lipgloss.NewStyle().
 		Width(width-2).
 		Border(lipgloss.NormalBorder(), true, false, false, false).
@@ -396,7 +521,64 @@ func (m Model) renderFooter(width int) string {
 		Render(body)
 }
 
-func contextPill(key string, label string, value string, color lipgloss.Color, active bool, focused bool) string {
+func (m Model) renderFooterInput() string {
+	if m.focus == focusNewCollection {
+		return m.collectionInput.View()
+	}
+	if m.focus == focusInput {
+		return m.commandInput.View()
+	}
+	return theme.MutedText.Render(m.commandInput.Prompt + m.commandInput.Value())
+}
+
+type helpItem struct {
+	key    string
+	action string
+}
+
+func footerHelp(focus focusArea, changed bool) string {
+	items := []helpItem{
+		{key: "tab", action: "next"},
+		{key: "↑/↓", action: "move"},
+		{key: "enter", action: "create"},
+		{key: "esc", action: "quit"},
+	}
+	switch focus {
+	case focusDomain:
+		items = []helpItem{
+			{key: "←/→", action: "domain"},
+			{key: "tab", action: "collection"},
+			{key: "enter", action: "type"},
+			{key: "r", action: "refresh"},
+			{key: "q", action: "quit"},
+		}
+	case focusCollection:
+		items = []helpItem{
+			{key: "←/→", action: "collection"},
+			{key: "n", action: "new"},
+			{key: "tab", action: "type"},
+			{key: "enter", action: "type"},
+			{key: "r", action: "refresh"},
+			{key: "q", action: "quit"},
+		}
+	case focusNewCollection:
+		items = []helpItem{
+			{key: "enter", action: "create collection"},
+			{key: "esc", action: "cancel"},
+			{key: "ctrl+c", action: "quit"},
+		}
+	}
+	parts := make([]string, 0, len(items)+1)
+	for _, item := range items {
+		parts = append(parts, helpKeyStyle.Render(item.key)+" "+helpActionStyle.Render(item.action))
+	}
+	if changed {
+		parts = append(parts, helpSavedStyle.Render("saves on quit"))
+	}
+	return strings.Join(parts, helpSeparatorStyle.Render("  ·  "))
+}
+
+func contextPill(label string, value string, color lipgloss.Color, active bool, focused bool) string {
 	border := lipgloss.Color("238")
 	if focused {
 		border = color
@@ -409,8 +591,15 @@ func contextPill(key string, label string, value string, color lipgloss.Color, a
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(border).
 		Padding(0, 1).
-		Render(theme.MutedText.Render(key+" "+label) + " " + valueStyle.Render(value))
+		Render(theme.MutedText.Render(label) + " " + valueStyle.Render(value))
 }
+
+var (
+	helpKeyStyle       = lipgloss.NewStyle().Bold(true).Foreground(theme.White)
+	helpActionStyle    = lipgloss.NewStyle().Foreground(theme.Muted)
+	helpSavedStyle     = lipgloss.NewStyle().Foreground(theme.Accent)
+	helpSeparatorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
+)
 
 func (m Model) domainOptions() []domainOption {
 	options := []domainOption{{Hostname: "", Type: "default"}}
@@ -538,6 +727,17 @@ func clamp(value int, min int, max int) int {
 	}
 	if value > max {
 		return max
+	}
+	return value
+}
+
+func wrapIndex(value int, length int) int {
+	if length <= 0 {
+		return 0
+	}
+	value %= length
+	if value < 0 {
+		value += length
 	}
 	return value
 }

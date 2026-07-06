@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/kerns/zlink-zeb/internal/api"
 	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/kerns/zlink-zeb/internal/ui/theme"
 	"github.com/spf13/cobra"
 )
 
@@ -56,7 +58,7 @@ func newCollectionCommand(root *rootOptions) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.AddCommand(newCollectionListCommand(root), newCollectionCreateCommand(root), newCollectionUseCommand(root), newCollectionClearCommand(root), newCollectionNoneCommand(root))
+	cmd.AddCommand(newCollectionListCommand(root), newCollectionCreateCommand(root), newCollectionLinksCommand(root), newCollectionUseCommand(root), newCollectionClearCommand(root), newCollectionNoneCommand(root))
 	return cmd
 }
 
@@ -103,6 +105,64 @@ func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func newCollectionLinksCommand(root *rootOptions) *cobra.Command {
+	var limit int
+	var status string
+	cmd := &cobra.Command{
+		Use:     "links [id-or-name|active]",
+		Aliases: []string{"ls"},
+		Short:   "List links in a collection",
+		Args:    cobra.RangeArgs(0, 1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, err := resolveAPIContext(root)
+			if err != nil {
+				return err
+			}
+			cfg, err := config.LoadConfig()
+			if err != nil {
+				return err
+			}
+			input := "active"
+			if len(args) > 0 {
+				input = args[0]
+			}
+			if input == "active" {
+				input = cfg.ActiveCollection
+				if input == "" {
+					return fmt.Errorf("no active collection is set; provide a collection id or name")
+				}
+			}
+			collections, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+			if err != nil {
+				return err
+			}
+			collection, err := resolveCollection(collections.Collections, input)
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.ListCollectionLinks(context.Background(), ctx.SpaceID, collection.ID, api.ListLinksOptions{
+				Limit:  limit,
+				Status: status,
+			})
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(response)
+			}
+			printLinkContext(cfg, collection.ID, collection.Name)
+			printLinks(response.Links)
+			if response.NextCursor != nil {
+				fmt.Printf("\nNext cursor: %s\n", *response.NextCursor)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().IntVarP(&limit, "limit", "l", 50, "number of links to fetch")
+	cmd.Flags().StringVar(&status, "status", "", "filter by status: active or inactive")
+	return cmd
 }
 
 func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
@@ -211,12 +271,67 @@ func resolveCollection(collections []api.Collection, input string) (api.Collecti
 }
 
 func printCollections(collections []api.Collection, activeCollection string) {
-	fmt.Println(heading("Collections"))
+	fmt.Println(collectionHeading())
+	if len(collections) == 0 {
+		fmt.Println("No collections found.")
+		return
+	}
 	for _, collection := range collections {
-		active := ""
-		if collection.ID == activeCollection {
-			active = "  active"
-		}
-		fmt.Printf("%s  %s  %d links%s\n", collection.ID, collection.Name, collection.LinkCount, active)
+		printCollection(collection, collection.ID == activeCollection)
 	}
 }
+
+func printCollection(collection api.Collection, active bool) {
+	dot, status := collectionStatus(collection, active)
+	fmt.Printf("%s %s %s\n", dot, collectionNameStyle.Render(collection.Name), theme.MutedText.Render(collectionLinkCountLabel(collection.LinkCount)))
+	if description := collectionDescription(collection); description != "" {
+		fmt.Printf("  %s\n", collectionDescriptionStyle.Render(truncate(description, 110)))
+	}
+	meta := []string{theme.MutedText.Render(collection.ID)}
+	if status != "" {
+		meta = append(meta, status)
+	}
+	fmt.Printf("  %s\n\n", strings.Join(meta, theme.MutedText.Render(" · ")))
+}
+
+func collectionStatus(collection api.Collection, active bool) (string, string) {
+	if active {
+		return collectionActiveStyle.Render("●"), collectionActiveStyle.Render("active")
+	}
+	if collection.Type == "smart" {
+		return collectionSmartStyle.Render("●"), ""
+	}
+	return collectionDotStyle.Render("●"), ""
+}
+
+func collectionLinkCountLabel(count int) string {
+	if count == 1 {
+		return "1 link"
+	}
+	return fmt.Sprintf("%d links", count)
+}
+
+func collectionDescription(collection api.Collection) string {
+	if collection.Description == nil {
+		return ""
+	}
+	return strings.TrimSpace(*collection.Description)
+}
+
+func collectionHeading() string {
+	legend := strings.Join([]string{
+		collectionDotStyle.Render("●") + " " + theme.MutedText.Render("collection"),
+		collectionSmartStyle.Render("●") + " " + theme.MutedText.Render("smart"),
+		collectionActiveStyle.Render("●") + " " + theme.MutedText.Render("active"),
+	}, theme.MutedText.Render(" · "))
+	return collectionHeadingStyle.Render("Collections") + " " + theme.MutedText.Render("(") + legend + theme.MutedText.Render(")")
+}
+
+var (
+	collectionNameStyle        = linkShortStyle
+	collectionDescriptionStyle = linkTitleStyle
+	collectionHeadingStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("183"))
+	collectionDotStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color("141"))
+	collectionSmartStyle       = lipgloss.NewStyle().Foreground(theme.Accent2)
+	collectionActiveStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
+)
