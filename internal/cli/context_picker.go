@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,7 +19,7 @@ func newContextCommand(root *rootOptions) *cobra.Command {
 			"This writes the same ~/.zlink config used by normal commands. " +
 			"Create flags like --domain, --collection, and --no-collection still override it.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
@@ -28,11 +27,11 @@ func newContextCommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			domains, err := ctx.Client.ListDomains(context.Background(), ctx.SpaceID)
+			domains, err := ctx.Client.ListDomains(cmd.Context(), ctx.SpaceID)
 			if err != nil {
 				return err
 			}
-			collections, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+			collections, err := ctx.Client.ListCollections(cmd.Context(), ctx.SpaceID)
 			if err != nil {
 				return err
 			}

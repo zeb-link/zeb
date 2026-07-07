@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -30,7 +29,8 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 	var spaceID string
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Store and validate an API key",
+		Short: "Log in with your Zebra Link API key",
+		Long:  "Log in with your Zebra Link API key.\n\nPaste the key at the prompt (or pass --api-key). The key is validated and stored in ~/.zlink for future commands.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := firstNonEmpty(apiKey, root.APIKey)
 			if key == "" {
@@ -43,12 +43,9 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 			if !strings.HasPrefix(key, "zeb_") {
 				return fmt.Errorf("API key should start with zeb_")
 			}
-			apiURL, err := config.ResolveAPIURL(root.APIURL)
-			if err != nil {
-				return err
-			}
+			apiURL, apiURLOverridden := loginAPIURL(root)
 			client := api.New(api.Options{APIURL: apiURL, APIKey: key})
-			me, err := client.GetMe(context.Background())
+			me, err := client.GetMe(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -58,7 +55,10 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 				selectedSpace = me.AccessibleSpaces[0].ID
 			}
 			if selectedSpace == "" && len(me.AccessibleSpaces) > 1 {
-				selectedSpace = chooseSpace(me.AccessibleSpaces)
+				selectedSpace, err = chooseSpace(me.AccessibleSpaces)
+				if err != nil {
+					return err
+				}
 			}
 			if selectedSpace != "" {
 				space, err := resolveSpace(me.AccessibleSpaces, selectedSpace)
@@ -75,7 +75,14 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			cfg.APIURL = apiURL
+			// Login DEFINES the environment. An explicit override (hidden
+			// flag or env) is stored so later commands stay on it; the
+			// built-in default is stored as empty so every future build's
+			// default applies without a re-login.
+			cfg.APIURL = ""
+			if apiURLOverridden {
+				cfg.APIURL = apiURL
+			}
 			if selectedSpace != "" {
 				cfg.ActiveSpace = selectedSpace
 			}
@@ -123,14 +130,7 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 		Use:   "whoami",
 		Short: "Show the current API identity",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			key, err := config.ResolveAPIKey(root.APIKey)
-			if err != nil {
-				return err
-			}
-			if key == "" {
-				return fmt.Errorf("not logged in; run zeb auth login")
-			}
-			apiURL, err := config.ResolveAPIURL(root.APIURL)
+			client, _, err := resolveClient(root)
 			if err != nil {
 				return err
 			}
@@ -138,8 +138,7 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			client := api.New(api.Options{APIURL: apiURL, APIKey: key})
-			me, err := client.GetMe(context.Background())
+			me, err := client.GetMe(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -165,6 +164,18 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 	}
 }
 
+// loginAPIURL resolves the API URL for LOGIN specifically: explicit override
+// (hidden flag, then env) or the built-in production default. The stored
+// config URL is deliberately ignored — logging in picks the environment
+// fresh; it never inherits a previously stored one.
+func loginAPIURL(root *rootOptions) (string, bool) {
+	override := firstNonEmpty(root.APIURL, os.Getenv("ZLINK_API_URL"))
+	if override != "" {
+		return config.NormalizeAPIURL(override), true
+	}
+	return config.DefaultAPIURL(), false
+}
+
 func readSecret(label string) (string, error) {
 	fmt.Printf("%s: ", label)
 	if term.IsTerminal(int(os.Stdin.Fd())) {
@@ -177,21 +188,27 @@ func readSecret(label string) (string, error) {
 	return strings.TrimSpace(value), err
 }
 
-func chooseSpace(spaces []api.SpaceSummary) string {
+func chooseSpace(spaces []api.SpaceSummary) (string, error) {
 	fmt.Println("Accessible spaces:")
 	for idx, space := range spaces {
 		fmt.Printf("  %d. %s (%s, %s)\n", idx+1, space.Name, space.ID, space.Role)
 	}
-	fmt.Print("Choose active space number: ")
+	fmt.Print("Choose active space number (empty to skip): ")
 	reader := bufio.NewReader(os.Stdin)
-	value, _ := reader.ReadString('\n')
+	value, err := reader.ReadString('\n')
+	if err != nil {
+		return "", fmt.Errorf("could not read a space choice (%w); rerun with --space <id-or-name>", err)
+	}
 	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
 	for idx, space := range spaces {
 		if value == fmt.Sprintf("%d", idx+1) {
-			return space.ID
+			return space.ID, nil
 		}
 	}
-	return ""
+	return "", fmt.Errorf("%q is not one of the listed space numbers; rerun with --space <id-or-name>", value)
 }
 
 func firstNonEmpty(values ...string) string {

@@ -18,9 +18,23 @@ const (
 	envCollection = "ZLINK_COLLECTION"
 	envDomain     = "ZLINK_DOMAIN"
 	envSpace      = "ZLINK_SPACE"
-
-	defaultAPIURL = "http://localhost:3000/api/v1"
 )
+
+// defaultAPIURL is the production API every user lands on out of the box.
+// When Zebra Link gets a dedicated API domain, change THIS line and rebuild —
+// `zeb login` deliberately does not persist the default into config, so
+// existing installs pick the new value up on their next build.
+//
+// Development override (owner-only, intentionally undocumented): the hidden
+// `--api-url` flag or ZLINK_API_URL, e.g. `zeb login --api-url
+// http://localhost:3000`.
+const defaultAPIURL = "https://app.zeblink.io/api/v1"
+
+// DefaultAPIURL exposes the built-in production API URL to command code
+// (login uses it to decide whether an override is in play).
+func DefaultAPIURL() string {
+	return defaultAPIURL
+}
 
 type Credentials struct {
 	APIKey   string `json:"apiKey"`

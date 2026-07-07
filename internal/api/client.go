@@ -92,6 +92,10 @@ type Link struct {
 	Description   *string `json:"description"`
 	IsActive      bool    `json:"isActive"`
 	CreatedAt     string  `json:"createdAt"`
+	// Present on list rows when the request used a click sort or
+	// include=clicks; nil otherwise.
+	TotalClicks *int    `json:"totalClicks,omitempty"`
+	LastClickAt *string `json:"lastClickAt,omitempty"`
 }
 
 type CreateLinkInput struct {
@@ -105,8 +109,10 @@ type CreateLinkInput struct {
 }
 
 type CreateLinkResponse struct {
-	Link   Link   `json:"link"`
-	Source string `json:"source"`
+	Link Link `json:"link"`
+	// Source is set by the single-create endpoint only; rows synthesized
+	// from bulk results leave it empty and it is omitted from output.
+	Source string `json:"source,omitempty"`
 	// Advisory reachability of the target URL: non-nil only when the create
 	// was made with verification on (?verify=true). true = resolved to a live
 	// page, false = unreachable, nil = not checked. Never gates creation.
@@ -123,6 +129,89 @@ type ListLinksOptions struct {
 	Cursor string
 	Sort   string
 	Status string
+	// IncludeClicks asks the API for totalClicks/lastClickAt on every row
+	// (include=clicks). Click sorts include them regardless.
+	IncludeClicks bool
+}
+
+type GetLinkResponse struct {
+	Link Link `json:"link"`
+}
+
+// UpdateLinkInput is the PATCH body. It is a plain map so commands can send
+// exactly the fields the user asked to change — including explicit nulls
+// (e.g. clearing a title), which typed omitempty structs cannot express.
+type UpdateLinkInput map[string]any
+
+type UpdateLinkResponse struct {
+	Link        Link `json:"link"`
+	PathChanged bool `json:"pathChanged"`
+}
+
+type BulkRowError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+type BulkCreateLinkItem struct {
+	TargetURL string `json:"targetUrl"`
+	Domain    string `json:"domain,omitempty"`
+	Path      string `json:"path,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
+	Title     string `json:"title,omitempty"`
+}
+
+type BulkCreateLinksInput struct {
+	Collection string               `json:"collection,omitempty"`
+	Items      []BulkCreateLinkItem `json:"items"`
+}
+
+type BulkCreateRowResult struct {
+	Index   int           `json:"index"`
+	Success bool          `json:"success"`
+	Link    *Link         `json:"link,omitempty"`
+	Error   *BulkRowError `json:"error,omitempty"`
+}
+
+type BulkCreateLinksResponse struct {
+	Results []BulkCreateRowResult `json:"results"`
+}
+
+type BulkDeleteRowResult struct {
+	LinkID  string        `json:"linkId"`
+	Success bool          `json:"success"`
+	Error   *BulkRowError `json:"error,omitempty"`
+}
+
+type BulkDeleteLinksResponse struct {
+	Results []BulkDeleteRowResult `json:"results"`
+}
+
+type UpdateCollectionInput struct {
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+type CollectionResponse struct {
+	Collection Collection `json:"collection"`
+}
+
+type DeleteCollectionResponse struct {
+	DeletedCollectionID string `json:"deletedCollectionId"`
+}
+
+type AddCollectionLinksResponse struct {
+	Added         int `json:"added"`
+	AlreadyMember int `json:"alreadyMember"`
+}
+
+type RemoveCollectionLinksResponse struct {
+	Removed int `json:"removed"`
+}
+
+type HealthResponse struct {
+	OK  bool   `json:"ok"`
+	API string `json:"api"`
 }
 
 type ErrorResponse struct {
@@ -192,6 +281,83 @@ func (c *Client) ListCollectionLinks(ctx context.Context, spaceID string, collec
 	return response, err
 }
 
+func (c *Client) GetLink(ctx context.Context, spaceID string, linkID string) (GetLinkResponse, error) {
+	var response GetLinkResponse
+	err := c.DoJSON(ctx, http.MethodGet, c.linkPath(spaceID, linkID), nil, &response)
+	return response, err
+}
+
+func (c *Client) UpdateLink(ctx context.Context, spaceID string, linkID string, input UpdateLinkInput) (UpdateLinkResponse, error) {
+	var response UpdateLinkResponse
+	err := c.DoJSON(ctx, http.MethodPatch, c.linkPath(spaceID, linkID), input, &response)
+	return response, err
+}
+
+func (c *Client) BulkCreateLinks(ctx context.Context, spaceID string, input BulkCreateLinksInput) (BulkCreateLinksResponse, error) {
+	var response BulkCreateLinksResponse
+	err := c.DoJSON(ctx, http.MethodPost, "/spaces/"+url.PathEscape(spaceID)+"/links/bulk", input, &response)
+	return response, err
+}
+
+func (c *Client) BulkDeleteLinks(ctx context.Context, spaceID string, linkIDs []string) (BulkDeleteLinksResponse, error) {
+	var response BulkDeleteLinksResponse
+	body := map[string][]string{"linkIds": linkIDs}
+	err := c.DoJSON(ctx, http.MethodDelete, "/spaces/"+url.PathEscape(spaceID)+"/links/bulk", body, &response)
+	return response, err
+}
+
+func (c *Client) GetCollection(ctx context.Context, spaceID string, collectionID string) (CollectionResponse, error) {
+	var response CollectionResponse
+	err := c.DoJSON(ctx, http.MethodGet, c.collectionPath(spaceID, collectionID), nil, &response)
+	return response, err
+}
+
+func (c *Client) UpdateCollection(ctx context.Context, spaceID string, collectionID string, input UpdateCollectionInput) (CollectionResponse, error) {
+	var response CollectionResponse
+	err := c.DoJSON(ctx, http.MethodPatch, c.collectionPath(spaceID, collectionID), input, &response)
+	return response, err
+}
+
+func (c *Client) DeleteCollection(ctx context.Context, spaceID string, collectionID string) (DeleteCollectionResponse, error) {
+	var response DeleteCollectionResponse
+	err := c.DoJSON(ctx, http.MethodDelete, c.collectionPath(spaceID, collectionID), nil, &response)
+	return response, err
+}
+
+func (c *Client) ConvertCollectionToManual(ctx context.Context, spaceID string, collectionID string) (CollectionResponse, error) {
+	var response CollectionResponse
+	err := c.DoJSON(ctx, http.MethodPost, c.collectionPath(spaceID, collectionID)+"/convert-to-manual", nil, &response)
+	return response, err
+}
+
+func (c *Client) AddLinksToCollection(ctx context.Context, spaceID string, collectionID string, linkIDs []string) (AddCollectionLinksResponse, error) {
+	var response AddCollectionLinksResponse
+	body := map[string][]string{"linkIds": linkIDs}
+	err := c.DoJSON(ctx, http.MethodPost, c.collectionPath(spaceID, collectionID)+"/links", body, &response)
+	return response, err
+}
+
+func (c *Client) RemoveLinksFromCollection(ctx context.Context, spaceID string, collectionID string, linkIDs []string) (RemoveCollectionLinksResponse, error) {
+	var response RemoveCollectionLinksResponse
+	body := map[string][]string{"linkIds": linkIDs}
+	err := c.DoJSON(ctx, http.MethodDelete, c.collectionPath(spaceID, collectionID)+"/links", body, &response)
+	return response, err
+}
+
+func (c *Client) Health(ctx context.Context) (HealthResponse, error) {
+	var response HealthResponse
+	err := c.DoJSON(ctx, http.MethodGet, "/health", nil, &response)
+	return response, err
+}
+
+func (c *Client) linkPath(spaceID string, linkID string) string {
+	return "/spaces/" + url.PathEscape(spaceID) + "/links/" + url.PathEscape(linkID)
+}
+
+func (c *Client) collectionPath(spaceID string, collectionID string) string {
+	return "/spaces/" + url.PathEscape(spaceID) + "/collections/" + url.PathEscape(collectionID)
+}
+
 func (c *Client) DoJSON(ctx context.Context, method string, path string, body any, out any) error {
 	var reader io.Reader
 	if body != nil {
@@ -250,6 +416,9 @@ func queryString(options ListLinksOptions) string {
 	}
 	if options.Status != "" {
 		values.Set("status", options.Status)
+	}
+	if options.IncludeClicks {
+		values.Set("include", "clicks")
 	}
 	if len(values) == 0 {
 		return ""

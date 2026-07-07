@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -49,7 +48,7 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, cfg, err := loadTUIData(root)
+			data, cfg, err := loadTUIData(cmd, root)
 			if err != nil {
 				return err
 			}
@@ -81,8 +80,8 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 	return cmd
 }
 
-func loadTUIData(root *rootOptions) (shell.Data, config.Config, error) {
-	ctx, err := resolveAPIContext(root)
+func loadTUIData(cmd *cobra.Command, root *rootOptions) (shell.Data, config.Config, error) {
+	ctx, err := resolveAPIContext(cmd.Context(), root)
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
@@ -90,15 +89,15 @@ func loadTUIData(root *rootOptions) (shell.Data, config.Config, error) {
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
-	domains, err := ctx.Client.ListDomains(context.Background(), ctx.SpaceID)
+	domains, err := ctx.Client.ListDomains(cmd.Context(), ctx.SpaceID)
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
-	collections, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+	collections, err := ctx.Client.ListCollections(cmd.Context(), ctx.SpaceID)
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
-	links, err := ctx.Client.ListLinks(context.Background(), ctx.SpaceID, api.ListLinksOptions{Limit: 50})
+	links, err := ctx.Client.ListLinks(cmd.Context(), ctx.SpaceID, api.ListLinksOptions{Limit: 50})
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}

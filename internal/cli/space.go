@@ -2,7 +2,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/kerns/zlink-zeb/internal/api"
@@ -46,19 +45,11 @@ func newSpaceListCommand(root *rootOptions) *cobra.Command {
 		Use:   "list",
 		Short: "List spaces available to the current API key",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			key, err := config.ResolveAPIKey(root.APIKey)
+			client, _, err := resolveClient(root)
 			if err != nil {
 				return err
 			}
-			if key == "" {
-				return fmt.Errorf("not logged in; run zeb auth login")
-			}
-			apiURL, err := config.ResolveAPIURL(root.APIURL)
-			if err != nil {
-				return err
-			}
-			client := api.New(api.Options{APIURL: apiURL, APIKey: key})
-			me, err := client.GetMe(context.Background())
+			me, err := client.GetMe(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -80,19 +71,11 @@ func newSpaceUseCommand(root *rootOptions) *cobra.Command {
 		Short: "Set active space",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			key, err := config.ResolveAPIKey(root.APIKey)
+			client, _, err := resolveClient(root)
 			if err != nil {
 				return err
 			}
-			if key == "" {
-				return fmt.Errorf("not logged in; run zeb auth login")
-			}
-			apiURL, err := config.ResolveAPIURL(root.APIURL)
-			if err != nil {
-				return err
-			}
-			client := api.New(api.Options{APIURL: apiURL, APIKey: key})
-			me, err := client.GetMe(context.Background())
+			me, err := client.GetMe(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -118,22 +101,7 @@ func newSpaceUseCommand(root *rootOptions) *cobra.Command {
 }
 
 func resolveSpace(spaces []api.SpaceSummary, input string) (api.SpaceSummary, error) {
-	for _, space := range spaces {
-		if space.ID == input {
-			return space, nil
-		}
-	}
-	var matches []api.SpaceSummary
-	for _, space := range spaces {
-		if space.Name == input {
-			matches = append(matches, space)
-		}
-	}
-	if len(matches) == 1 {
-		return matches[0], nil
-	}
-	if len(matches) > 1 {
-		return api.SpaceSummary{}, fmt.Errorf("multiple spaces named %q; use the space id", input)
-	}
-	return api.SpaceSummary{}, fmt.Errorf("space %q not found", input)
+	return resolveByIDOrName(spaces, input, "space",
+		func(s api.SpaceSummary) string { return s.ID },
+		func(s api.SpaceSummary) string { return s.Name })
 }

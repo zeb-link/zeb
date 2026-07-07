@@ -1686,6 +1686,14 @@
           "isActive": {
             "type": "boolean"
           },
+          "lastClickAt": {
+            "description": "Most recent click; `null` = never clicked. Present alongside `totalClicks`.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "path": {
             "description": "Path component for this short link.",
             "type": "string"
@@ -1712,6 +1720,10 @@
               "string",
               "null"
             ]
+          },
+          "totalClicks": {
+            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
+            "type": "integer"
           }
         },
         "required": [
@@ -1921,6 +1933,14 @@
           "isActive": {
             "type": "boolean"
           },
+          "lastClickAt": {
+            "description": "Most recent click; `null` = never clicked. Present alongside `totalClicks`.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "path": {
             "description": "Path component for this short link.",
             "type": "string"
@@ -1947,6 +1967,10 @@
               "string",
               "null"
             ]
+          },
+          "totalClicks": {
+            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
+            "type": "integer"
           }
         },
         "required": [
@@ -3308,7 +3332,7 @@
         ]
       },
       "get": {
-        "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit`; a cursor is only valid under the sort that issued it.",
+        "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit` (1–1000, default 50; server clamps); a cursor is only valid under the sort that issued it. Pass `include=clicks` for `totalClicks`/`lastClickAt` on every row.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3366,6 +3390,19 @@
             "required": false,
             "schema": {
               "pattern": "^\\d+$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+              "enum": [
+                "clicks"
+              ],
               "type": "string"
             }
           }
@@ -3626,7 +3663,7 @@
     },
     "/api/v1/spaces/{spaceId}/links": {
       "get": {
-        "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, capped at 100.",
+        "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, clamped to 1000. Pass `include=clicks` to get `totalClicks` and `lastClickAt` on every row (click-based sorts include them automatically).",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3695,13 +3732,26 @@
             }
           },
           {
-            "description": "Page size, 1–100 (default 50).",
+            "description": "Page size, 1–1000 (default 50; server clamps).",
             "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
-              "description": "Page size, 1–100 (default 50).",
+              "description": "Page size, 1–1000 (default 50; server clamps).",
               "pattern": "^\\d+$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+            "in": "query",
+            "name": "include",
+            "required": false,
+            "schema": {
+              "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+              "enum": [
+                "clicks"
+              ],
               "type": "string"
             }
           }

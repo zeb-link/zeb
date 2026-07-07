@@ -7,7 +7,7 @@ from `zlink-core`.
 
 ```bash
 go run ./cmd/zeb --help
-go run ./cmd/zeb auth login --api-url http://localhost:3000 --api-key zeb_...
+go run ./cmd/zeb login --api-key zeb_...
 go run ./cmd/zeb https://example.com
 go run ./cmd/zeb links create https://example.com --short-code example
 go run ./cmd/zeb spec sync
@@ -48,12 +48,10 @@ API key resolution:
 2. `ZLINK_API_KEY`
 3. `~/.zlink/credentials.json`
 
-API URL resolution:
-
-1. `--api-url`
-2. `ZLINK_API_URL`
-3. `~/.zlink/config.json`
-4. `http://localhost:3000/api/v1`
+API URL: the built-in production default in `internal/config` (change it
+there and rebuild when the dedicated API domain lands). Login defines the
+environment; it does not inherit a stored URL. The owner-only development
+override is intentionally undocumented — read `internal/config/config.go`.
 
 Space resolution:
 

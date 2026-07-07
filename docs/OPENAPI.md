@@ -1,12 +1,7 @@
 # OpenAPI Workflow
 
-Core serves the spec at:
-
-```text
-http://localhost:3000/api/v1/openapi.json
-```
-
-The CLI sync command uses that URL when no URL is supplied:
+The API serves its spec at `<api base>/openapi.json`. The sync command
+downloads it from the CLI's resolved API base when no URL is supplied:
 
 ```bash
 go run ./cmd/zeb spec sync
@@ -15,17 +10,21 @@ go run ./cmd/zeb spec sync
 Use an explicit source when needed:
 
 ```bash
-go run ./cmd/zeb spec sync --url http://localhost:3000/api/v1/openapi.json
+go run ./cmd/zeb spec sync --url <spec url>
 ```
 
-The snapshot is written to `internal/openapi/openapi.json`.
+The snapshot is written to `internal/openapi/openapi.json` (resolved against
+the repo root, so the command works from any directory inside the repo).
 
-## Future Codegen
+## Drift Guard
 
-Likely path:
+The hand-written client is pinned to the snapshot by tests:
 
-1. Add `oapi-codegen` as a tool dependency.
-2. Generate types and a client from `internal/openapi/openapi.json`.
-3. Keep generated files under `internal/generated`.
-4. Wrap generated calls in small command-facing functions where config,
-   pagination, and output behavior need CLI-specific handling.
+- `internal/api/spec_drift_test.go` asserts every client endpoint exists in
+  the snapshot and flags NEW spec operations that are neither wired nor
+  recorded in `knownUnimplemented`.
+- `internal/cli/sort_values_test.go` pins the `--sort` help text to the
+  spec's sort enum.
+
+After a sync, run `go test ./...`. Client generation via `oapi-codegen` was
+evaluated and deferred — the spec is OpenAPI 3.1, which it does not support.

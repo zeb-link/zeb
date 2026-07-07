@@ -4,13 +4,16 @@ The CLI uses API keys. It does not manage browser sessions.
 
 ## Login
 
-`zeb auth login` asks for or accepts an API key, calls `GET /api/v1/me`, and
-writes:
+`zeb login` (or `zeb auth login`) asks for or accepts an API key, validates it
+against the Zebra Link API (`GET /api/v1/me`), and writes:
 
 ```text
 ~/.zlink/credentials.json
 ~/.zlink/config.json
 ```
+
+The CLI always talks to the built-in production API. Login picks the
+environment fresh each time — it never inherits a previously stored URL.
 
 Credentials:
 
@@ -25,7 +28,6 @@ Config:
 
 ```json
 {
-  "apiUrl": "http://localhost:3000/api/v1",
   "activeSpace": "spc_..."
 }
 ```
@@ -37,13 +39,6 @@ API key:
 1. `--api-key`
 2. `ZLINK_API_KEY`
 3. stored credentials
-
-API URL:
-
-1. `--api-url`
-2. `ZLINK_API_URL`
-3. stored config
-4. `http://localhost:3000/api/v1`
 
 Space:
 

@@ -1,9 +1,9 @@
-// Collection commands list collections and manage active collection context.
-// The active collection is where create-link commands should add new links.
+// Collection commands list, create, inspect, update, and delete collections,
+// manage the active collection context, and manage manual-collection
+// membership (add/remove links).
 package cli
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -19,11 +19,11 @@ func newCollectionsCommand(root *rootOptions) *cobra.Command {
 		Use:   "collections",
 		Short: "List collections",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			response, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+			response, err := ctx.Client.ListCollections(cmd.Context(), ctx.SpaceID)
 			if err != nil {
 				return err
 			}
@@ -45,7 +45,7 @@ func newCollectionsCommand(root *rootOptions) *cobra.Command {
 func newCollectionCommand(root *rootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "collection",
-		Short: "Manage active collection context",
+		Short: "Manage collections and the active collection context",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.LoadConfig()
 			if err != nil {
@@ -58,7 +58,20 @@ func newCollectionCommand(root *rootOptions) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.AddCommand(newCollectionListCommand(root), newCollectionCreateCommand(root), newCollectionLinksCommand(root), newCollectionUseCommand(root), newCollectionClearCommand(root), newCollectionNoneCommand(root))
+	cmd.AddCommand(
+		newCollectionListCommand(root),
+		newCollectionCreateCommand(root),
+		newCollectionShowCommand(root),
+		newCollectionLinksCommand(root),
+		newCollectionUpdateCommand(root),
+		newCollectionDeleteCommand(root),
+		newCollectionConvertCommand(root),
+		newCollectionAddCommand(root),
+		newCollectionRemoveCommand(root),
+		newCollectionUseCommand(root),
+		newCollectionClearCommand(root),
+		newCollectionNoneCommand(root),
+	)
 	return cmd
 }
 
@@ -69,21 +82,38 @@ func newCollectionListCommand(root *rootOptions) *cobra.Command {
 	return cmd
 }
 
+// resolveCollectionArg resolves a collection reference for a subcommand:
+// an explicit id/name argument, or the literal/implicit "active" which reads
+// the saved context (erroring with a hint when none is set).
+func resolveCollectionArg(cmd *cobra.Command, ctx apiContext, input string) (api.Collection, error) {
+	if input == "" || input == "active" {
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return api.Collection{}, err
+		}
+		input = cfg.ActiveCollection
+		if input == "" {
+			return api.Collection{}, fmt.Errorf("no active collection is set; provide a collection id or name, or run `zeb collection use <name>`")
+		}
+	}
+	collections, err := ctx.Client.ListCollections(cmd.Context(), ctx.SpaceID)
+	if err != nil {
+		return api.Collection{}, err
+	}
+	return resolveCollection(collections.Collections, input)
+}
+
 func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "use <id-or-name>",
 		Short: "Set active collection for new links",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			response, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
-			if err != nil {
-				return err
-			}
-			collection, err := resolveCollection(response.Collections, args[0])
+			collection, err := resolveCollectionArg(cmd, ctx, args[0])
 			if err != nil {
 				return err
 			}
@@ -107,61 +137,79 @@ func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 	}
 }
 
-func newCollectionLinksCommand(root *rootOptions) *cobra.Command {
-	var limit int
-	var status string
-	cmd := &cobra.Command{
-		Use:     "links [id-or-name|active]",
-		Aliases: []string{"ls"},
-		Short:   "List links in a collection",
-		Args:    cobra.RangeArgs(0, 1),
+func newCollectionShowCommand(root *rootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "show [id-or-name|active]",
+		Short: "Show one collection",
+		Args:  cobra.RangeArgs(0, 1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			cfg, err := config.LoadConfig()
-			if err != nil {
-				return err
-			}
-			input := "active"
+			input := ""
 			if len(args) > 0 {
 				input = args[0]
 			}
-			if input == "active" {
-				input = cfg.ActiveCollection
-				if input == "" {
-					return fmt.Errorf("no active collection is set; provide a collection id or name")
-				}
-			}
-			collections, err := ctx.Client.ListCollections(context.Background(), ctx.SpaceID)
+			resolved, err := resolveCollectionArg(cmd, ctx, input)
 			if err != nil {
 				return err
 			}
-			collection, err := resolveCollection(collections.Collections, input)
-			if err != nil {
-				return err
-			}
-			response, err := ctx.Client.ListCollectionLinks(context.Background(), ctx.SpaceID, collection.ID, api.ListLinksOptions{
-				Limit:  limit,
-				Status: status,
-			})
+			response, err := ctx.Client.GetCollection(cmd.Context(), ctx.SpaceID, resolved.ID)
 			if err != nil {
 				return err
 			}
 			if root.JSON {
 				return writeJSON(response)
 			}
-			printLinkContext(cfg, collection.ID, collection.Name)
-			printLinks(response.Links)
-			if response.NextCursor != nil {
-				fmt.Printf("\nNext cursor: %s\n", *response.NextCursor)
+			cfg, err := config.LoadConfig()
+			if err != nil {
+				return err
 			}
+			printCollection(response.Collection, response.Collection.ID == cfg.ActiveCollection)
 			return nil
 		},
 	}
-	cmd.Flags().IntVarP(&limit, "limit", "l", 50, "number of links to fetch")
-	cmd.Flags().StringVar(&status, "status", "", "filter by status: active or inactive")
+}
+
+func newCollectionLinksCommand(root *rootOptions) *cobra.Command {
+	flags := &listLinksFlags{}
+	cmd := &cobra.Command{
+		Use:     "links [id-or-name|active]",
+		Aliases: []string{"ls"},
+		Short:   "List links in a collection",
+		Args:    cobra.RangeArgs(0, 1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			input := ""
+			if len(args) > 0 {
+				input = args[0]
+			}
+			collection, err := resolveCollectionArg(cmd, ctx, input)
+			if err != nil {
+				return err
+			}
+			response, err := fetchLinks(cmd, ctx, collection.ID, *flags)
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(response)
+			}
+			cfg, err := config.LoadConfig()
+			if err != nil {
+				return err
+			}
+			printLinkContext(cfg, collection.ID, collection.Name, *flags)
+			printLinks(response.Links)
+			printNextPageHint(response, fmt.Sprintf("zeb collection links %q", collection.Name))
+			return nil
+		},
+	}
+	addListLinksFlags(cmd, flags)
 	return cmd
 }
 
@@ -177,11 +225,11 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 			if name == "" {
 				return fmt.Errorf("collection name cannot be blank")
 			}
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			response, err := ctx.Client.CreateCollection(context.Background(), ctx.SpaceID, api.CreateCollectionInput{
+			response, err := ctx.Client.CreateCollection(cmd.Context(), ctx.SpaceID, api.CreateCollectionInput{
 				Name:        name,
 				Description: description,
 			})
@@ -220,6 +268,198 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 	return cmd
 }
 
+func newCollectionUpdateCommand(root *rootOptions) *cobra.Command {
+	var name, description string
+	cmd := &cobra.Command{
+		Use:   "update <id-or-name>",
+		Short: "Update a collection's name or description",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			input := api.UpdateCollectionInput{}
+			if cmd.Flags().Changed("name") {
+				trimmed := strings.TrimSpace(name)
+				if trimmed == "" {
+					return fmt.Errorf("--name cannot be blank")
+				}
+				input.Name = &trimmed
+			}
+			if cmd.Flags().Changed("description") {
+				input.Description = &description
+			}
+			if input.Name == nil && input.Description == nil {
+				return fmt.Errorf("nothing to update; pass --name and/or --description")
+			}
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			resolved, err := resolveCollectionArg(cmd, ctx, args[0])
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.UpdateCollection(cmd.Context(), ctx.SpaceID, resolved.ID, input)
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(response)
+			}
+			fmt.Printf("Updated collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&name, "name", "", "new collection name")
+	cmd.Flags().StringVar(&description, "description", "", "new description (empty string clears it)")
+	return cmd
+}
+
+func newCollectionDeleteCommand(root *rootOptions) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "delete <id-or-name>",
+		Aliases: []string{"rm"},
+		Short:   "Delete a collection",
+		Long:    "Delete a collection. Links in the collection are not deleted — they only leave the collection.",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			resolved, err := resolveCollectionArg(cmd, ctx, args[0])
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.DeleteCollection(cmd.Context(), ctx.SpaceID, resolved.ID)
+			if err != nil {
+				return err
+			}
+			// A deleted collection must not survive as the saved create
+			// default — that is exactly the stale-context trap.
+			clearedActive := false
+			cfg, err := config.LoadConfig()
+			if err == nil && cfg.ActiveCollection == resolved.ID {
+				cfg.ActiveCollection = ""
+				if err := config.SaveConfig(cfg); err == nil {
+					clearedActive = true
+				}
+			}
+			if root.JSON {
+				return writeJSON(map[string]any{
+					"deletedCollectionId":     response.DeletedCollectionID,
+					"activeCollectionCleared": clearedActive,
+				})
+			}
+			fmt.Printf("Deleted collection %s (%s)\n", resolved.Name, response.DeletedCollectionID)
+			if clearedActive {
+				fmt.Println("Active collection cleared; new links get no collection.")
+			}
+			return nil
+		},
+	}
+	return cmd
+}
+
+func newCollectionConvertCommand(root *rootOptions) *cobra.Command {
+	return &cobra.Command{
+		Use:   "convert <id-or-name>",
+		Short: "Convert a smart collection to a manual one",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			resolved, err := resolveCollectionArg(cmd, ctx, args[0])
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.ConvertCollectionToManual(cmd.Context(), ctx.SpaceID, resolved.ID)
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(response)
+			}
+			fmt.Printf("Converted %s to a manual collection; its current links are now direct members.\n", response.Collection.Name)
+			return nil
+		},
+	}
+}
+
+func newCollectionAddCommand(root *rootOptions) *cobra.Command {
+	var to string
+	cmd := &cobra.Command{
+		Use:   "add <link-id...>",
+		Short: "Add links to a collection",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			for _, id := range args {
+				if err := validateLinkID(id); err != nil {
+					return err
+				}
+			}
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			resolved, err := resolveCollectionArg(cmd, ctx, to)
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.AddLinksToCollection(cmd.Context(), ctx.SpaceID, resolved.ID, args)
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(map[string]any{"collection": resolved, "added": response.Added, "alreadyMember": response.AlreadyMember})
+			}
+			note := ""
+			if response.AlreadyMember > 0 {
+				note = fmt.Sprintf(" (%d already in it)", response.AlreadyMember)
+			}
+			fmt.Printf("Added %d links to %s%s\n", response.Added, resolved.Name, note)
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&to, "to", "", "collection id/name (defaults to the active collection)")
+	return cmd
+}
+
+func newCollectionRemoveCommand(root *rootOptions) *cobra.Command {
+	var from string
+	cmd := &cobra.Command{
+		Use:   "remove <link-id...>",
+		Short: "Remove links from a collection",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			for _, id := range args {
+				if err := validateLinkID(id); err != nil {
+					return err
+				}
+			}
+			ctx, err := resolveAPIContext(cmd.Context(), root)
+			if err != nil {
+				return err
+			}
+			resolved, err := resolveCollectionArg(cmd, ctx, from)
+			if err != nil {
+				return err
+			}
+			response, err := ctx.Client.RemoveLinksFromCollection(cmd.Context(), ctx.SpaceID, resolved.ID, args)
+			if err != nil {
+				return err
+			}
+			if root.JSON {
+				return writeJSON(map[string]any{"collection": resolved, "removed": response.Removed})
+			}
+			fmt.Printf("Removed %d links from %s\n", response.Removed, resolved.Name)
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&from, "from", "", "collection id/name (defaults to the active collection)")
+	return cmd
+}
+
 func newCollectionClearCommand(root *rootOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "clear",
@@ -250,24 +490,9 @@ func newCollectionNoneCommand(root *rootOptions) *cobra.Command {
 }
 
 func resolveCollection(collections []api.Collection, input string) (api.Collection, error) {
-	for _, collection := range collections {
-		if collection.ID == input {
-			return collection, nil
-		}
-	}
-	var matches []api.Collection
-	for _, collection := range collections {
-		if collection.Name == input {
-			matches = append(matches, collection)
-		}
-	}
-	if len(matches) == 1 {
-		return matches[0], nil
-	}
-	if len(matches) > 1 {
-		return api.Collection{}, fmt.Errorf("multiple collections named %q; use the collection id", input)
-	}
-	return api.Collection{}, fmt.Errorf("collection %q not found", input)
+	return resolveByIDOrName(collections, input, "collection",
+		func(c api.Collection) string { return c.ID },
+		func(c api.Collection) string { return c.Name })
 }
 
 func printCollections(collections []api.Collection, activeCollection string) {

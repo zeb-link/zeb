@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/kerns/zlink-zeb/internal/config"
@@ -15,11 +14,11 @@ func newDomainsCommand(root *rootOptions) *cobra.Command {
 		Use:   "domains",
 		Short: "List available domains",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			response, err := ctx.Client.ListDomains(context.Background(), ctx.SpaceID)
+			response, err := ctx.Client.ListDomains(cmd.Context(), ctx.SpaceID)
 			if err != nil {
 				return err
 			}
@@ -81,11 +80,11 @@ func newDomainUseCommand(root *rootOptions) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			hostname := args[0]
-			ctx, err := resolveAPIContext(root)
+			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
 				return err
 			}
-			response, err := ctx.Client.ListDomains(context.Background(), ctx.SpaceID)
+			response, err := ctx.Client.ListDomains(cmd.Context(), ctx.SpaceID)
 			if err != nil {
 				return err
 			}

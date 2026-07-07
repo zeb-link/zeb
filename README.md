@@ -19,17 +19,16 @@ listing/creation, and a Bubble Tea TUI for link browsing and create context.
 ```bash
 go mod tidy
 go run ./cmd/zeb --help
-go run ./cmd/zeb spec sync
-go run ./cmd/zeb auth login --api-url http://localhost:3000 --api-key zeb_...
+go run ./cmd/zeb login
 go run ./cmd/zeb https://example.com
 go run ./cmd/zeb tui
 go run ./cmd/zeb tui --preview --frames 10
-go run ./cmd/zeb tui --preview --intro signal-sweep --frames 10
+go run ./cmd/zeb tui --preview --intro block-scan --frames 10
 go run ./cmd/zeb tui --gallery
 ```
 
-Core usually runs on port `3000` in this repo. The spec sync command uses
-`http://localhost:3000/api/v1/openapi.json` by default.
+`zeb login` prompts for your Zebra Link API key and validates it against the
+production API — that is the only setup step.
 
 ## Local Install
 
@@ -70,20 +69,33 @@ make uninstall-local
 ## Implemented Commands
 
 ```bash
+zeb login
 zeb auth login
 zeb auth logout
 zeb auth whoami
+zeb health
 zeb domains
 zeb domain
 zeb domain use <hostname>
 zeb domain clear
 zeb collections
 zeb collection
+zeb collection show [id-or-name|active]
+zeb collection links [id-or-name|active]
+zeb collection create <name>
+zeb collection update <id-or-name> --name … --description …
+zeb collection delete <id-or-name>
+zeb collection convert <id-or-name>
+zeb collection add <link-id...> [--to <id-or-name>]
+zeb collection remove <link-id...> [--from <id-or-name>]
 zeb collection use <id-or-name>
 zeb collection clear
-zeb links
+zeb links [--sort …] [--cursor …] [--all] [--status …] [--limit …]
 zeb links --collection active
 zeb links create <url...>
+zeb links get <link-id>
+zeb links update <link-id> [--target …] [--title …] [--path …] [--active|--inactive]
+zeb links delete <link-id...>
 zeb <url...>
 zeb space current
 zeb space list
@@ -95,6 +107,7 @@ zeb config path
 zeb spec sync
 zeb spec path
 zeb status
+zeb status --check
 zeb tui
 zeb tui --preview
 ```
@@ -181,14 +194,9 @@ Space priority:
 2. `ZLINK_SPACE`
 3. `activeSpace` from `~/.zlink/config.json`
 
-API URL priority:
+The CLI talks to the built-in production API.
 
-1. `--api-url`
-2. `ZLINK_API_URL`
-3. `apiUrl` from `~/.zlink/config.json`
-4. `http://localhost:3000/api/v1`
-
-`auth login` validates the key against `GET /api/v1/me`, stores the API key, and
+`zeb login` validates the key against `GET /api/v1/me`, stores the API key, and
 sets an active space when the key has one accessible space or the user chooses
 one from the prompt.
 
@@ -206,24 +214,12 @@ Refresh it with:
 go run ./cmd/zeb spec sync
 ```
 
-or:
-
-```bash
-scripts/fetch-openapi.sh http://localhost:3000/api/v1/openapi.json
-```
-
-The placeholder snapshot is valid JSON so future codegen can be wired before a
-local Core server is running.
+The URL defaults to the configured API plus `/openapi.json`; pass `--url` to
+sync from a different Core. A drift test in `internal/api` asserts every
+hand-written client endpoint exists in the snapshot, so `spec sync` +
+`go test ./...` catches client/API drift.
 
 ## Next Build Steps
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the live checklist and
-[docs/HANDOFF.md](docs/HANDOFF.md) for resume context. The short list:
-
-1. Improve `zeb collections` output so it matches the polish of `zeb links`.
-2. Make link-list pagination usable; the CLI currently prints a raw
-   `Next cursor` without a matching human workflow.
-3. Add compact/table output and snapshot tests for human command output.
-4. Add OpenAPI client generation while keeping a small CLI wrapper for
-   auth/config, pagination behavior, and terminal output.
-5. Add more TUI affordances only where they support fast link work.
+[docs/HANDOFF.md](docs/HANDOFF.md) for resume context.

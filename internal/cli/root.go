@@ -4,13 +4,17 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 type rootOptions struct {
@@ -24,9 +28,11 @@ type rootOptions struct {
 func Execute(version string) {
 	opts := &rootOptions{Version: version}
 	cmd := newRootCommand(opts)
-	cmd.SetArgs(expandRootURLShorthand(os.Args[1:]))
-	if err := cmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	cmd.SetArgs(expandRootURLShorthand(cmd, os.Args[1:]))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if err := cmd.ExecuteContext(ctx); err != nil {
+		fmt.Fprintln(os.Stderr, "zeb:", err)
 		os.Exit(1)
 	}
 }
@@ -41,24 +47,36 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			return runCreateLinks(opts, createOptions, args)
+			return runCreateLinks(cmd, opts, createOptions, args)
 		},
+		// Errors are printed once by Execute; a failed command should not
+		// bury its message under the full usage block.
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 
 	cmd.PersistentFlags().BoolVarP(&opts.JSON, "json", "j", false, "write machine-readable JSON")
 	cmd.PersistentFlags().StringVar(&opts.APIKey, "api-key", "", "API key override")
 	cmd.PersistentFlags().StringVar(&opts.APIURL, "api-url", "", "API base URL or origin")
+	// Owner-only escape hatch for pointing at a local Core; every user path
+	// goes to the built-in production API. Hidden from all help output on
+	// purpose — do not document it.
+	_ = cmd.PersistentFlags().MarkHidden("api-url")
 	cmd.PersistentFlags().StringVarP(&opts.SpaceID, "space", "s", "", "space id/name override")
 	addCreateLinkFlags(cmd, createOptions)
 
 	cmd.AddCommand(
 		newAuthCommand(opts),
+		// `zeb login` is the front-door spelling; `zeb auth login` stays for
+		// symmetry with logout/whoami.
+		newLoginCommand(opts),
 		newCollectionCommand(opts),
 		newCollectionsCommand(opts),
 		newConfigCommand(opts),
 		newContextCommand(opts),
 		newDomainCommand(opts),
 		newDomainsCommand(opts),
+		newHealthCommand(opts),
 		newLinksCommand(opts),
 		newSpaceCommand(opts),
 		newSpecCommand(opts),
@@ -94,8 +112,8 @@ func heading(text string) string {
 	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("212")).Render(text)
 }
 
-func expandRootURLShorthand(args []string) []string {
-	if firstRootPositionalIsURL(args) {
+func expandRootURLShorthand(cmd *cobra.Command, args []string) []string {
+	if firstRootPositionalIsURL(cmd, args) {
 		expanded := make([]string, 0, len(args)+2)
 		expanded = append(expanded, "links", "create")
 		expanded = append(expanded, args...)
@@ -104,14 +122,14 @@ func expandRootURLShorthand(args []string) []string {
 	return args
 }
 
-func firstRootPositionalIsURL(args []string) bool {
+func firstRootPositionalIsURL(cmd *cobra.Command, args []string) bool {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if arg == "--" {
 			return i+1 < len(args) && looksLikeHTTPURL(args[i+1])
 		}
 		if strings.HasPrefix(arg, "-") {
-			if flagConsumesValue(arg) && !strings.Contains(arg, "=") {
+			if flagConsumesValue(cmd, arg) {
 				i++
 			}
 			continue
@@ -121,15 +139,39 @@ func firstRootPositionalIsURL(args []string) bool {
 	return false
 }
 
-func flagConsumesValue(flag string) bool {
-	switch flag {
-	case "--api-key", "--api-url", "--space",
-		"--collection", "-c", "--domain", "-d", "--path",
-		"--short-code", "--namespace", "--title", "-t", "-s":
-		return true
-	default:
+// flagConsumesValue reports whether `arg` names a root-level flag that takes
+// its value from the NEXT argument. Derived from the command's registered
+// flag sets so new create flags can never silently break URL-shorthand
+// detection by missing a hardcoded list. `--flag=value` and `-x=value`
+// carry their value inline and never consume; boolean flags never consume.
+func flagConsumesValue(cmd *cobra.Command, arg string) bool {
+	if strings.Contains(arg, "=") {
 		return false
 	}
+	lookup := rootFlagFor(cmd, arg)
+	if lookup == nil {
+		return false
+	}
+	return lookup.Value.Type() != "bool"
+}
+
+func rootFlagFor(cmd *cobra.Command, arg string) *pflag.Flag {
+	// Local create flags and persistent root flags live in separate sets
+	// until cobra merges them during execution — check both.
+	lookup := func(find func(*pflag.FlagSet) *pflag.Flag) *pflag.Flag {
+		if flag := find(cmd.Flags()); flag != nil {
+			return flag
+		}
+		return find(cmd.PersistentFlags())
+	}
+	if name, ok := strings.CutPrefix(arg, "--"); ok {
+		return lookup(func(flags *pflag.FlagSet) *pflag.Flag { return flags.Lookup(name) })
+	}
+	// Shorthand: only the bare `-x` form consumes the next argument.
+	if !strings.HasPrefix(arg, "-") || len(arg) != 2 {
+		return nil
+	}
+	return lookup(func(flags *pflag.FlagSet) *pflag.Flag { return flags.ShorthandLookup(arg[1:2]) })
 }
 
 func looksLikeHTTPURL(value string) bool {
