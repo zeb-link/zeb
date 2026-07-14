@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/kerns/zlink-zeb/internal/ui/brand"
-	"github.com/kerns/zlink-zeb/internal/ui/theme"
+	"github.com/zeb-link/zeb/internal/ui/brand"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 const (

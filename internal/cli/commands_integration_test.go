@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 // testHarness runs the real command tree against an httptest Core with an

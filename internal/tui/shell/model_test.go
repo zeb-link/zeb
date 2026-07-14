@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/kerns/zlink-zeb/internal/api"
-	"github.com/kerns/zlink-zeb/internal/tui/intro"
+	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/tui/intro"
 )
 
 func TestFocusCyclesForwardWithTab(t *testing.T) {

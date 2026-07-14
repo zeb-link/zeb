@@ -3,7 +3,7 @@
 // metadata into the root command.
 package main
 
-import "github.com/kerns/zlink-zeb/internal/cli"
+import "github.com/zeb-link/zeb/internal/cli"
 
 var version = "0.1.0-dev"
 

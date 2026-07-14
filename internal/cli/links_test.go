@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kerns/zlink-zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/api"
 )
 
 func TestShortLink(t *testing.T) {

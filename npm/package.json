@@ -1,0 +1,41 @@
+{
+  "name": "@zeb-link/zeb",
+  "version": "0.1.0",
+  "description": "Zeb, the command-line client for Zebra Link. Create and manage short links, collections, domains, and spaces from the terminal.",
+  "bin": {
+    "zeb": "bin/zeb.js"
+  },
+  "files": [
+    "bin/zeb.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "zebra-link",
+    "short-links",
+    "link-management",
+    "cli",
+    "tui"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeb-link/zeb.git"
+  },
+  "homepage": "https://github.com/zeb-link/zeb#readme",
+  "bugs": {
+    "url": "https://github.com/zeb-link/zeb/issues"
+  },
+  "author": "kerns <david@kerns.dk>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "optionalDependencies": {
+    "@zeb-link/zeb-darwin-arm64": "0.1.0",
+    "@zeb-link/zeb-darwin-x64": "0.1.0",
+    "@zeb-link/zeb-linux-arm64": "0.1.0",
+    "@zeb-link/zeb-linux-x64": "0.1.0",
+    "@zeb-link/zeb-win32-arm64": "0.1.0",
+    "@zeb-link/zeb-win32-x64": "0.1.0"
+  }
+}

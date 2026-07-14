@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kerns/zlink-zeb/internal/api"
-	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 type apiContext struct {

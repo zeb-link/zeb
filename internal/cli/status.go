@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kerns/zlink-zeb/internal/config"
-	"github.com/kerns/zlink-zeb/internal/ui/theme"
+	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 	"github.com/spf13/cobra"
 )
 

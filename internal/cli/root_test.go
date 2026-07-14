@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 func TestExpandRootURLShorthand(t *testing.T) {

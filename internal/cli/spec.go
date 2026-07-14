@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/config"
 	"github.com/spf13/cobra"
 )
 

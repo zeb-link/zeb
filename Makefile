@@ -1,11 +1,25 @@
 BINARY := zeb
 BUILD_DIR ?= bin
 INSTALL_DIR ?= $(HOME)/.local/bin
+VERSION ?= $(shell node -p "require('./npm/package.json').version")
+LDFLAGS := -X main.version=$(VERSION)
 
-.PHONY: build install-local uninstall-local test fmt vet spec-sync clean
+.PHONY: build release-build npm-build npm-publish release-check install-local uninstall-local test fmt vet spec-sync clean
 
 build:
-	go build -o $(BUILD_DIR)/$(BINARY) ./cmd/zeb
+	go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd/zeb
+
+release-build:
+	VERSION="$(VERSION)" scripts/build-release.sh
+
+npm-build: release-build
+	VERSION="$(VERSION)" scripts/build-npm.sh
+
+npm-publish:
+	scripts/publish-npm.sh
+
+release-check: test npm-build
+	scripts/publish-npm.sh
 
 install-local:
 	ZEB_INSTALL_DIR="$(INSTALL_DIR)" scripts/install-local.sh
@@ -26,4 +40,4 @@ spec-sync:
 	go run ./cmd/zeb spec sync
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) dist npm/packages

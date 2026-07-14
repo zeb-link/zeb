@@ -4,8 +4,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/kerns/zlink-zeb/internal/api"
-	"github.com/kerns/zlink-zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/config"
 	"github.com/spf13/cobra"
 )
 
