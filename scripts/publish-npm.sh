@@ -6,6 +6,11 @@
 #
 # Dry run (default):  scripts/publish-npm.sh
 # For real:           PUBLISH=1 scripts/publish-npm.sh
+#
+# The account has 2FA on publish, so a real publish needs one of:
+#   - an automation/granular token with "bypass 2FA" in ~/.npmrc (preferred —
+#     this script makes seven publishes, and one OTP can expire partway through)
+#   - OTP=123456 PUBLISH=1 scripts/publish-npm.sh
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -30,10 +35,15 @@ else
   echo "DRY RUN for v$version — set PUBLISH=1 to publish for real"
 fi
 
+otp_args=()
+if [[ -n "${OTP:-}" ]]; then
+  otp_args=(--otp "$OTP")
+fi
+
 run_publish() {
   local dir="$1"
   if [[ "$publish" == "1" ]]; then
-    (cd "$dir" && npm publish --access public)
+    (cd "$dir" && npm publish --access public "${otp_args[@]}")
   else
     (cd "$dir" && npm publish --access public --dry-run)
   fi

@@ -29,6 +29,27 @@ a build artifact, not source.
    organization named `zeb-link`. Scoped packages are private by default, which
    is why every publish below passes `--access public`.
 
+3. Deal with 2FA. The account requires a one-time password to publish, and a
+   release is **seven** publishes — one OTP can expire partway through, leaving
+   a half-published release that can't be repaired at the same version.
+
+   Create a **granular access token** on npmjs.com (Access Tokens → Generate →
+   Granular) scoped to the `@zeb-link` packages, with **"Bypass 2FA"** enabled,
+   then put it in `~/.npmrc`:
+
+   ```text
+   //registry.npmjs.org/:_authToken=npm_xxxxxxxx
+   ```
+
+   `~/.npmrc` holds a live credential — keep it `chmod 600` and out of git.
+
+   For a one-off publish you can pass an OTP instead, but it races the 30-second
+   expiry across seven uploads:
+
+   ```bash
+   OTP=123456 PUBLISH=1 make npm-publish
+   ```
+
 ## Release checklist
 
 1. Pick the next semver version.
