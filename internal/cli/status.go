@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/ui/theme"
-	"github.com/spf13/cobra"
 )
 
 func newStatusCommand(root *rootOptions) *cobra.Command {

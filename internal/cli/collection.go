@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/ui/theme"
-	"github.com/spf13/cobra"
 )
 
 func newCollectionsCommand(root *rootOptions) *cobra.Command {

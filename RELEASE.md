@@ -114,6 +114,18 @@ make build
 bin/zeb version
 ```
 
-A plain `go build ./cmd/zeb` skips the ldflags and reports the fallback version
-in `cmd/zeb/main.go` (`0.1.0-dev`). That's expected — use `make build` when the
-version matters.
+Without ldflags, the binary resolves its version from the module metadata the Go
+toolchain records at build time:
+
+| How it was built | `zeb version` reports |
+| --- | --- |
+| `make build` | the `npm/package.json` version, e.g. `0.1.0` |
+| `go install …@v0.1.0` | `0.1.0`, from the git tag |
+| `go install …@latest`, tagged | the newest tag |
+| `go install …@latest`, untagged | a pseudo-version, e.g. `0.0.0-20260714185951-1cb3d7ca9d5b` |
+| `go build ./cmd/zeb` in a clone | a pseudo-version, `+dirty` if the tree has uncommitted changes |
+| built outside a repo, no VCS data | `dev` |
+
+This is why tagging matters: an untagged `@latest` install reports a
+pseudo-version instead of a release number. Push the tag as part of the
+release.

@@ -9,9 +9,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
-	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
 

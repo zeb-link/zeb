@@ -4,9 +4,9 @@ package cli
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
-	"github.com/spf13/cobra"
 )
 
 func newSpaceCommand(root *rootOptions) *cobra.Command {

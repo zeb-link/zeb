@@ -5,8 +5,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/zeb-link/zeb/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 func newDomainsCommand(root *rootOptions) *cobra.Command {

@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/zeb-link/zeb/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 // specRelPath is where the snapshot lives inside the zeb repo. Sync resolves

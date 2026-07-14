@@ -12,7 +12,10 @@ First npm release.
   `make release-check` for cross-compiling and publishing.
 - MIT license.
 
+- `go install github.com/zeb-link/zeb/cmd/zeb@latest` as an alternative to npm.
+
 ### Changed
 
-- `make build` now embeds the npm package version into `zeb version` via
-  ldflags. A plain `go build` still reports the `0.1.0-dev` fallback.
+- `make build` embeds the npm package version into `zeb version` via ldflags.
+  Builds without ldflags — `go install`, in particular — now resolve the version
+  from module build info instead of reporting a hardcoded fallback.

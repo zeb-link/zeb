@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/tui/intro"
 	"github.com/zeb-link/zeb/internal/tui/intro/gallery"
 	"github.com/zeb-link/zeb/internal/tui/shell"
-	"github.com/spf13/cobra"
 )
 
 func newTUICommand(root *rootOptions) *cobra.Command {

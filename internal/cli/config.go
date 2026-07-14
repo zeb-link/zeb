@@ -6,8 +6,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/zeb-link/zeb/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/zeb-link/zeb/internal/config"
 )
 
 func newConfigCommand(root *rootOptions) *cobra.Command {

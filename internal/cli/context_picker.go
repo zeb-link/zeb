@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/tui/contextpicker"
-	"github.com/spf13/cobra"
 )
 
 func newContextCommand(root *rootOptions) *cobra.Command {
