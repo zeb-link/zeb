@@ -21,7 +21,7 @@ const (
 )
 
 // defaultAPIURL is the production API every user lands on out of the box.
-// When Zebra Link gets a dedicated API domain, change THIS line and rebuild —
+// When Zebra gets a dedicated API domain, change THIS line and rebuild —
 // `zeb login` deliberately does not persist the default into config, so
 // existing installs pick the new value up on their next build.
 //

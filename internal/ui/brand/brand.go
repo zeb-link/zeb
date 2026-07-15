@@ -2,4 +2,4 @@
 // Command output and TUI screens import this instead of repeating brand copy.
 package brand
 
-const Welcome = "Welcome to Zeb, the Zebra Link CLI"
+const Welcome = "Welcome to Zeb, the Zebra CLI"

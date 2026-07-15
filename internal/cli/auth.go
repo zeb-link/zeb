@@ -29,8 +29,8 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 	var spaceID string
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Log in with your Zebra Link API key",
-		Long:  "Log in with your Zebra Link API key.\n\nPaste the key at the prompt (or pass --api-key). The key is validated and stored in ~/.zlink for future commands.",
+		Short: "Log in with your Zebra API key",
+		Long:  "Log in with your Zebra API key.\n\nPaste the key at the prompt (or pass --api-key). The key is validated and stored in ~/.zlink for future commands.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := firstNonEmpty(apiKey, root.APIKey)
 			if key == "" {

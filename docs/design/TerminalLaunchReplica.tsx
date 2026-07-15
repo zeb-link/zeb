@@ -61,11 +61,11 @@ export function TerminalLaunchReplica({
           ))}
         </span>
         {"\n"}
-        <span className="zeb-muted">   Welcome to Zeb, the Zebra Link CLI</span>
+        <span className="zeb-muted">   Welcome to Zeb, the Zebra CLI</span>
         {"\n"}
         <span className="zeb-title">   Zeb</span>
         {"\n"}
-        <span className="zeb-muted">   Welcome to Zeb, the Zebra Link CLI. Press q to quit.</span>
+        <span className="zeb-muted">   Welcome to Zeb, the Zebra CLI. Press q to quit.</span>
         {"\n"}
         <span className="zeb-actions">   auth  space  spec  status  links</span>
       </pre>

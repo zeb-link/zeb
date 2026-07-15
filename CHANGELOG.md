@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-07-15
+
+### Changed
+
+- The CLI's own text now says **Zebra**, matching the README: `zeb --help`,
+  `zeb login`, and the TUI welcome line all dropped "Zebra Link".
+
 ## 0.1.1 - 2026-07-15
 
 First release published from CI. Carries a provenance attestation.

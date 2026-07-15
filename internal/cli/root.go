@@ -41,8 +41,8 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 	createOptions := &createLinksOptions{}
 	cmd := &cobra.Command{
 		Use:   "zeb [url...]",
-		Short: "Manage Zebra Link spaces from the terminal",
-		Long:  "Manage Zebra Link spaces from the terminal.\n\nRun `zeb <url>` to create a short link, or use subcommands for listing links, choosing domains, and choosing collections.",
+		Short: "Manage Zebra spaces from the terminal",
+		Long:  "Manage Zebra spaces from the terminal.\n\nRun `zeb <url>` to create a short link, or use subcommands for listing links, choosing domains, and choosing collections.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

@@ -1,4 +1,4 @@
-// zeb is the entrypoint for the Zebra Link command-line client.
+// zeb is the entrypoint for the Zebra command-line client.
 // Command wiring lives under internal/cli; this file only resolves version
 // metadata and passes it into the root command.
 package main

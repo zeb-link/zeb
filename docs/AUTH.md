@@ -5,7 +5,7 @@ The CLI uses API keys. It does not manage browser sessions.
 ## Login
 
 `zeb login` (or `zeb auth login`) asks for or accepts an API key, validates it
-against the Zebra Link API (`GET /api/v1/me`), and writes:
+against the Zebra API (`GET /api/v1/me`), and writes:
 
 ```text
 ~/.zlink/credentials.json

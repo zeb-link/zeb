@@ -1,7 +1,10 @@
 # AGENTS.md
 
-This is the Go CLI for Zebra Link, invoked as `zeb`. It is a separate project
-from `zlink-core`.
+This is the Go CLI for Zebra, invoked as `zeb`. It is a separate project from
+`zlink-core`.
+
+The product is **Zebra** (<https://zeblink.io>) — not "Zebra Link", never
+"Zeblink". `zeb` is the CLI's name and the mascot, not the brand.
 
 ## Commands
 
@@ -86,5 +89,5 @@ returns `accessibleSpaces`, which `internal/api` exposes as `AccessibleSpaces`.
 
 ## Boundaries
 
-Do not edit other Zebra Link projects unless the user explicitly asks for
+Do not edit other Zebra projects unless the user explicitly asks for
 cross-project work. Use this project as the source of truth for Zeb behavior.
