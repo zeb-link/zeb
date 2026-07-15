@@ -35,18 +35,20 @@ else
   echo "DRY RUN for v$version — set PUBLISH=1 to publish for real"
 fi
 
-otp_args=()
-if [[ -n "${OTP:-}" ]]; then
-  otp_args=(--otp "$OTP")
-fi
-
+# Build the flag list in one place so the dry-run and real-publish paths take
+# the same code path — an earlier split let a bug hide from every dry run.
+# Keep the array non-empty: macOS bash 3.2 treats expanding an empty array under
+# `set -u` as an unbound variable.
 run_publish() {
   local dir="$1"
-  if [[ "$publish" == "1" ]]; then
-    (cd "$dir" && npm publish --access public "${otp_args[@]}")
-  else
-    (cd "$dir" && npm publish --access public --dry-run)
+  local -a args=(--access public)
+  if [[ -n "${OTP:-}" ]]; then
+    args+=(--otp "$OTP")
   fi
+  if [[ "$publish" != "1" ]]; then
+    args+=(--dry-run)
+  fi
+  (cd "$dir" && npm publish "${args[@]}")
 }
 
 for pkg in "$packages"/*/; do
