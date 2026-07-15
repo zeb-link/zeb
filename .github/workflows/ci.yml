@@ -44,5 +44,13 @@ jobs:
 
       - run: make npm-build
 
-      - name: Dry-run the npm publish
-        run: scripts/publish-npm.sh
+      # `npm pack` validates each package's contents without contacting the
+      # registry. A publish --dry-run would talk to npm and fail with "cannot
+      # publish over the previously published version" on every push after a
+      # release, which says nothing about whether this commit is sound.
+      - name: Validate package contents
+        run: |
+          for pkg in npm/packages/*/ npm; do
+            echo "--- $pkg"
+            (cd "$pkg" && npm pack --dry-run)
+          done
