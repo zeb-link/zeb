@@ -58,17 +58,24 @@ Each of the seven packages needs its trusted publisher registered. A package
 must **already exist** on npm before it can be configured, so a brand-new
 package needs one manual publish first (see below).
 
+⚠️ **Run `npm login` first.** `npm trust` requires real 2FA and **rejects** the
+bypass-2FA token that a local publish uses. If `~/.npmrc` holds that token,
+every call fails with `403 ... Two-factor authentication is required for this
+operation` — even though `npm whoami` succeeds. `npm login` replaces it with a
+2FA-verified session.
+
 ```bash
+npm login    # REQUIRED — a bypass-2FA token cannot do this
+
 for p in zeb zeb-darwin-arm64 zeb-darwin-x64 zeb-linux-arm64 zeb-linux-x64 zeb-win32-arm64 zeb-win32-x64; do
   npm trust github "@zeb-link/$p" \
-    --file publish.yml --repo zeb-link/zeb --allow-publish
+    --file publish.yml --repo zeb-link/zeb --allow-publish --yes
 done
 
-npm trust list
+npm trust list @zeb-link/zeb    # name it explicitly; a bare `list` reads ./package.json
 ```
 
-Requires `npm@11.15.0`+. Note that `npm trust` **rejects** granular tokens with
-"bypass 2FA" — run it interactively with your authenticator.
+Requires `npm@11.15.0`+.
 
 `--file publish.yml` must match the workflow filename. Renaming
 `.github/workflows/publish.yml` breaks publishing until every package's config
