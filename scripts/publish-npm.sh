@@ -26,11 +26,16 @@ if [[ ! -d "$packages" ]]; then
 fi
 
 if [[ "$publish" == "1" ]]; then
-  if ! npm whoami >/dev/null 2>&1; then
+  # In CI there is no logged-in user: trusted publishing authenticates via OIDC
+  # at publish time, so `npm whoami` correctly fails. Only gate on it locally.
+  if [[ -n "${CI:-}" ]]; then
+    echo "publishing v$version from CI via trusted publishing (OIDC)"
+  elif npm whoami >/dev/null 2>&1; then
+    echo "publishing v$version as $(npm whoami)"
+  else
     echo "not logged in to npm — run 'npm login' first" >&2
     exit 1
   fi
-  echo "publishing v$version as $(npm whoami)"
 else
   echo "DRY RUN for v$version — set PUBLISH=1 to publish for real"
 fi
