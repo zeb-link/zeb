@@ -1,0 +1,25 @@
+# Dependency updates arrive as PRs, which CI (tests + govulncheck) gates.
+# Without this, a dependency only updates when someone remembers to look.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for routine bumps instead of five. Security updates still open
+      # their own PR immediately, regardless of grouping or schedule.
+      go-dependencies:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Actions pinned to a major tag (actions/checkout@v4) still receive silent
+  # updates within that major; this catches the major bumps that don't.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5

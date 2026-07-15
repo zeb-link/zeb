@@ -18,6 +18,18 @@ go test ./...
 go build ./cmd/zeb
 ```
 
+## Maintenance
+
+- **`govulncheck` runs in CI** on every push/PR **and weekly on a schedule** —
+  a CVE can land with no commit from us, so the clock matters. It reports only
+  vulnerabilities this code actually reaches.
+- ⚠️ **The `go` directive in `go.mod` picks the stdlib** that CI and releases
+  build against (`setup-go` reads `go-version-file: go.mod`). Most Go CVEs are
+  stdlib CVEs, so **bumping that line is a security fix** — treat it as one.
+  Don't lower it casually.
+- **Dependabot** opens weekly PRs for Go modules and Actions; CI gates them.
+  Security updates arrive immediately, outside the schedule.
+
 ## Distribution
 
 Zeb ships as `@zeb-link/zeb` on npm. The binaries live **inside** per-platform

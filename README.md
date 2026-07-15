@@ -1,5 +1,9 @@
 # Zeb
 
+[![ci](https://github.com/zeb-link/zeb/actions/workflows/ci.yml/badge.svg)](https://github.com/zeb-link/zeb/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@zeb-link/zeb)](https://www.npmjs.com/package/@zeb-link/zeb)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 The command-line client for [Zebra](https://zeblink.io), the short link
 operating system. Create and manage short links, collections, domains, and
 spaces from the terminal, or from a script.
