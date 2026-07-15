@@ -1,7 +1,7 @@
 {
   "name": "@zeb-link/zeb",
   "version": "0.1.0",
-  "description": "Zeb, the command-line client for Zebra Link. Create and manage short links, collections, domains, and spaces from the terminal.",
+  "description": "Zeb, the command-line client for Zebra, the short link operating system. Create and manage short links, collections, domains, and spaces from the terminal.",
   "bin": {
     "zeb": "bin/zeb.js"
   },

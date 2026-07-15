@@ -1,8 +1,8 @@
 # @zeb-link/zeb
 
-Zeb, the command-line client for [Zebra Link](https://zeblink.io). Create and
-manage short links, collections, domains, and spaces from the terminal, or from
-a script.
+Zeb, the command-line client for [Zebra](https://zeblink.io), the short link
+operating system. Create and manage short links, collections, domains, and
+spaces from the terminal, or from a script.
 
 This package ships a **prebuilt native binary** (Go) for your platform. Node is
 used to install it, not to run it. The binary lives in a per-platform package
@@ -15,8 +15,8 @@ npm i -g @zeb-link/zeb      # or: pnpm add -g @zeb-link/zeb
 zeb login
 ```
 
-`zeb login` prompts for your Zebra Link API key and validates it. That is the
-only setup step.
+`zeb login` prompts for your Zebra API key and validates it. That is the only
+setup step.
 
 ## Quick start
 
