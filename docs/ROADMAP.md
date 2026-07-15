@@ -1,10 +1,11 @@
 # Zeb CLI Roadmap
 
-This is the live checklist for Zeb while it is still local-first and changing
-quickly. Keep this file current when command behavior changes; use
-`docs/HANDOFF.md` for resume context and architectural notes.
+This is the live checklist for Zeb's command surface. Keep it current when
+command behavior changes; use `docs/HANDOFF.md` for resume context and
+architectural notes, and `RELEASE.md` for how releases ship.
 
-Last checked against code: 2026-07-07.
+Last checked against code: 2026-07-07. Zeb is no longer local-first — it is
+published on npm as `@zeb-link/zeb` and releases from CI on a tag.
 
 ## Current Shape
 
