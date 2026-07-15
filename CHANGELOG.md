@@ -1,6 +1,15 @@
 # Changelog
 
-## 0.1.0 - unreleased
+## 0.1.1 - 2026-07-15
+
+First release published from CI. Carries a provenance attestation.
+
+### Changed
+
+- The product is **Zebra**, not "Zebra Link" — README and package description
+  updated. <https://zeblink.io>
+
+## 0.1.0 - 2026-07-14
 
 First npm release.
 
