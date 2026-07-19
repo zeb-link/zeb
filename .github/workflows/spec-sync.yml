@@ -1,0 +1,100 @@
+name: spec-sync
+
+# Keeps the vendored OpenAPI snapshot (internal/openapi/openapi.json) in step
+# with the live production API — without anyone syncing by hand.
+#
+# The production spec is the single source of truth: Core regenerates it from
+# code on every deploy and serves it at /api/v1/openapi.json. This job pulls it
+# and, when it differs from what's committed, opens (or updates) a PR with the
+# refreshed snapshot. Two outcomes:
+#
+#   * Routine change (new descriptions, tweaked schema): the drift test passes
+#     and the PR is a one-click merge.
+#   * A genuinely NEW endpoint: the drift test fails and the PR body says which
+#     operations need wiring (or a knownUnimplemented note). That is the only
+#     case that needs a human — and it should, because a new endpoint is a
+#     product decision for the CLI.
+#
+# Triggers: the weekly clock (a safety net), a manual button, and — once the
+# Core repo is wired to send it — a `core-deployed` repository_dispatch the
+# moment production ships a new spec. See docs/OPENAPI.md.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC, alongside the vuln clock
+  workflow_dispatch:
+  repository_dispatch:
+    types: [core-deployed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: spec-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Re-sync the snapshot from the production API
+        run: go run ./cmd/zeb spec sync
+
+      - name: Detect whether the snapshot changed
+        id: diff
+        run: |
+          if git diff --quiet -- internal/openapi/openapi.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Snapshot already matches production — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the PR body (with the drift-test result)
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          {
+            echo "The production API spec changed; this refreshes the vendored snapshot."
+            echo
+            if go test ./internal/api/ >drift.log 2>&1; then
+              echo "**Drift test: clean.** The hand-written client and the refreshed"
+              echo "snapshot agree — this is a safe, one-click merge."
+            else
+              echo "**Drift test: action needed.** Production grew operations the CLI"
+              echo "client has not considered. Wire them (add a client method and a"
+              echo "\`clientEndpoints\` row) or record a \`knownUnimplemented\` entry, then"
+              echo "push to this branch:"
+              echo
+              echo '```'
+              grep "no client method" drift.log || cat drift.log
+              echo '```'
+            fi
+          } > pr-body.md
+          cat pr-body.md
+
+      - name: Open or update the sync PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="bot/spec-sync"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add internal/openapi/openapi.json
+          git commit -m "Sync OpenAPI snapshot from production"
+          git push --force-with-lease origin "$branch"
+          if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --body-file pr-body.md
+          else
+            gh pr create --base main --head "$branch" \
+              --title "Sync OpenAPI snapshot from production" \
+              --body-file pr-body.md
+          fi
