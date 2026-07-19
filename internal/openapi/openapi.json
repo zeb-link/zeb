@@ -3404,6 +3404,7 @@
     "/api/v1/health": {
       "get": {
         "description": "Returns `{ ok: true, api: 'v1' }`. Public — no auth. Use for uptime monitoring and to verify the API surface is reachable. With `?deep=1` it also exercises the QR image rasterizer and returns `render: 'ok'` (500 with `render: 'failed'` when the renderer can't load).",
+        "operationId": "getHealth",
         "parameters": [
           {
             "description": "Set to `1` to run the deep render probe.",
@@ -3440,6 +3441,7 @@
     "/api/v1/me": {
       "get": {
         "description": "Returns the user the API key acts as, the spaces the key is authorized for, and the key's own metadata. Useful for client-side key introspection: \"who am I, what can I do?\"",
+        "operationId": "getCurrentUser",
         "responses": {
           "200": {
             "content": {
@@ -3476,6 +3478,7 @@
     "/api/v1/spaces/{spaceId}/collections": {
       "get": {
         "description": "Returns every collection in the space, capped at 100 by plan limits, with each collection's current `linkCount`. Smart collections calculate `linkCount` from their current matching links. Order via `sort` (default `creation-date-desc`; same vocabulary as the link lists); click-based sorts use the collection's current links.",
+        "operationId": "listCollections",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3563,6 +3566,7 @@
       },
       "post": {
         "description": "Creates a normal collection. It starts empty; add links with `POST /collections/{collectionId}/links`.",
+        "operationId": "createCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3667,6 +3671,7 @@
     "/api/v1/spaces/{spaceId}/collections/bulk": {
       "post": {
         "description": "Creates up to 50 normal collections in one request. Names do not have to be unique within a space. The collection cap is enforced all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
+        "operationId": "bulkCreateCollections",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3793,6 +3798,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}": {
       "delete": {
         "description": "Permanently deletes the collection. Links in the collection are not deleted.",
+        "operationId": "deleteCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3881,6 +3887,7 @@
       },
       "get": {
         "description": "Returns one collection, including its current `linkCount`. A collectionId in a different space returns 404.",
+        "operationId": "getCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3977,6 +3984,7 @@
       },
       "patch": {
         "description": "Updates `name` or `description`. Rule editing is not supported by the public API.",
+        "operationId": "updateCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4110,6 +4118,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/convert-to-manual": {
       "post": {
         "description": "Converts a smart collection into a fixed collection containing its current matching links. The collection no longer changes automatically as link state changes. Rejects collections that are already fixed.",
+        "operationId": "convertCollectionToManual",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4210,6 +4219,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/links": {
       "delete": {
         "description": "Removes the listed links from the collection. Links that are not in the collection are no-ops. Smart collections reject explicit membership changes.",
+        "operationId": "removeCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4332,6 +4342,7 @@
       },
       "get": {
         "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit` (1–1000, default 50; server clamps); a cursor is only valid under the sort that issued it. Pass `include=clicks` for `totalClicks`/`lastClickAt` on every row.",
+        "operationId": "listCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4480,6 +4491,7 @@
       },
       "post": {
         "description": "Adds the listed links to the collection. Re-adding a link that is already in the collection counts as `alreadyMember`, not an error. Smart collections reject explicit membership changes.",
+        "operationId": "addCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4604,6 +4616,7 @@
     "/api/v1/spaces/{spaceId}/domains": {
       "get": {
         "description": "Returns the enabled short domains this space can use. Pass a returned `hostname` or `id` as the `domain` field when creating a link, or omit `domain` to use the space's default domain.",
+        "operationId": "listDomains",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4663,6 +4676,7 @@
     "/api/v1/spaces/{spaceId}/links": {
       "get": {
         "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, clamped to 1000. Pass `include=clicks` to get `totalClicks` and `lastClickAt` on every row (click-based sorts include them automatically).",
+        "operationId": "listLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4809,6 +4823,7 @@
       },
       "post": {
         "description": "Creates a short link in the named space. `domain` is an optional hostname or `dom_*` id (e.g. \"zlnk.to\", from `GET …/domains`); omit it to use the space's default domain. `collection` is an optional `col_*` id or exact collection name; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions. When `path` is omitted, Zebra allocates one under the requested namespace, or the root namespace by default.",
+        "operationId": "createLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5051,6 +5066,7 @@
     "/api/v1/spaces/{spaceId}/links/bulk": {
       "delete": {
         "description": "Deletes up to 250 links by id. Rows fail independently: an id that is missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
+        "operationId": "bulkDeleteLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5162,6 +5178,7 @@
       },
       "patch": {
         "description": "Updates multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch, using the same body fields as single-link PATCH. Rows fail independently with per-row error envelopes.",
+        "operationId": "bulkUpdateLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5391,6 +5408,7 @@
       },
       "post": {
         "description": "Creates up to 250 links. Each row gets its own result; a malformed URL or unavailable custom path fails only that row. Set `collection` to a `col_*` id or exact collection name to add every created link to that collection; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions.\n\nBulk creation validates URL shape and path availability only. It does not probe each target URL, so no `targetReachable` field is returned. `title` is used when supplied.\n\nThe batch counts atomically against the space's link-volume limits: a batch that would cross the per-minute or monthly cap is rejected whole with HTTP 429 and zero links created. Per-minute rejections carry a `Retry-After` header; `error.details.remaining` reports the headroom left in the window so a smaller batch can be sized.",
+        "operationId": "bulkCreateLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5627,6 +5645,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}": {
       "delete": {
         "description": "Permanently deletes the named link. A linkId in a different space returns 404.",
+        "operationId": "deleteLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5715,6 +5734,7 @@
       },
       "get": {
         "description": "Returns one link with canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. A linkId that exists in a different space returns 404.",
+        "operationId": "getLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5793,6 +5813,7 @@
       },
       "patch": {
         "description": "Patches the named link. Every body field is optional — omitting one leaves that field unchanged. `title: null` clears the title; `title: undefined` (omitting it) doesn't touch it. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "operationId": "updateLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6016,6 +6037,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants": {
       "get": {
         "description": "Returns the link's named QR designs in display order, plus the space default style. The FIRST variant is the link's effective default — what renders when no `variant` is specified anywhere. Each variant carries its stable public `imageUrls`. A link with zero variants still renders a code (the space default, else the stock look) — fetch it from the link's `/qr/image` endpoint, or export it for a public URL.",
+        "operationId": "listQrVariants",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6094,6 +6116,7 @@
       },
       "post": {
         "description": "Adds a named design to the link. `style` is the sparse design vocabulary (canonical JSON); omit it (or send null) for a design that renders the space default look.",
+        "operationId": "createQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6466,6 +6489,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}": {
       "delete": {
         "description": "Deletes the named design. A link with zero remaining variants still renders its default code.",
+        "operationId": "deleteQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6564,6 +6588,7 @@
         ]
       },
       "get": {
+        "operationId": "getQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6653,6 +6678,7 @@
       },
       "patch": {
         "description": "Patches the named design. Omit a field to leave it unchanged; `style: null` clears the design back to the space default look.",
+        "operationId": "updateQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7033,6 +7059,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}/image": {
       "get": {
         "description": "Renders one named design at any size/format, encoding the link's canonical short URL. Live: restyling the variant in the studio changes what it renders next. Authenticated — for a key-free URL to embed or hand off, use the variant's stable `imageUrls`.",
+        "operationId": "getQrVariantImage",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7167,6 +7194,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr/export": {
       "post": {
         "description": "Resolves a design, refreshes its stable public files, and returns their URLs — key-free, CDN-served, \u003cimg\u003e-embeddable, one PNG and one SVG per design. The URLs are permanent and always serve the design's latest saved look: saving in the studio rewrites the same files in place (also returned as `imageUrls` on the variant endpoints, so most callers never need this endpoint after the first materialization). Need a copy frozen in time? Download the file. Without `variant`, the link's effective default design exports — its first saved variant, else the space default/stock look. The image encodes only the link's public short URL.",
+        "operationId": "exportLinkQrImages",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7294,6 +7322,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr/image": {
       "get": {
         "description": "Renders the link's code at any size/format — the endpoint a publishing pipeline pairs with link creation. Without `variant`, the link's effective default design renders: its first saved variant, else the space default, else the stock look (what the studio shows first). The image always encodes the link's canonical short URL. Authenticated and rendered per request — for a key-free URL to embed or hand off, use the design's stable `imageUrls` (variant endpoints / `/qr/export`).",
+        "operationId": "getLinkQrImage",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
