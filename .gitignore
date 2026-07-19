@@ -17,3 +17,5 @@
 
 # Local (uncommitted) dev/ops notes — see AGENTS.md for the committed conventions
 AGENTS.local.md
+# Parked, uncommitted to-do notes for later (see TODO.local.md).
+*.local.md

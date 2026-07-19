@@ -15,16 +15,15 @@ name: spec-sync
 #     case that needs a human — and it should, because a new endpoint is a
 #     product decision for the CLI.
 #
-# Triggers: the weekly clock (a safety net), a manual button, and — once the
-# Core repo is wired to send it — a `core-deployed` repository_dispatch the
-# moment production ships a new spec. See docs/OPENAPI.md.
+# Triggers: a daily clock and a manual button (Actions → spec-sync → Run
+# workflow). Daily keeps the vendored copy at most ~24h behind production with
+# no cross-repo tokens or deploy hooks to maintain. On days the spec did not
+# change, the job does nothing (no PR).
 
 on:
   schedule:
-    - cron: "0 7 * * 1" # Mondays 07:00 UTC, alongside the vuln clock
+    - cron: "0 7 * * *" # daily at 07:00 UTC
   workflow_dispatch:
-  repository_dispatch:
-    types: [core-deployed]
 
 permissions:
   contents: write

@@ -46,32 +46,9 @@ truth — Core regenerates the spec from code on every deploy and serves it at
   client hasn't considered — wire it or record `knownUnimplemented`, then push
   to the branch.
 
-The sync workflow runs on a weekly clock and on demand. To make it fire the
-moment production ships — instead of waiting for the clock — the Core repo can
-send a `repository_dispatch`:
-
-```yaml
-# In zlink-core: .github/workflows/notify-spec-consumers.yml
-name: notify-spec-consumers
-on:
-  push:
-    branches: [main]
-    paths:
-      - "src/app/api/v1/**"
-      - "src/lib/openapi*.ts"
-jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Tell the CLI to re-sync the spec
-        env:
-          GH_TOKEN: ${{ secrets.CLI_DISPATCH_TOKEN }}
-        run: |
-          gh api repos/zeb-link/zeb/dispatches -f event_type=core-deployed
-```
-
-`CLI_DISPATCH_TOKEN` is a fine-grained PAT (or GitHub App token) scoped to this
-repo with **Contents: read** and metadata — enough to trigger a dispatch.
-Because production takes a minute to redeploy after the push, the weekly clock
-remains the backstop; for exact timing, trigger this from Vercel's
-"deployment succeeded" webhook instead of `push`.
+The sync workflow runs **daily** (and on demand via Actions → spec-sync → Run
+workflow), so the vendored copy is never more than about a day behind
+production. On days the spec did not change, the job does nothing. This is
+deliberately kept simple — no cross-repo tokens or deploy webhooks to maintain;
+a day's lag on an offline test artifact is harmless, and merging the bot PR is
+the only manual step.
