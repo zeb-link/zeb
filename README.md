@@ -51,8 +51,8 @@ zeb tui                                 # interactive browser
 zeb --help
 ```
 
-Every command takes `--json` for machine-readable output, which is what you want
-in scripts and agent workflows.
+Every command takes `--json` (alias `--agent`) for machine-readable output,
+which is what you want in scripts and agent workflows. See [Agents](#agents).
 
 ## Creating links
 
@@ -74,6 +74,29 @@ The domain and collection a new link lands in resolve in this order:
 4. Server default, for domain only
 
 Use `--no-collection` to ignore an active collection for a single create.
+
+## QR codes
+
+Every link has a QR code. `zeb qr` gets it two ways:
+
+```bash
+zeb qr <link-id>                          # print stable public image URLs (PNG + SVG)
+zeb qr <link-id> --download qr.png        # save the rendered image to a file
+zeb qr <link-id> --download qr.svg        # SVG (format inferred from the extension)
+zeb qr <link-id> --download big.png --size 1024
+zeb qr variants <link-id>                 # list the link's named designs
+```
+
+The default (no `--download`) returns the design's **stable public URLs** —
+key-free, CDN-served, and safe to embed in an `<img>` tag or hand to a third
+party. Saving the design in the studio rewrites those same files in place, so
+the URL always serves the latest look. `--download` instead fetches the
+rendered bytes and writes them to disk (`--format png|svg`, `--size` for PNG,
+`--variant <id>` to render a specific named design).
+
+Authoring QR designs — styles, gradients, branding marks, signals — lives in
+the web studio. The CLI reads, exports, and renders codes; it does not style
+them.
 
 ## Commands
 
@@ -99,13 +122,17 @@ zeb collection add <link-id...> [--to <id-or-name>]
 zeb collection remove <link-id...> [--from <id-or-name>]
 zeb collection use <id-or-name>
 zeb collection clear
+zeb context
 zeb links [--sort …] [--cursor …] [--all] [--status …] [--limit …]
 zeb links --collection active
 zeb links create <url...>
 zeb links get <link-id>
-zeb links update <link-id> [--target …] [--title …] [--path …] [--active|--inactive]
+zeb links update <link-id> [--target …] [--title …] [--description …] [--path …] [--active|--inactive]
 zeb links delete <link-id...>
 zeb <url...>
+zeb qr <link-id>
+zeb qr <link-id> --download <file> [--format png|svg] [--size <px>] [--variant <id>]
+zeb qr variants <link-id>
 zeb space current
 zeb space list
 zeb space use <space-id>
@@ -138,6 +165,33 @@ Space resolution:
 `zeb login` validates the key against `GET /api/v1/me`, stores it, and sets an
 active space — automatically when the key has exactly one accessible space,
 otherwise from a prompt.
+
+## Agents
+
+Zeb is built to be driven by an agent or script with no interactive steps.
+
+```bash
+export ZLINK_API_KEY=zeb_...     # no `zeb login` needed; --api-key also works
+export ZLINK_SPACE=spc_...       # find yours with `zeb auth whoami --json`
+zeb status --check --json        # preflight: validates the key + space, exits non-zero if either is bad
+zeb links --limit 50 --json      # read a page; follow .nextCursor to paginate (or --all)
+zeb https://example.com --json   # create; read .created[].link.shortUrl
+zeb qr <link-id> --json          # get .export.imageUrls.png / .svg (public, embeddable)
+```
+
+The contract:
+
+- **`--json`** (alias **`--agent`**) is available on every command.
+- **Both success and failure are JSON on stdout.** A failed command prints
+  `{"error":{"code":"…","message":"…","status":…}}` and exits non-zero, so a
+  `zeb … --json | jq` pipeline always parses; the exit code tells you which.
+  The `code` matches the API's error vocabulary (`PATH_TAKEN`, `INVALID_SORT`,
+  `LINK_NOT_FOUND`, …), so you can branch on it.
+- **No prompts.** Destructive commands (`links delete`, `collection delete`)
+  do not ask for confirmation, so they never block an automated run.
+- **Partial-batch results are per-row.** `links create`/`delete` on many URLs
+  report `created`/`results` and `failed` arrays; a failed row never hides a
+  successful one.
 
 ## TUI
 

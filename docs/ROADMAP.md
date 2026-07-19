@@ -4,7 +4,7 @@ This is the live checklist for Zeb's command surface. Keep it current when
 command behavior changes; use `docs/HANDOFF.md` for resume context and
 architectural notes, and `RELEASE.md` for how releases ship.
 
-Last checked against code: 2026-07-07. Zeb is no longer local-first — it is
+Last checked against code: 2026-07-19. Zeb is no longer local-first — it is
 published on npm as `@zeb-link/zeb` and releases from CI on a tag.
 
 ## Current Shape
@@ -25,6 +25,12 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   cursor. Same flags on `zeb collection links`.
 - `zeb links get/update/delete` manage single links; delete accepts many ids
   and runs through the bulk endpoint (chunked at 250, per-row results).
+- `zeb qr <link-id>` returns a link's QR code: its stable public image URLs
+  (via `/qr/export`) by default, `--download` to save the rendered PNG/SVG
+  (via `/qr/image`, with `--format`/`--size`/`--variant`), and `zeb qr
+  variants` to list a link's named designs. Authoring designs (variant styles,
+  signals) stays in the studio — the variant write/detail ops are recorded in
+  the drift test's `knownUnimplemented`.
 - `zeb collections` / `zeb collection …` cover list, show, create, update,
   delete (clears the active-collection context if it pointed at the deleted
   one), convert (smart → manual), and membership (`add`/`remove` link ids,
@@ -71,8 +77,6 @@ and the global `zeb` command points at the updated binary.
 
 ## Next Product Work
 
-- Show click counts in `zeb links` rows once Core exposes them on the link
-  API shape; `--sort total-clicks-desc` already works.
 - Add compact/table output for `zeb links` once the default rich list settles.
 - Translate more API error codes into user-facing advice where the raw
   message is not actionable.

@@ -3,8 +3,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -41,6 +43,24 @@ func runZeb(t *testing.T, args ...string) error {
 	cmd.SetOut(&strings.Builder{})
 	cmd.SetErr(&strings.Builder{})
 	return cmd.Execute()
+}
+
+// runZebCapture runs a command and captures what it writes to os.Stdout (the
+// commands print their JSON body there, not through cobra's out writer), so a
+// test can assert the machine-readable body as well as the returned error.
+func runZebCapture(t *testing.T, args ...string) (string, error) {
+	t.Helper()
+	old := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stdout = w
+	runErr := runZeb(t, args...)
+	_ = w.Close()
+	os.Stdout = old
+	data, _ := io.ReadAll(r)
+	return string(data), runErr
 }
 
 func TestLinksDeleteChunksAt250(t *testing.T) {
@@ -96,9 +116,15 @@ func TestLinksDeleteAllRowsFailedExitsNonZero(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"results": results})
 	}))
 
-	err := runZeb(t, "links", "delete", "--json", "lnk_00000000000000000000000000")
-	if err == nil || !strings.Contains(err.Error(), "READ_ONLY") {
-		t.Fatalf("expected READ_ONLY failure, got %v", err)
+	// In --json mode the per-row failure lives in the JSON body on stdout
+	// (results[].error.code), and the command returns a non-nil error so the
+	// process still exits non-zero — without printing a second error document.
+	stdout, err := runZebCapture(t, "links", "delete", "--json", "lnk_00000000000000000000000000")
+	if err == nil {
+		t.Fatalf("expected non-zero exit, got nil error")
+	}
+	if !strings.Contains(stdout, "READ_ONLY") {
+		t.Fatalf("expected READ_ONLY in JSON body, got: %s", stdout)
 	}
 }
 

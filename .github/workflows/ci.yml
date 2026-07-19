@@ -4,8 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
   # A new CVE can land in a dependency or the Go toolchain with no commit from
   # us, so the vuln job must run on a clock, not only on pushes. Mondays 07:00 UTC.
+  # The same is true of the API: Core can ship a new endpoint with no commit
+  # here, silently staling the vendored snapshot — so spec-freshness runs on
+  # the same clock (see that job).
   schedule:
     - cron: "0 7 * * 1"
 
@@ -47,6 +51,35 @@ jobs:
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@latest
           govulncheck ./...
+
+  # The vendored snapshot (internal/openapi/openapi.json) is refreshed by hand
+  # with `zeb spec sync`. The drift test only compares the CLIENT to that
+  # snapshot — it can't see the snapshot itself falling behind live Core. So a
+  # new API endpoint stays invisible until someone remembers to sync. This job
+  # closes that gap: it re-syncs from the live API and fails if the committed
+  # snapshot differs. Scheduled + manual only (not per-PR) so Core's cadence
+  # never blocks an unrelated CLI change — it surfaces drift on the weekly clock.
+  spec-freshness:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Re-sync the snapshot from the live API
+        run: go run ./cmd/zeb spec sync
+
+      - name: Fail if the vendored snapshot is stale
+        run: |
+          if ! git diff --quiet -- internal/openapi/openapi.json; then
+            echo "::error::Vendored OpenAPI snapshot is stale. Run 'zeb spec sync', then 'go test ./...' to wire or record any new operations, and commit." >&2
+            git diff -- internal/openapi/openapi.json >&2
+            exit 1
+          fi
+          echo "Snapshot matches the live API."
 
   # Proves a release would build before a tag is pushed, so a broken
   # cross-compile fails on the PR instead of halfway through publishing.

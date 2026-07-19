@@ -214,12 +214,65 @@ type HealthResponse struct {
 	API string `json:"api"`
 }
 
+// QrImageUrls are a design's stable, key-free public image URLs — the same
+// files an <img> tag or third party can embed. Saving the design rewrites them
+// in place, so each URL always serves the latest look.
+type QrImageUrls struct {
+	PNG string `json:"png"`
+	SVG string `json:"svg"`
+}
+
+// QrVariant is a named QR design on a link. Style/signals are the studio's
+// authoring vocabulary; the CLI treats them as opaque JSON (it reads variants,
+// it doesn't author them).
+type QrVariant struct {
+	ID        string          `json:"id"`
+	LinkID    string          `json:"linkId"`
+	Name      string          `json:"name"`
+	Style     json.RawMessage `json:"style"`
+	Signals   json.RawMessage `json:"signals"`
+	ImageUrls *QrImageUrls    `json:"imageUrls"`
+	CreatedAt string          `json:"createdAt"`
+	UpdatedAt *string         `json:"updatedAt"`
+}
+
+type ListQrVariantsResponse struct {
+	QrVariants        []QrVariant     `json:"qrVariants"`
+	SpaceDefaultStyle json.RawMessage `json:"spaceDefaultStyle"`
+}
+
+type QrExportResponse struct {
+	Export struct {
+		ImageUrls   QrImageUrls `json:"imageUrls"`
+		VariantID   *string     `json:"variantId"`
+		VariantName *string     `json:"variantName"`
+	} `json:"export"`
+}
+
 type ErrorResponse struct {
 	Error struct {
 		Code    string         `json:"code"`
 		Message string         `json:"message"`
 		Details map[string]any `json:"details,omitempty"`
 	} `json:"error"`
+}
+
+// APIError is a structured, non-2xx response from Core. Commands return it up
+// to the root, which renders it as JSON under --json (preserving the machine
+// -readable code) or as a `zeb: CODE: message` line otherwise. Errors from the
+// API carry a Code; transport/HTTP failures with no JSON body leave it empty.
+type APIError struct {
+	Status  int
+	Code    string
+	Message string
+	Details map[string]any
+}
+
+func (e *APIError) Error() string {
+	if e.Code != "" {
+		return fmt.Sprintf("%s: %s", e.Code, e.Message)
+	}
+	return e.Message
 }
 
 func New(options Options) *Client {
@@ -350,6 +403,54 @@ func (c *Client) Health(ctx context.Context) (HealthResponse, error) {
 	return response, err
 }
 
+// ListQrVariants returns a link's named QR designs (the first is its effective
+// default) plus the space default style.
+func (c *Client) ListQrVariants(ctx context.Context, spaceID string, linkID string) (ListQrVariantsResponse, error) {
+	var response ListQrVariantsResponse
+	err := c.DoJSON(ctx, http.MethodGet, c.linkPath(spaceID, linkID)+"/qr-variants", nil, &response)
+	return response, err
+}
+
+// QrImageOptions selects how a link's QR image renders. Zero values inherit the
+// server defaults (PNG, default size, effective-default design).
+type QrImageOptions struct {
+	Format  string // "png" (default) or "svg"
+	Size    int    // PNG edge length in px; ignored for SVG
+	Variant string // render a named variant instead of the effective default
+}
+
+// GetQrImage renders a link's QR code and returns the raw bytes plus their
+// Content-Type. The image encodes the link's canonical short URL.
+func (c *Client) GetQrImage(ctx context.Context, spaceID string, linkID string, opts QrImageOptions) ([]byte, string, error) {
+	values := url.Values{}
+	if opts.Format != "" {
+		values.Set("format", opts.Format)
+	}
+	if opts.Size > 0 {
+		values.Set("size", fmt.Sprintf("%d", opts.Size))
+	}
+	if opts.Variant != "" {
+		values.Set("variant", opts.Variant)
+	}
+	path := c.linkPath(spaceID, linkID) + "/qr/image"
+	if len(values) > 0 {
+		path += "?" + values.Encode()
+	}
+	return c.DoRaw(ctx, http.MethodGet, path)
+}
+
+// ExportQr materializes a design's stable public image URLs. An empty variantID
+// exports the link's effective default design.
+func (c *Client) ExportQr(ctx context.Context, spaceID string, linkID string, variantID string) (QrExportResponse, error) {
+	body := map[string]string{}
+	if variantID != "" {
+		body["variant"] = variantID
+	}
+	var response QrExportResponse
+	err := c.DoJSON(ctx, http.MethodPost, c.linkPath(spaceID, linkID)+"/qr/export", body, &response)
+	return response, err
+}
+
 func (c *Client) linkPath(spaceID string, linkID string) string {
 	return "/spaces/" + url.PathEscape(spaceID) + "/links/" + url.PathEscape(linkID)
 }
@@ -391,16 +492,59 @@ func (c *Client) DoJSON(ctx context.Context, method string, path string, body an
 		return err
 	}
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		var apiErr ErrorResponse
-		if err := json.Unmarshal(data, &apiErr); err == nil && apiErr.Error.Message != "" {
-			return fmt.Errorf("%s: %s", apiErr.Error.Code, apiErr.Error.Message)
-		}
-		return fmt.Errorf("HTTP %d from %s %s: %s", res.StatusCode, method, path, strings.TrimSpace(string(data)))
+		return apiErrorFromResponse(res.StatusCode, method, path, data)
 	}
 	if out == nil || res.StatusCode == http.StatusNoContent {
 		return nil
 	}
 	return json.Unmarshal(data, out)
+}
+
+// DoRaw performs a GET that returns non-JSON bytes (e.g. a rendered QR image),
+// returning the body and its Content-Type. Non-2xx responses still carry a JSON
+// error body, so they surface as *APIError just like DoJSON.
+func (c *Client) DoRaw(ctx context.Context, method string, path string) ([]byte, string, error) {
+	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+path, nil)
+	if err != nil {
+		return nil, "", err
+	}
+	if c.apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, "", err
+	}
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return nil, "", apiErrorFromResponse(res.StatusCode, method, path, data)
+	}
+	return data, res.Header.Get("Content-Type"), nil
+}
+
+// apiErrorFromResponse builds an *APIError from a non-2xx body: the API's JSON
+// error shape when present (keeping code/message/details), else the raw HTTP
+// status with the body text as the message.
+func apiErrorFromResponse(status int, method string, path string, data []byte) error {
+	var parsed ErrorResponse
+	if err := json.Unmarshal(data, &parsed); err == nil && parsed.Error.Message != "" {
+		return &APIError{
+			Status:  status,
+			Code:    parsed.Error.Code,
+			Message: parsed.Error.Message,
+			Details: parsed.Error.Details,
+		}
+	}
+	return &APIError{
+		Status:  status,
+		Message: fmt.Sprintf("HTTP %d from %s %s: %s", status, method, path, strings.TrimSpace(string(data))),
+	}
 }
 
 func queryString(options ListLinksOptions) string {

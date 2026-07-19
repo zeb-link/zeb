@@ -6,6 +6,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -15,7 +16,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/zeb-link/zeb/internal/api"
 )
+
+// errAlreadyReported signals that a command has already written its complete
+// output (its JSON body or human rows already carry the failure detail) and
+// only needs a non-zero exit — Execute must not print an additional line or
+// JSON object on top of it. Keeps stdout to exactly one document in --json mode.
+var errAlreadyReported = errors.New("already reported")
 
 type rootOptions struct {
 	JSON    bool
@@ -32,9 +40,56 @@ func Execute(version string) {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	if err := cmd.ExecuteContext(ctx); err != nil {
-		fmt.Fprintln(os.Stderr, "zeb:", err)
+		if errors.Is(err, errAlreadyReported) {
+			os.Exit(1)
+		}
+		// opts.JSON is set once flags are parsed, but a usage error like an
+		// unknown command fails before that — fall back to the raw args so
+		// --json/--agent is honored on every failure path.
+		if opts.JSON || jsonRequestedIn(os.Args[1:]) {
+			writeJSONError(err)
+		} else {
+			fmt.Fprintln(os.Stderr, "zeb:", err)
+		}
 		os.Exit(1)
 	}
+}
+
+// jsonRequestedIn reports whether the machine-output flag (or its --agent
+// alias) appears in the raw arguments, stopping at `--` so a literal
+// positional after it never counts.
+func jsonRequestedIn(args []string) bool {
+	for _, arg := range args {
+		if arg == "--" {
+			return false
+		}
+		if arg == "--json" || arg == "--agent" || arg == "-j" {
+			return true
+		}
+	}
+	return false
+}
+
+// writeJSONError renders a failed command as a single JSON document on stdout,
+// so a `zeb … --json` (or --agent) pipeline always parses — success shape or
+// {"error":{…}} — and the exit code signals which. API failures keep their
+// machine-readable code; validation/transport errors carry the message.
+func writeJSONError(err error) {
+	errObj := map[string]any{"code": "", "message": err.Error()}
+	var apiErr *api.APIError
+	if errors.As(err, &apiErr) {
+		errObj["code"] = apiErr.Code
+		errObj["message"] = apiErr.Message
+		if apiErr.Status != 0 {
+			errObj["status"] = apiErr.Status
+		}
+		if len(apiErr.Details) > 0 {
+			errObj["details"] = apiErr.Details
+		}
+	}
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "  ")
+	_ = encoder.Encode(map[string]any{"error": errObj})
 }
 
 func newRootCommand(opts *rootOptions) *cobra.Command {
@@ -55,7 +110,17 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		SilenceErrors: true,
 	}
 
-	cmd.PersistentFlags().BoolVarP(&opts.JSON, "json", "j", false, "write machine-readable JSON")
+	cmd.PersistentFlags().BoolVarP(&opts.JSON, "json", "j", false, "write machine-readable JSON (both success and errors are JSON on stdout; exit code signals failure)")
+	// `--agent` is a discoverable alias for `--json`: same machine contract,
+	// named for the audience that most wants it. ORed into opts.JSON before any
+	// command runs.
+	var agent bool
+	cmd.PersistentFlags().BoolVar(&agent, "agent", false, "alias for --json: machine-readable output for agents and scripts")
+	cmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		if agent {
+			opts.JSON = true
+		}
+	}
 	cmd.PersistentFlags().StringVar(&opts.APIKey, "api-key", "", "API key override")
 	cmd.PersistentFlags().StringVar(&opts.APIURL, "api-url", "", "API base URL or origin")
 	// Owner-only escape hatch for pointing at a local Core; every user path
@@ -78,6 +143,7 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		newDomainsCommand(opts),
 		newHealthCommand(opts),
 		newLinksCommand(opts),
+		newQrCommand(opts),
 		newSpaceCommand(opts),
 		newSpecCommand(opts),
 		newStatusCommand(opts),

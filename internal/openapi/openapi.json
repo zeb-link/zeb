@@ -1384,6 +1384,282 @@
         ],
         "type": "object"
       },
+      "CreateQrVariantInput": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "signals": {
+            "additionalProperties": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "style": {
+            "additionalProperties": false,
+            "properties": {
+              "backgroundColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "backgroundGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "backgroundShape": {
+                "enum": [
+                  "square",
+                  "circle"
+                ],
+                "type": "string"
+              },
+              "branding": {
+                "additionalProperties": false,
+                "properties": {
+                  "imageRef": {
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "mode": {
+                    "enum": [
+                      "favicon",
+                      "upload"
+                    ],
+                    "type": "string"
+                  },
+                  "size": {
+                    "enum": [
+                      "small",
+                      "large"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "size"
+                ],
+                "type": "object"
+              },
+              "cornerDotColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "cornerDotGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "cornerDotType": {
+                "enum": [
+                  "dot",
+                  "square",
+                  "heart",
+                  "extra-rounded",
+                  "classy",
+                  "inpoint",
+                  "outpoint",
+                  "star",
+                  "hexagon",
+                  "diamond"
+                ],
+                "type": "string"
+              },
+              "cornerSquareColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "cornerSquareGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "cornerSquareType": {
+                "enum": [
+                  "dot",
+                  "square",
+                  "extra-rounded",
+                  "classy",
+                  "inpoint",
+                  "outpoint",
+                  "center-circle"
+                ],
+                "type": "string"
+              },
+              "dotType": {
+                "enum": [
+                  "dot",
+                  "random-dot",
+                  "rounded",
+                  "extra-rounded",
+                  "vertical-line",
+                  "horizontal-line",
+                  "square",
+                  "small-square",
+                  "diamond",
+                  "wave",
+                  "hexagon",
+                  "circuit",
+                  "zebra-horizontal",
+                  "zebra-vertical",
+                  "blocks-horizontal",
+                  "blocks-vertical",
+                  "blobs",
+                  "soft"
+                ],
+                "type": "string"
+              },
+              "dotsColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "dotsGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "errorCorrectionLevel": {
+                "enum": [
+                  "M",
+                  "Q",
+                  "H"
+                ],
+                "type": "string"
+              }
+            },
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "CreateQrVariantResponse": {
+        "properties": {
+          "qrVariant": {
+            "$ref": "#/components/schemas/QrVariant"
+          }
+        },
+        "required": [
+          "qrVariant"
+        ],
+        "type": "object"
+      },
       "DeleteCollectionResponse": {
         "properties": {
           "deletedCollectionId": {
@@ -1405,6 +1681,19 @@
         },
         "required": [
           "deletedLinkId"
+        ],
+        "type": "object"
+      },
+      "DeleteQrVariantResponse": {
+        "properties": {
+          "deletedQrVariantId": {
+            "description": "QR variant id (prefixed ULID).",
+            "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deletedQrVariantId"
         ],
         "type": "object"
       },
@@ -1582,6 +1871,17 @@
         ],
         "type": "object"
       },
+      "GetQrVariantResponse": {
+        "properties": {
+          "qrVariant": {
+            "$ref": "#/components/schemas/QrVariant"
+          }
+        },
+        "required": [
+          "qrVariant"
+        ],
+        "type": "object"
+      },
       "HealthResponse": {
         "properties": {
           "api": {
@@ -1595,6 +1895,13 @@
               true
             ],
             "type": "boolean"
+          },
+          "render": {
+            "description": "Present when `deep=1` — the image rasterizer rendered.",
+            "enum": [
+              "ok"
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -2034,6 +2341,31 @@
         ],
         "type": "object"
       },
+      "ListQrVariantsResponse": {
+        "properties": {
+          "qrVariants": {
+            "items": {
+              "$ref": "#/components/schemas/QrVariant"
+            },
+            "type": "array"
+          },
+          "spaceDefaultStyle": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QrVariantStyle"
+              },
+              {
+                "description": "The space-wide default style — what a link with no saved variants renders. Null = the stock look."
+              }
+            ]
+          }
+        },
+        "required": [
+          "qrVariants",
+          "spaceDefaultStyle"
+        ],
+        "type": "object"
+      },
       "MeResponse": {
         "properties": {
           "accessibleSpaces": {
@@ -2113,6 +2445,385 @@
           "apiKey"
         ],
         "type": "object"
+      },
+      "QrExportInput": {
+        "additionalProperties": false,
+        "properties": {
+          "variant": {
+            "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QrExportResponse": {
+        "properties": {
+          "export": {
+            "properties": {
+              "imageUrls": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/QrImageUrls"
+                  },
+                  {
+                    "description": "Stable public image URLs for the design — key-free, CDN-served, safe to embed in an \u003cimg\u003e tag or hand to third parties. Saving the design rewrites the same files in place, so each URL always serves the latest saved look (CDN propagation: usually under a minute, up to a few minutes). For a copy frozen in time, download the file instead."
+                  }
+                ]
+              },
+              "variantId": {
+                "description": "The design behind the URLs; null when the link has no saved variants (the zero-variant default look exported instead — its files refresh per export, not on space-default changes).",
+                "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "variantName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "imageUrls",
+              "variantId",
+              "variantName"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "export"
+        ],
+        "type": "object"
+      },
+      "QrImageUrls": {
+        "description": "The design's stable public image URLs; null until first materialization (e.g. no file storage configured). POST the link's `/qr/export` endpoint to materialize on demand.",
+        "properties": {
+          "png": {
+            "format": "uri",
+            "type": "string"
+          },
+          "svg": {
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "png",
+          "svg"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "QrSignals": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "description": "The code's signal map (tag key → value). Signals ride the QR payload as plain query params, are read at scan time, and are stripped before the redirect — the destination never sees them. Keys `src` and `qrv` are reserved.",
+        "type": "object"
+      },
+      "QrVariant": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "pattern": "^usr_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "imageUrls": {
+            "$ref": "#/components/schemas/QrImageUrls"
+          },
+          "linkId": {
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 120,
+            "type": "string"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/QrSignals"
+          },
+          "style": {
+            "$ref": "#/components/schemas/QrVariantStyle"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "linkId",
+          "name",
+          "style",
+          "signals",
+          "imageUrls",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "QrVariantStyle": {
+        "additionalProperties": false,
+        "description": "Sparse QR design vocabulary. Omitted fields inherit defaults; gradients are two-stop with degree rotations; branding draws a center mark (favicon of the destination, or an uploaded image).",
+        "properties": {
+          "backgroundColor": {
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "type": "string"
+          },
+          "backgroundGradient": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "rotation": {
+                "maximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              "to": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "linear",
+                  "radial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "type": "object"
+          },
+          "backgroundShape": {
+            "enum": [
+              "square",
+              "circle"
+            ],
+            "type": "string"
+          },
+          "branding": {
+            "additionalProperties": false,
+            "properties": {
+              "imageRef": {
+                "format": "uri",
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "mode": {
+                "enum": [
+                  "favicon",
+                  "upload"
+                ],
+                "type": "string"
+              },
+              "size": {
+                "enum": [
+                  "small",
+                  "large"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "size"
+            ],
+            "type": "object"
+          },
+          "cornerDotColor": {
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "type": "string"
+          },
+          "cornerDotGradient": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "rotation": {
+                "maximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              "to": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "linear",
+                  "radial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "type": "object"
+          },
+          "cornerDotType": {
+            "enum": [
+              "dot",
+              "square",
+              "heart",
+              "extra-rounded",
+              "classy",
+              "inpoint",
+              "outpoint",
+              "star",
+              "hexagon",
+              "diamond"
+            ],
+            "type": "string"
+          },
+          "cornerSquareColor": {
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "type": "string"
+          },
+          "cornerSquareGradient": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "rotation": {
+                "maximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              "to": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "linear",
+                  "radial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "type": "object"
+          },
+          "cornerSquareType": {
+            "enum": [
+              "dot",
+              "square",
+              "extra-rounded",
+              "classy",
+              "inpoint",
+              "outpoint",
+              "center-circle"
+            ],
+            "type": "string"
+          },
+          "dotType": {
+            "enum": [
+              "dot",
+              "random-dot",
+              "rounded",
+              "extra-rounded",
+              "vertical-line",
+              "horizontal-line",
+              "square",
+              "small-square",
+              "diamond",
+              "wave",
+              "hexagon",
+              "circuit",
+              "zebra-horizontal",
+              "zebra-vertical",
+              "blocks-horizontal",
+              "blocks-vertical",
+              "blobs",
+              "soft"
+            ],
+            "type": "string"
+          },
+          "dotsColor": {
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "type": "string"
+          },
+          "dotsGradient": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "rotation": {
+                "maximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              "to": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "linear",
+                  "radial"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "type": "object"
+          },
+          "errorCorrectionLevel": {
+            "enum": [
+              "M",
+              "Q",
+              "H"
+            ],
+            "type": "string"
+          }
+        },
+        "type": [
+          "object",
+          "null"
+        ]
       },
       "RemoveLinksFromCollectionResponse": {
         "properties": {
@@ -2399,6 +3110,279 @@
           "pathChanged"
         ],
         "type": "object"
+      },
+      "UpdateQrVariantInput": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "signals": {
+            "additionalProperties": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "style": {
+            "additionalProperties": false,
+            "properties": {
+              "backgroundColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "backgroundGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "backgroundShape": {
+                "enum": [
+                  "square",
+                  "circle"
+                ],
+                "type": "string"
+              },
+              "branding": {
+                "additionalProperties": false,
+                "properties": {
+                  "imageRef": {
+                    "format": "uri",
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "mode": {
+                    "enum": [
+                      "favicon",
+                      "upload"
+                    ],
+                    "type": "string"
+                  },
+                  "size": {
+                    "enum": [
+                      "small",
+                      "large"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mode",
+                  "size"
+                ],
+                "type": "object"
+              },
+              "cornerDotColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "cornerDotGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "cornerDotType": {
+                "enum": [
+                  "dot",
+                  "square",
+                  "heart",
+                  "extra-rounded",
+                  "classy",
+                  "inpoint",
+                  "outpoint",
+                  "star",
+                  "hexagon",
+                  "diamond"
+                ],
+                "type": "string"
+              },
+              "cornerSquareColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "cornerSquareGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "cornerSquareType": {
+                "enum": [
+                  "dot",
+                  "square",
+                  "extra-rounded",
+                  "classy",
+                  "inpoint",
+                  "outpoint",
+                  "center-circle"
+                ],
+                "type": "string"
+              },
+              "dotType": {
+                "enum": [
+                  "dot",
+                  "random-dot",
+                  "rounded",
+                  "extra-rounded",
+                  "vertical-line",
+                  "horizontal-line",
+                  "square",
+                  "small-square",
+                  "diamond",
+                  "wave",
+                  "hexagon",
+                  "circuit",
+                  "zebra-horizontal",
+                  "zebra-vertical",
+                  "blocks-horizontal",
+                  "blocks-vertical",
+                  "blobs",
+                  "soft"
+                ],
+                "type": "string"
+              },
+              "dotsColor": {
+                "pattern": "^#[0-9a-fA-F]{6}$",
+                "type": "string"
+              },
+              "dotsGradient": {
+                "additionalProperties": false,
+                "properties": {
+                  "from": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "maximum": 360,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "to": {
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "linear",
+                      "radial"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "from",
+                  "to"
+                ],
+                "type": "object"
+              },
+              "errorCorrectionLevel": {
+                "enum": [
+                  "M",
+                  "Q",
+                  "H"
+                ],
+                "type": "string"
+              }
+            },
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "UpdateQrVariantResponse": {
+        "properties": {
+          "qrVariant": {
+            "$ref": "#/components/schemas/QrVariant"
+          }
+        },
+        "required": [
+          "qrVariant"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -2411,15 +3395,27 @@
     }
   },
   "info": {
-    "description": "Public REST API for Zebra Link. Use bearer API keys to manage spaces, links, collections, and short domains.",
-    "title": "Zebra Link API",
+    "description": "Public REST API for Zebra. Use bearer API keys to manage spaces, links, collections, and short domains.",
+    "title": "Zebra API",
     "version": "1"
   },
   "openapi": "3.1.0",
   "paths": {
     "/api/v1/health": {
       "get": {
-        "description": "Returns a static `{ ok: true, api: 'v1' }`. Public — no auth. Use for uptime monitoring and to verify the API surface is reachable.",
+        "description": "Returns `{ ok: true, api: 'v1' }`. Public — no auth. Use for uptime monitoring and to verify the API surface is reachable. With `?deep=1` it also exercises the QR image rasterizer and returns `render: 'ok'` (500 with `render: 'failed'` when the renderer can't load).",
+        "parameters": [
+          {
+            "description": "Set to `1` to run the deep render probe.",
+            "in": "query",
+            "name": "deep",
+            "required": false,
+            "schema": {
+              "description": "Set to `1` to run the deep render probe.",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -2429,7 +3425,10 @@
                 }
               }
             },
-            "description": "Service is reachable."
+            "description": "Service is reachable (and, with deep=1, rendering works)."
+          },
+          "500": {
+            "description": "Deep probe only: the image rasterizer failed to load or render."
           }
         },
         "summary": "Liveness probe",
@@ -2549,7 +3548,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           }
         },
         "security": [
@@ -2641,7 +3640,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -2767,7 +3766,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -2857,7 +3856,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -2953,7 +3952,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3074,7 +4073,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3174,7 +4173,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3298,7 +4297,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3456,7 +4455,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3568,7 +4567,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -3647,7 +4646,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           }
         },
         "security": [
@@ -3795,7 +4794,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           }
         },
         "security": [
@@ -3809,7 +4808,7 @@
         ]
       },
       "post": {
-        "description": "Creates a short link in the named space. `domain` is an optional hostname or `dom_*` id (e.g. \"zlnk.to\", from `GET …/domains`); omit it to use the space's default domain. `collection` is an optional `col_*` id or exact collection name; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions. When `path` is omitted, Zebra Link allocates one under the requested namespace, or the root namespace by default.",
+        "description": "Creates a short link in the named space. `domain` is an optional hostname or `dom_*` id (e.g. \"zlnk.to\", from `GET …/domains`); omit it to use the space's default domain. `collection` is an optional `col_*` id or exact collection name; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions. When `path` is omitted, Zebra allocates one under the requested namespace, or the root namespace by default.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4025,7 +5024,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -4138,7 +5137,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -4367,7 +5366,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -4391,7 +5390,7 @@
         ]
       },
       "post": {
-        "description": "Creates up to 250 links. Each row gets its own result; a malformed URL or unavailable custom path fails only that row. Set `collection` to a `col_*` id or exact collection name to add every created link to that collection; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions.\n\nBulk creation validates URL shape and path availability only. It does not probe each target URL, so no `targetReachable` field is returned. `title` is used when supplied.",
+        "description": "Creates up to 250 links. Each row gets its own result; a malformed URL or unavailable custom path fails only that row. Set `collection` to a `col_*` id or exact collection name to add every created link to that collection; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions.\n\nBulk creation validates URL shape and path availability only. It does not probe each target URL, so no `targetReachable` field is returned. `title` is used when supplied.\n\nThe batch counts atomically against the space's link-volume limits: a batch that would cross the per-minute or monthly cap is rejected whole with HTTP 429 and zero links created. Per-minute rejections carry a `Retry-After` header; `error.details.remaining` reports the headroom left in the window so a smaller batch can be sized.",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4591,7 +5590,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "422": {
             "content": {
@@ -4602,6 +5601,16 @@
               }
             },
             "description": "Request body failed schema validation."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The batch would cross the space's link-volume limits (`RATE_LIMITED`); rejected whole, zero links created. `error.details` carries `scope` and `remaining`; per-minute rejections also set a `Retry-After` header."
           }
         },
         "security": [
@@ -4681,7 +5690,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -4759,7 +5768,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -4970,7 +5979,7 @@
                 }
               }
             },
-            "description": "API key is not authorized for the requested space."
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
           },
           "404": {
             "content": {
@@ -5003,12 +6012,1424 @@
           "Links"
         ]
       }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants": {
+      "get": {
+        "description": "Returns the link's named QR designs in display order, plus the space default style. The FIRST variant is the link's effective default — what renders when no `variant` is specified anywhere. Each variant carries its stable public `imageUrls`. A link with zero variants still renders a code (the space default, else the stock look) — fetch it from the link's `/qr/image` endpoint, or export it for a public URL.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListQrVariantsResponse"
+                }
+              }
+            },
+            "description": "The link's QR variants."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link not found (or in a different space)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "List a link's QR variants",
+        "tags": [
+          "QR"
+        ]
+      },
+      "post": {
+        "description": "Adds a named design to the link. `style` is the sparse design vocabulary (canonical JSON); omit it (or send null) for a design that renders the space default look.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "signals": {
+                    "additionalProperties": {
+                      "maxLength": 120,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "style": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "backgroundColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "backgroundGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "backgroundShape": {
+                        "enum": [
+                          "square",
+                          "circle"
+                        ],
+                        "type": "string"
+                      },
+                      "branding": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "imageRef": {
+                            "format": "uri",
+                            "maxLength": 2048,
+                            "type": "string"
+                          },
+                          "mode": {
+                            "enum": [
+                              "favicon",
+                              "upload"
+                            ],
+                            "type": "string"
+                          },
+                          "size": {
+                            "enum": [
+                              "small",
+                              "large"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "mode",
+                          "size"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerDotColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "cornerDotGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerDotType": {
+                        "enum": [
+                          "dot",
+                          "square",
+                          "heart",
+                          "extra-rounded",
+                          "classy",
+                          "inpoint",
+                          "outpoint",
+                          "star",
+                          "hexagon",
+                          "diamond"
+                        ],
+                        "type": "string"
+                      },
+                      "cornerSquareColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "cornerSquareGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerSquareType": {
+                        "enum": [
+                          "dot",
+                          "square",
+                          "extra-rounded",
+                          "classy",
+                          "inpoint",
+                          "outpoint",
+                          "center-circle"
+                        ],
+                        "type": "string"
+                      },
+                      "dotType": {
+                        "enum": [
+                          "dot",
+                          "random-dot",
+                          "rounded",
+                          "extra-rounded",
+                          "vertical-line",
+                          "horizontal-line",
+                          "square",
+                          "small-square",
+                          "diamond",
+                          "wave",
+                          "hexagon",
+                          "circuit",
+                          "zebra-horizontal",
+                          "zebra-vertical",
+                          "blocks-horizontal",
+                          "blocks-vertical",
+                          "blobs",
+                          "soft"
+                        ],
+                        "type": "string"
+                      },
+                      "dotsColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "dotsGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "errorCorrectionLevel": {
+                        "enum": [
+                          "M",
+                          "Q",
+                          "H"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateQrVariantResponse"
+                }
+              }
+            },
+            "description": "QR variant created."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only — no active subscription."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link not found (or in a different space)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Create a QR variant",
+        "tags": [
+          "QR"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}": {
+      "delete": {
+        "description": "Deletes the named design. A link with zero remaining variants still renders its default code.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "QR variant id (prefixed ULID).",
+            "in": "path",
+            "name": "variantId",
+            "required": true,
+            "schema": {
+              "description": "QR variant id (prefixed ULID).",
+              "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteQrVariantResponse"
+                }
+              }
+            },
+            "description": "QR variant deleted."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found (a variant on a different link reads as 404)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Delete a QR variant",
+        "tags": [
+          "QR"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "QR variant id (prefixed ULID).",
+            "in": "path",
+            "name": "variantId",
+            "required": true,
+            "schema": {
+              "description": "QR variant id (prefixed ULID).",
+              "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetQrVariantResponse"
+                }
+              }
+            },
+            "description": "QR variant found."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found (a variant on a different link reads as 404)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get a QR variant",
+        "tags": [
+          "QR"
+        ]
+      },
+      "patch": {
+        "description": "Patches the named design. Omit a field to leave it unchanged; `style: null` clears the design back to the space default look.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "QR variant id (prefixed ULID).",
+            "in": "path",
+            "name": "variantId",
+            "required": true,
+            "schema": {
+              "description": "QR variant id (prefixed ULID).",
+              "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "signals": {
+                    "additionalProperties": {
+                      "maxLength": 120,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "style": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "backgroundColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "backgroundGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "backgroundShape": {
+                        "enum": [
+                          "square",
+                          "circle"
+                        ],
+                        "type": "string"
+                      },
+                      "branding": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "imageRef": {
+                            "format": "uri",
+                            "maxLength": 2048,
+                            "type": "string"
+                          },
+                          "mode": {
+                            "enum": [
+                              "favicon",
+                              "upload"
+                            ],
+                            "type": "string"
+                          },
+                          "size": {
+                            "enum": [
+                              "small",
+                              "large"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "mode",
+                          "size"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerDotColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "cornerDotGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerDotType": {
+                        "enum": [
+                          "dot",
+                          "square",
+                          "heart",
+                          "extra-rounded",
+                          "classy",
+                          "inpoint",
+                          "outpoint",
+                          "star",
+                          "hexagon",
+                          "diamond"
+                        ],
+                        "type": "string"
+                      },
+                      "cornerSquareColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "cornerSquareGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "cornerSquareType": {
+                        "enum": [
+                          "dot",
+                          "square",
+                          "extra-rounded",
+                          "classy",
+                          "inpoint",
+                          "outpoint",
+                          "center-circle"
+                        ],
+                        "type": "string"
+                      },
+                      "dotType": {
+                        "enum": [
+                          "dot",
+                          "random-dot",
+                          "rounded",
+                          "extra-rounded",
+                          "vertical-line",
+                          "horizontal-line",
+                          "square",
+                          "small-square",
+                          "diamond",
+                          "wave",
+                          "hexagon",
+                          "circuit",
+                          "zebra-horizontal",
+                          "zebra-vertical",
+                          "blocks-horizontal",
+                          "blocks-vertical",
+                          "blobs",
+                          "soft"
+                        ],
+                        "type": "string"
+                      },
+                      "dotsColor": {
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "type": "string"
+                      },
+                      "dotsGradient": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "from": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "rotation": {
+                            "maximum": 360,
+                            "minimum": 0,
+                            "type": "number"
+                          },
+                          "to": {
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "linear",
+                              "radial"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "from",
+                          "to"
+                        ],
+                        "type": "object"
+                      },
+                      "errorCorrectionLevel": {
+                        "enum": [
+                          "M",
+                          "Q",
+                          "H"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateQrVariantResponse"
+                }
+              }
+            },
+            "description": "QR variant updated."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Space is read-only."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found (a variant on a different link reads as 404)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Update a QR variant",
+        "tags": [
+          "QR"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}/image": {
+      "get": {
+        "description": "Renders one named design at any size/format, encoding the link's canonical short URL. Live: restyling the variant in the studio changes what it renders next. Authenticated — for a key-free URL to embed or hand off, use the variant's stable `imageUrls`.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "QR variant id (prefixed ULID).",
+            "in": "path",
+            "name": "variantId",
+            "required": true,
+            "schema": {
+              "description": "QR variant id (prefixed ULID).",
+              "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Image format. Default `png`.",
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "description": "Image format. Default `png`.",
+              "enum": [
+                "png",
+                "svg"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "PNG edge length in pixels (ignored for SVG). Clamped to 64–2048; default 1024.",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "description": "PNG edge length in pixels (ignored for SVG). Clamped to 64–2048; default 1024.",
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The rendered code. Sends an `ETag`; a matching `If-None-Match` returns 304 without re-rendering."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The code could not be rendered (e.g. an uploaded mark is no longer reachable)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get a QR variant as an image",
+        "tags": [
+          "QR"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}/qr/export": {
+      "post": {
+        "description": "Resolves a design, refreshes its stable public files, and returns their URLs — key-free, CDN-served, \u003cimg\u003e-embeddable, one PNG and one SVG per design. The URLs are permanent and always serve the design's latest saved look: saving in the studio rewrites the same files in place (also returned as `imageUrls` on the variant endpoints, so most callers never need this endpoint after the first materialization). Need a copy frozen in time? Download the file. Without `variant`, the link's effective default design exports — its first saved variant, else the space default/stock look. The image encodes only the link's public short URL.",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "variant": {
+                    "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrExportResponse"
+                }
+              }
+            },
+            "description": "Files refreshed; the URLs are live immediately."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed."
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "File storage is not configured on this deployment."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The code could not be rendered or stored."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get a design's stable public image URLs",
+        "tags": [
+          "QR"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/{linkId}/qr/image": {
+      "get": {
+        "description": "Renders the link's code at any size/format — the endpoint a publishing pipeline pairs with link creation. Without `variant`, the link's effective default design renders: its first saved variant, else the space default, else the stock look (what the studio shows first). The image always encodes the link's canonical short URL. Authenticated and rendered per request — for a key-free URL to embed or hand off, use the design's stable `imageUrls` (variant endpoints / `/qr/export`).",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Link id (prefixed ULID).",
+            "in": "path",
+            "name": "linkId",
+            "required": true,
+            "schema": {
+              "description": "Link id (prefixed ULID).",
+              "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Image format. Default `png`.",
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "description": "Image format. Default `png`.",
+              "enum": [
+                "png",
+                "svg"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "PNG edge length in pixels (ignored for SVG). Clamped to 64–2048; default 1024.",
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "description": "PNG edge length in pixels (ignored for SVG). Clamped to 64–2048; default 1024.",
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          {
+            "description": "Render this named design instead of the effective default.",
+            "in": "query",
+            "name": "variant",
+            "required": false,
+            "schema": {
+              "description": "Render this named design instead of the effective default.",
+              "pattern": "^qrv_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The rendered code. Sends an `ETag`; a matching `If-None-Match` returns 304 without re-rendering."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Link or QR variant not found."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The code could not be rendered (e.g. an uploaded mark is no longer reachable)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Get a link's QR code as an image",
+        "tags": [
+          "QR"
+        ]
+      }
     }
   },
   "servers": [
     {
       "description": "API host",
-      "url": "http://localhost:3000"
+      "url": "https://app.zeblink.io"
     }
   ],
   "webhooks": {}

@@ -34,6 +34,9 @@ var clientEndpoints = []struct {
 	{"delete", "/api/v1/spaces/{spaceId}/links/{linkId}"},
 	{"post", "/api/v1/spaces/{spaceId}/links/bulk"},
 	{"delete", "/api/v1/spaces/{spaceId}/links/bulk"},
+	{"get", "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants"},
+	{"get", "/api/v1/spaces/{spaceId}/links/{linkId}/qr/image"},
+	{"post", "/api/v1/spaces/{spaceId}/links/{linkId}/qr/export"},
 }
 
 func loadSpecPaths(t *testing.T) map[string]map[string]json.RawMessage {
@@ -76,6 +79,14 @@ func TestSpecOperationsNotInClient(t *testing.T) {
 	knownUnimplemented := map[string]string{
 		"patch /api/v1/spaces/{spaceId}/links/bulk":      "bulk update: no CLI verb needs it yet (links update covers single)",
 		"post /api/v1/spaces/{spaceId}/collections/bulk": "bulk collection create: niche for a CLI; `zeb collection create` covers the flow",
+		// QR design authoring (styles, signals) is a studio flow, not a CLI one.
+		// The CLI reads/exports/renders QR (qr-variants list, qr/image, qr/export);
+		// it deliberately does not create or edit variant designs.
+		"post /api/v1/spaces/{spaceId}/links/{linkId}/qr-variants":                  "QR variant authoring is a studio flow; CLI lists variants and exports/renders them",
+		"get /api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}":       "single-variant detail: `zeb qr variants` lists them with ids and image URLs",
+		"patch /api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}":     "QR variant authoring is a studio flow",
+		"delete /api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}":    "QR variant authoring is a studio flow",
+		"get /api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}/image": "variant image: `zeb qr <link> --download --variant <id>` renders any variant via qr/image",
 	}
 	implemented := map[string]bool{}
 	for _, endpoint := range clientEndpoints {

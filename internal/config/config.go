@@ -227,6 +227,10 @@ func NormalizeAPIURL(value string) string {
 	return trimmed + "/api/v1"
 }
 
+// errUnknownConfigKey names the settable keys so `zeb config set typo …` says
+// what it accepts instead of a bare "unknown config key".
+var errUnknownConfigKey = errors.New("unknown config key; valid keys: apiUrl, activeSpace, activeCollection, activeDomain")
+
 func SetValue(key string, value string) error {
 	cfg, err := LoadConfig()
 	if err != nil {
@@ -242,7 +246,7 @@ func SetValue(key string, value string) error {
 	case "activeDomain":
 		cfg.ActiveDomain = value
 	default:
-		return errors.New("unknown config key")
+		return errUnknownConfigKey
 	}
 	return SaveConfig(cfg)
 }
@@ -262,7 +266,7 @@ func UnsetValue(key string) error {
 	case "activeDomain":
 		cfg.ActiveDomain = ""
 	default:
-		return errors.New("unknown config key")
+		return errUnknownConfigKey
 	}
 	return SaveConfig(cfg)
 }

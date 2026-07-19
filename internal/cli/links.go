@@ -25,6 +25,10 @@ const bulkChunkSize = 250
 // explicit --limit.
 const allPageSize = 100
 
+// allProgressInterval is how many accumulated links between --all progress
+// notices on stderr.
+const allProgressInterval = 1000
+
 // linkSortValues mirrors the API's sort vocabulary for help text and
 // completion. The server remains the validator; an out-of-date value here
 // only affects the hint. Kept in sync by the spec drift test.
@@ -59,7 +63,7 @@ func addListLinksFlags(cmd *cobra.Command, flags *listLinksFlags) {
 	cmd.Flags().StringVar(&flags.Sort, "sort", "", "sort order: "+strings.Join(linkSortValues, ", "))
 	cmd.Flags().StringVar(&flags.Status, "status", "", "filter by status: active or inactive")
 	cmd.Flags().StringVar(&flags.Cursor, "cursor", "", "pagination cursor from a previous page")
-	cmd.Flags().BoolVar(&flags.All, "all", false, "follow pagination and fetch every page")
+	cmd.Flags().BoolVar(&flags.All, "all", false, "follow pagination and fetch every page (can return thousands; narrow with --status/--collection or cap with --limit)")
 }
 
 func newLinksCommand(root *rootOptions) *cobra.Command {
@@ -151,12 +155,22 @@ func fetchLinks(cmd *cobra.Command, ctx apiContext, collectionID string, flags l
 		options.Limit = allPageSize
 	}
 	var links []api.Link
+	nextNotice := allProgressInterval
 	for {
 		page, err := fetch(options)
 		if err != nil {
 			return api.ListLinksResponse{}, err
 		}
 		links = append(links, page.Links...)
+		// Advisory progress on stderr (stdout stays a clean JSON body) so a
+		// large --all pull shows life and how to cap it, instead of appearing
+		// to hang while it walks thousands of rows.
+		if len(links) >= nextNotice {
+			fmt.Fprintln(os.Stderr, theme.MutedText.Render(
+				fmt.Sprintf("fetched %d links so far… (Ctrl-C to stop; use --limit to cap)", len(links)),
+			))
+			nextNotice += allProgressInterval
+		}
 		if page.NextCursor == nil || *page.NextCursor == "" {
 			return api.ListLinksResponse{Links: links}, nil
 		}
@@ -352,7 +366,12 @@ func runBulkCreate(cmd *cobra.Command, root *rootOptions, ctx apiContext, target
 		}); err != nil {
 			return err
 		}
-		return bulkCreateOutcome(created, failed)
+		// The JSON body already lists every failed row; a nothing-created batch
+		// still exits non-zero without a second error document on stdout.
+		if bulkCreateOutcome(created, failed) != nil {
+			return errAlreadyReported
+		}
+		return nil
 	}
 	if len(created) > 0 {
 		printCreatedLinks(created, collectionID, collectionLabel)
@@ -539,7 +558,12 @@ func newLinksDeleteCommand(root *rootOptions) *cobra.Command {
 				}); err != nil {
 					return err
 				}
-				return deleteOutcome(results, deleted)
+				// results[] already carries each row's error; exit non-zero
+				// without emitting a second error document on stdout.
+				if deleteOutcome(results, deleted) != nil {
+					return errAlreadyReported
+				}
+				return nil
 			}
 			for _, row := range results {
 				if row.Success {

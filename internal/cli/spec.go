@@ -92,10 +92,21 @@ func newSpecPathCommand(root *rootOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, err := defaultSpecOutputPath()
 			if err != nil {
-				return err
+				// Outside the zeb source tree (the npm / `go install` binary):
+				// the snapshot is a build-and-test artifact that lives in the
+				// repo, not on the installed user's disk. Report that instead
+				// of failing — the live spec is always available over HTTP.
+				const note = "The OpenAPI snapshot is a development artifact in the zeb source tree " +
+					"(internal/openapi/openapi.json); it is not installed on disk. Fetch the live " +
+					"spec with `zeb spec sync --output <file>`."
+				if root.JSON {
+					return writeJSON(map[string]any{"path": nil, "inRepo": false, "note": note})
+				}
+				fmt.Println(note)
+				return nil
 			}
 			if root.JSON {
-				return writeJSON(map[string]string{"path": path})
+				return writeJSON(map[string]any{"path": path, "inRepo": true})
 			}
 			fmt.Println(path)
 			return nil
