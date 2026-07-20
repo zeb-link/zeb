@@ -71,13 +71,22 @@ type ListCollectionsResponse struct {
 	Collections []Collection `json:"collections"`
 }
 
+// CreateCollectionInput creates a manual collection ({name}) or a smart one
+// ({type:"smart", name, filter}). Leaving Type empty and Filter nil creates a
+// manual collection; setting Type "smart" with a Filter creates a live,
+// rule-based collection whose membership equals a query of the same filter.
 type CreateCollectionInput struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Type        string      `json:"type,omitempty"`
+	Filter      *LinkFilter `json:"filter,omitempty"`
 }
 
 type CreateCollectionResponse struct {
 	Collection Collection `json:"collection"`
+	// Set for smart collections: a plain-language echo of the compiled
+	// membership rule (e.g. "Active links not clicked in the last 30 days").
+	RulesSummary *string `json:"rulesSummary,omitempty"`
 }
 
 type Link struct {
@@ -117,6 +126,54 @@ type CreateLinkResponse struct {
 	// was made with verification on (?verify=true). true = resolved to a live
 	// page, false = unreachable, nil = not checked. Never gates creation.
 	TargetReachable *bool `json:"targetReachable"`
+}
+
+// ClickThreshold is a click-count comparison used by the click filter
+// dimensions: {op: greaterThan|lessThan, value: N}.
+type ClickThreshold struct {
+	Op    string `json:"op"`
+	Value int    `json:"value"`
+}
+
+// LinkFilter is the one filter vocabulary, mirroring Core's LinkFilter. Every
+// field is optional; dimensions AND-combine, arrays OR within a dimension, and
+// Negate inverts named dimensions. The two host dimensions take hostnames, not
+// ids. Contract: docs/UNIVERSAL-QUERY-FILTER-SYSTEM.md.
+type LinkFilter struct {
+	Query         string          `json:"query,omitempty"`
+	Status        string          `json:"status,omitempty"`
+	Created       string          `json:"created,omitempty"`
+	Edited        string          `json:"edited,omitempty"`
+	Clicked       string          `json:"clicked,omitempty"`
+	Schedule      string          `json:"schedule,omitempty"`
+	CreatedVia    string          `json:"createdVia,omitempty"`
+	Attribution   string          `json:"attribution,omitempty"`
+	HasCollection *bool           `json:"hasCollection,omitempty"`
+	ShortDomain   []string        `json:"shortDomain,omitempty"`
+	TargetHost    []string        `json:"targetHost,omitempty"`
+	Clicks        *ClickThreshold `json:"clicks,omitempty"`
+	UniqueClicks  *ClickThreshold `json:"uniqueClicks,omitempty"`
+	Negate        []string        `json:"negate,omitempty"`
+}
+
+// QueryLinksInput is the POST /links/query body: a LinkFilter plus paging. The
+// embedded LinkFilter flattens into the JSON body.
+type QueryLinksInput struct {
+	LinkFilter
+	Limit  int `json:"limit,omitempty"`
+	Offset int `json:"offset,omitempty"`
+}
+
+// QueryLinksResponse is a query result: a page of matching links plus the true
+// uncapped match count.
+type QueryLinksResponse struct {
+	Links []Link `json:"links"`
+	Total int    `json:"total"`
+}
+
+// LookupLinkResponse resolves a short URL/code to the one link it addresses.
+type LookupLinkResponse struct {
+	Link Link `json:"link"`
 }
 
 type ListLinksResponse struct {
@@ -324,6 +381,35 @@ func (c *Client) CreateLink(ctx context.Context, spaceID string, input CreateLin
 		path += "?verify=true"
 	}
 	err := c.DoJSON(ctx, http.MethodPost, path, input, &response)
+	return response, err
+}
+
+func (c *Client) QueryLinks(ctx context.Context, spaceID string, input QueryLinksInput) (QueryLinksResponse, error) {
+	var response QueryLinksResponse
+	err := c.DoJSON(ctx, http.MethodPost, "/spaces/"+url.PathEscape(spaceID)+"/links/query", input, &response)
+	return response, err
+}
+
+// LookupLink resolves a short link to its record via GET /links/lookup. Pass a
+// full short URL, or a code (key) with its domain; an unknown link surfaces as
+// a 404 *APIError.
+func (c *Client) LookupLink(ctx context.Context, spaceID string, shortURL string, domain string, key string) (LookupLinkResponse, error) {
+	params := url.Values{}
+	if shortURL != "" {
+		params.Set("url", shortURL)
+	}
+	if domain != "" {
+		params.Set("domain", domain)
+	}
+	if key != "" {
+		params.Set("key", key)
+	}
+	path := "/spaces/" + url.PathEscape(spaceID) + "/links/lookup"
+	if encoded := params.Encode(); encoded != "" {
+		path += "?" + encoded
+	}
+	var response LookupLinkResponse
+	err := c.DoJSON(ctx, http.MethodGet, path, nil, &response)
 	return response, err
 }
 

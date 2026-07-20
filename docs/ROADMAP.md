@@ -23,6 +23,16 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   sorts), `--status`, `--limit`, `--cursor`, and `--all` (pagination loop).
   The human output prints a copyable next-page command instead of a raw
   cursor. Same flags on `zeb collection links`.
+- `zeb links query` finds links by the full filter vocabulary — the same
+  `LinkFilter` the dashboard search and smart collections use — via
+  `POST /links/query`: a flag per dimension (`--target-host`, `--short-domain`,
+  `--created`/`--edited`/`--clicked`, `--schedule`, `--created-via`,
+  `--attribution`, `--status`, `--min-clicks`/`--max-clicks`,
+  `--min-unique`/`--max-unique`, `--in-collection`/`--uncollected`), `--not`
+  for negation, free-text `[text]`, or a raw `--filter '<json>'`. `--save-as`
+  persists the filter as a smart collection. Returns `{links, total}`.
+- `zeb links resolve <short-url|code>` maps a short link back to its record via
+  `GET /links/lookup` (a full URL, or a code with `--domain`).
 - `zeb links get/update/delete` manage single links; delete accepts many ids
   and runs through the bulk endpoint (chunked at 250, per-row results).
 - `zeb qr <link-id>` returns a link's QR code: its stable public image URLs

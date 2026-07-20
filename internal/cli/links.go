@@ -123,6 +123,8 @@ func newLinksCommand(root *rootOptions) *cobra.Command {
 	cmd.Flags().StringVarP(&collection, "collection", "c", "", "collection id/name to list, or 'active'")
 	cmd.AddCommand(
 		newLinksCreateCommand(root),
+		newLinksQueryCommand(root),
+		newLinksResolveCommand(root),
 		newLinksGetCommand(root),
 		newLinksUpdateCommand(root),
 		newLinksDeleteCommand(root),

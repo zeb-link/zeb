@@ -47,6 +47,8 @@ binary, and `make uninstall-local` to remove it.
 ```bash
 zeb https://example.com                 # create a short link
 zeb links                               # list links
+zeb links query --status active --min-clicks 100   # filter links
+zeb links resolve zbrah.link/abc        # short link -> its record
 zeb tui                                 # interactive browser
 zeb --help
 ```
@@ -74,6 +76,22 @@ The domain and collection a new link lands in resolve in this order:
 4. Server default, for domain only
 
 Use `--no-collection` to ignore an active collection for a single create.
+
+## Finding links
+
+`zeb links query` filters by any combination of dimensions — the same
+vocabulary the dashboard search and smart collections use. Dimensions
+AND-combine; list flags OR within a dimension; `--not` inverts one:
+
+```bash
+zeb links query --status active --not clicked --clicked 30d   # active, stale links
+zeb links query --target-host cnn.com,bbc.com --min-clicks 100
+zeb links query "newsletter" --created 7d --json
+zeb links query --status inactive --save-as "Inactive"        # persist as a smart collection
+```
+
+`zeb links resolve <short-url|code>` goes the other way — from a short link to
+its record (a full URL, or a code with `--domain`). Both take `--json`.
 
 ## QR codes
 
@@ -126,6 +144,8 @@ zeb context
 zeb links [--sort …] [--cursor …] [--all] [--status …] [--limit …]
 zeb links --collection active
 zeb links create <url...>
+zeb links query [text] [--status …] [--target-host …] [--created …] [--min-clicks …] [--not …] [--filter '<json>'] [--save-as <name>]
+zeb links resolve <short-url|code> [--domain <hostname>]
 zeb links get <link-id>
 zeb links update <link-id> [--target …] [--title …] [--description …] [--path …] [--active|--inactive]
 zeb links delete <link-id...>

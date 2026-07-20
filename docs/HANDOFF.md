@@ -15,9 +15,11 @@ A Go CLI covering nearly the full Core REST v1 surface:
 - Domain commands that list available domains and set the active create domain.
 - Collection commands: list, show, create, update, delete, convert-to-manual,
   membership add/remove, plus active-collection context (use/clear/none).
-- Link commands: list (sort/status/cursor/--all), create (single with
-  reachability probe; multi via the bulk endpoint), get, update, delete
-  (bulk, chunked at 250).
+- Link commands: list (sort/status/cursor/--all), query (full `LinkFilter` over
+  `/links/query`, with `--filter` JSON and `--save-as` to persist as a smart
+  collection), resolve (`/links/lookup`, short URL/code → record), create
+  (single with reachability probe; multi via the bulk endpoint), get, update,
+  delete (bulk, chunked at 250).
 - `zeb <url...>` root shorthand for create.
 - Config commands for inspecting `~/.zlink`; `zeb status` for context and
   `zeb status --check` for API-validated context; `zeb health` for a ping.

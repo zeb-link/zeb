@@ -1204,27 +1204,228 @@
         "type": "object"
       },
       "CreateCollectionInput": {
-        "additionalProperties": false,
-        "properties": {
-          "description": {
-            "maxLength": 2000,
-            "type": "string"
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "filter": {
+                "properties": {
+                  "attribution": {
+                    "description": "Which attribution the link CARRIES: utm = a utm_* param on its destination URL; signals = a QR code carries signals; any = carries either (spoken to a user as \"Either\").",
+                    "enum": [
+                      "utm",
+                      "signals",
+                      "any"
+                    ],
+                    "type": "string"
+                  },
+                  "clicked": {
+                    "description": "Last-click recency window (1h|24h|7d|30d). Links never clicked match nothing.",
+                    "enum": [
+                      "1h",
+                      "24h",
+                      "7d",
+                      "30d"
+                    ],
+                    "type": "string"
+                  },
+                  "clicks": {
+                    "description": "Total-click threshold: {op: greaterThan|lessThan, value: \u003cwhole number\u003e}, e.g. {op: greaterThan, value: 100} for more than 100 clicks.",
+                    "properties": {
+                      "op": {
+                        "enum": [
+                          "greaterThan",
+                          "lessThan"
+                        ],
+                        "type": "string"
+                      },
+                      "value": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "op",
+                      "value"
+                    ],
+                    "type": "object"
+                  },
+                  "created": {
+                    "description": "Creation-time window: within the last 1h, 24h, 7d, or 30d.",
+                    "enum": [
+                      "1h",
+                      "24h",
+                      "7d",
+                      "30d"
+                    ],
+                    "type": "string"
+                  },
+                  "createdVia": {
+                    "description": "How the link was created: web, import, chat, or api.",
+                    "enum": [
+                      "web",
+                      "import",
+                      "chat",
+                      "api"
+                    ],
+                    "type": "string"
+                  },
+                  "edited": {
+                    "description": "Last-edit window (1h|24h|7d|30d). Creation counts as the initial edit.",
+                    "enum": [
+                      "1h",
+                      "24h",
+                      "7d",
+                      "30d"
+                    ],
+                    "type": "string"
+                  },
+                  "hasCollection": {
+                    "description": "true = in at least one collection; false = uncollected.",
+                    "type": "boolean"
+                  },
+                  "negate": {
+                    "description": "Filter names to INVERT, each still AND-combined. e.g. status:'active' + negate:['status'] means 'not active'; clicked:'30d' + negate:['clicked'] means 'not clicked in the last 30 days'.",
+                    "items": {
+                      "enum": [
+                        "query",
+                        "status",
+                        "created",
+                        "edited",
+                        "schedule",
+                        "createdVia",
+                        "hasCollection",
+                        "attribution",
+                        "clicks",
+                        "uniqueClicks",
+                        "clicked",
+                        "shortDomain",
+                        "targetHost"
+                      ],
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "query": {
+                    "description": "Free text matched against each link's short path, title, and destination URL.",
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "schedule": {
+                    "description": "upcoming = has an activation/deactivation still to fire; completed = schedule fully in the past. Unscheduled links match neither.",
+                    "enum": [
+                      "upcoming",
+                      "completed"
+                    ],
+                    "type": "string"
+                  },
+                  "shortDomain": {
+                    "description": "The link's OWN domain (its short-link host, e.g. zbrah.link) as hostnames. User-facing word: \"domain\" / \"short domain\".",
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "maxItems": 20,
+                    "type": "array"
+                  },
+                  "status": {
+                    "description": "active = live right now; inactive = off (manually or by schedule). Schedule-aware.",
+                    "enum": [
+                      "active",
+                      "inactive"
+                    ],
+                    "type": "string"
+                  },
+                  "targetHost": {
+                    "description": "Where the link POINTS, its destination host (e.g. cnn.com), as hostnames. User-facing word: \"destination\" (never say \"target host\" to a user).",
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "maxItems": 20,
+                    "type": "array"
+                  },
+                  "uniqueClicks": {
+                    "description": "Unique-visitor (distinct) threshold, same shape as clicks.",
+                    "properties": {
+                      "op": {
+                        "enum": [
+                          "greaterThan",
+                          "lessThan"
+                        ],
+                        "type": "string"
+                      },
+                      "value": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "op",
+                      "value"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "smart"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "filter"
+            ],
+            "type": "object"
           },
-          "name": {
-            "maxLength": 200,
-            "minLength": 1,
-            "type": "string"
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "manual"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "type": "object"
           }
-        },
-        "required": [
-          "name"
-        ],
-        "type": "object"
+        ]
       },
       "CreateCollectionResponse": {
         "properties": {
           "collection": {
             "$ref": "#/components/schemas/Collection"
+          },
+          "rulesSummary": {
+            "description": "Plain-language echo of the compiled membership. Present only for smart collections (e.g. \"Destination is any of cnn.com and Status is active\").",
+            "type": "string"
           }
         },
         "required": [
@@ -2051,6 +2252,168 @@
         ],
         "type": "object"
       },
+      "LinkFilter": {
+        "description": "Link filter. All fields optional; dimensions AND-combine, arrays OR within a dimension. `shortDomain` is the link's own domain (say \"domain\"); `targetHost` is where it points (say \"destination\"). `negate` inverts the named structured dimensions.",
+        "properties": {
+          "attribution": {
+            "description": "Which attribution the link CARRIES: utm = a utm_* param on its destination URL; signals = a QR code carries signals; any = carries either (spoken to a user as \"Either\").",
+            "enum": [
+              "utm",
+              "signals",
+              "any"
+            ],
+            "type": "string"
+          },
+          "clicked": {
+            "description": "Last-click recency window (1h|24h|7d|30d). Links never clicked match nothing.",
+            "enum": [
+              "1h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "type": "string"
+          },
+          "clicks": {
+            "description": "Total-click threshold: {op: greaterThan|lessThan, value: \u003cwhole number\u003e}, e.g. {op: greaterThan, value: 100} for more than 100 clicks.",
+            "properties": {
+              "op": {
+                "enum": [
+                  "greaterThan",
+                  "lessThan"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "op",
+              "value"
+            ],
+            "type": "object"
+          },
+          "created": {
+            "description": "Creation-time window: within the last 1h, 24h, 7d, or 30d.",
+            "enum": [
+              "1h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "type": "string"
+          },
+          "createdVia": {
+            "description": "How the link was created: web, import, chat, or api.",
+            "enum": [
+              "web",
+              "import",
+              "chat",
+              "api"
+            ],
+            "type": "string"
+          },
+          "edited": {
+            "description": "Last-edit window (1h|24h|7d|30d). Creation counts as the initial edit.",
+            "enum": [
+              "1h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "type": "string"
+          },
+          "hasCollection": {
+            "description": "true = in at least one collection; false = uncollected.",
+            "type": "boolean"
+          },
+          "negate": {
+            "description": "Filter names to INVERT, each still AND-combined. e.g. status:'active' + negate:['status'] means 'not active'; clicked:'30d' + negate:['clicked'] means 'not clicked in the last 30 days'.",
+            "items": {
+              "enum": [
+                "query",
+                "status",
+                "created",
+                "edited",
+                "schedule",
+                "createdVia",
+                "hasCollection",
+                "attribution",
+                "clicks",
+                "uniqueClicks",
+                "clicked",
+                "shortDomain",
+                "targetHost"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "query": {
+            "description": "Free text matched against each link's short path, title, and destination URL.",
+            "maxLength": 200,
+            "type": "string"
+          },
+          "schedule": {
+            "description": "upcoming = has an activation/deactivation still to fire; completed = schedule fully in the past. Unscheduled links match neither.",
+            "enum": [
+              "upcoming",
+              "completed"
+            ],
+            "type": "string"
+          },
+          "shortDomain": {
+            "description": "The link's OWN domain (its short-link host, e.g. zbrah.link) as hostnames. User-facing word: \"domain\" / \"short domain\".",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "status": {
+            "description": "active = live right now; inactive = off (manually or by schedule). Schedule-aware.",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "type": "string"
+          },
+          "targetHost": {
+            "description": "Where the link POINTS, its destination host (e.g. cnn.com), as hostnames. User-facing word: \"destination\" (never say \"target host\" to a user).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "uniqueClicks": {
+            "description": "Unique-visitor (distinct) threshold, same shape as clicks.",
+            "properties": {
+              "op": {
+                "enum": [
+                  "greaterThan",
+                  "lessThan"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "op",
+              "value"
+            ],
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
       "LinkInCollectionRow": {
         "properties": {
           "createdAt": {
@@ -2363,6 +2726,17 @@
         "required": [
           "qrVariants",
           "spaceDefaultStyle"
+        ],
+        "type": "object"
+      },
+      "LookupLinkResponse": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/Link"
+          }
+        },
+        "required": [
+          "link"
         ],
         "type": "object"
       },
@@ -2824,6 +3198,50 @@
           "object",
           "null"
         ]
+      },
+      "QueryLinksInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkFilter"
+          },
+          {
+            "properties": {
+              "limit": {
+                "description": "Max links to return (1–100, default 20).",
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "offset": {
+                "description": "Result offset for paging (default 0).",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "description": "Link filter. All fields optional; dimensions AND-combine, arrays OR within a dimension. `shortDomain` is the link's own domain (say \"domain\"); `targetHost` is where it points (say \"destination\"). `negate` inverts the named structured dimensions."
+      },
+      "QueryLinksResponse": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "type": "array"
+          },
+          "total": {
+            "description": "Total links matching the filter (uncapped; `links` is the page).",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "links",
+          "total"
+        ],
+        "type": "object"
       },
       "RemoveLinksFromCollectionResponse": {
         "properties": {
@@ -3404,6 +3822,7 @@
     "/api/v1/health": {
       "get": {
         "description": "Returns `{ ok: true, api: 'v1' }`. Public — no auth. Use for uptime monitoring and to verify the API surface is reachable. With `?deep=1` it also exercises the QR image rasterizer and returns `render: 'ok'` (500 with `render: 'failed'` when the renderer can't load).",
+        "operationId": "getHealth",
         "parameters": [
           {
             "description": "Set to `1` to run the deep render probe.",
@@ -3440,6 +3859,7 @@
     "/api/v1/me": {
       "get": {
         "description": "Returns the user the API key acts as, the spaces the key is authorized for, and the key's own metadata. Useful for client-side key introspection: \"who am I, what can I do?\"",
+        "operationId": "getCurrentUser",
         "responses": {
           "200": {
             "content": {
@@ -3476,6 +3896,7 @@
     "/api/v1/spaces/{spaceId}/collections": {
       "get": {
         "description": "Returns every collection in the space, capped at 100 by plan limits, with each collection's current `linkCount`. Smart collections calculate `linkCount` from their current matching links. Order via `sort` (default `creation-date-desc`; same vocabulary as the link lists); click-based sorts use the collection's current links.",
+        "operationId": "listCollections",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3562,7 +3983,8 @@
         ]
       },
       "post": {
-        "description": "Creates a normal collection. It starts empty; add links with `POST /collections/{collectionId}/links`.",
+        "description": "Creates a collection. Default (`type` omitted or `manual`) is an empty manual group; add links with `POST /collections/{collectionId}/links`. Pass `type:\"smart\"` with a `filter` (the LinkFilter vocabulary) to create a LIVE, rule-based collection whose membership stays current — its contents match a `queryLinks` call with the same filter. A smart body needs at least one filter and returns a `rulesSummary`.",
+        "operationId": "createCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3579,23 +4001,240 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "description": {
-                    "maxLength": 2000,
-                    "type": "string"
-                  },
-                  "name": {
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "type": "string"
+              "examples": {
+                "manual": {
+                  "summary": "Manual collection",
+                  "value": {
+                    "name": "Launch links"
                   }
                 },
-                "required": [
-                  "name"
-                ],
-                "type": "object"
+                "smart": {
+                  "summary": "Smart collection: everything pointing at cnn.com",
+                  "value": {
+                    "filter": {
+                      "targetHost": [
+                        "cnn.com"
+                      ]
+                    },
+                    "name": "CNN links",
+                    "type": "smart"
+                  }
+                }
+              },
+              "schema": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "maxLength": 2000,
+                        "type": "string"
+                      },
+                      "filter": {
+                        "properties": {
+                          "attribution": {
+                            "description": "Which attribution the link CARRIES: utm = a utm_* param on its destination URL; signals = a QR code carries signals; any = carries either (spoken to a user as \"Either\").",
+                            "enum": [
+                              "utm",
+                              "signals",
+                              "any"
+                            ],
+                            "type": "string"
+                          },
+                          "clicked": {
+                            "description": "Last-click recency window (1h|24h|7d|30d). Links never clicked match nothing.",
+                            "enum": [
+                              "1h",
+                              "24h",
+                              "7d",
+                              "30d"
+                            ],
+                            "type": "string"
+                          },
+                          "clicks": {
+                            "description": "Total-click threshold: {op: greaterThan|lessThan, value: \u003cwhole number\u003e}, e.g. {op: greaterThan, value: 100} for more than 100 clicks.",
+                            "properties": {
+                              "op": {
+                                "enum": [
+                                  "greaterThan",
+                                  "lessThan"
+                                ],
+                                "type": "string"
+                              },
+                              "value": {
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "op",
+                              "value"
+                            ],
+                            "type": "object"
+                          },
+                          "created": {
+                            "description": "Creation-time window: within the last 1h, 24h, 7d, or 30d.",
+                            "enum": [
+                              "1h",
+                              "24h",
+                              "7d",
+                              "30d"
+                            ],
+                            "type": "string"
+                          },
+                          "createdVia": {
+                            "description": "How the link was created: web, import, chat, or api.",
+                            "enum": [
+                              "web",
+                              "import",
+                              "chat",
+                              "api"
+                            ],
+                            "type": "string"
+                          },
+                          "edited": {
+                            "description": "Last-edit window (1h|24h|7d|30d). Creation counts as the initial edit.",
+                            "enum": [
+                              "1h",
+                              "24h",
+                              "7d",
+                              "30d"
+                            ],
+                            "type": "string"
+                          },
+                          "hasCollection": {
+                            "description": "true = in at least one collection; false = uncollected.",
+                            "type": "boolean"
+                          },
+                          "negate": {
+                            "description": "Filter names to INVERT, each still AND-combined. e.g. status:'active' + negate:['status'] means 'not active'; clicked:'30d' + negate:['clicked'] means 'not clicked in the last 30 days'.",
+                            "items": {
+                              "enum": [
+                                "query",
+                                "status",
+                                "created",
+                                "edited",
+                                "schedule",
+                                "createdVia",
+                                "hasCollection",
+                                "attribution",
+                                "clicks",
+                                "uniqueClicks",
+                                "clicked",
+                                "shortDomain",
+                                "targetHost"
+                              ],
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "query": {
+                            "description": "Free text matched against each link's short path, title, and destination URL.",
+                            "maxLength": 200,
+                            "type": "string"
+                          },
+                          "schedule": {
+                            "description": "upcoming = has an activation/deactivation still to fire; completed = schedule fully in the past. Unscheduled links match neither.",
+                            "enum": [
+                              "upcoming",
+                              "completed"
+                            ],
+                            "type": "string"
+                          },
+                          "shortDomain": {
+                            "description": "The link's OWN domain (its short-link host, e.g. zbrah.link) as hostnames. User-facing word: \"domain\" / \"short domain\".",
+                            "items": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "status": {
+                            "description": "active = live right now; inactive = off (manually or by schedule). Schedule-aware.",
+                            "enum": [
+                              "active",
+                              "inactive"
+                            ],
+                            "type": "string"
+                          },
+                          "targetHost": {
+                            "description": "Where the link POINTS, its destination host (e.g. cnn.com), as hostnames. User-facing word: \"destination\" (never say \"target host\" to a user).",
+                            "items": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "maxItems": 20,
+                            "type": "array"
+                          },
+                          "uniqueClicks": {
+                            "description": "Unique-visitor (distinct) threshold, same shape as clicks.",
+                            "properties": {
+                              "op": {
+                                "enum": [
+                                  "greaterThan",
+                                  "lessThan"
+                                ],
+                                "type": "string"
+                              },
+                              "value": {
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "op",
+                              "value"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "name": {
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "type": {
+                        "enum": [
+                          "smart"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "name",
+                      "filter"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "maxLength": 2000,
+                        "type": "string"
+                      },
+                      "name": {
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "type": {
+                        "enum": [
+                          "manual"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ],
+                    "type": "object"
+                  }
+                ]
               }
             }
           },
@@ -3611,6 +4250,16 @@
               }
             },
             "description": "Collection created."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "A smart filter named a domain the space doesn't have (`UNKNOWN_DOMAIN`)."
           },
           "401": {
             "content": {
@@ -3650,7 +4299,7 @@
                 }
               }
             },
-            "description": "Validation failed."
+            "description": "Validation failed, or a smart body produced an empty rule set (`EMPTY_RULES`)."
           }
         },
         "security": [
@@ -3667,6 +4316,7 @@
     "/api/v1/spaces/{spaceId}/collections/bulk": {
       "post": {
         "description": "Creates up to 50 normal collections in one request. Names do not have to be unique within a space. The collection cap is enforced all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
+        "operationId": "bulkCreateCollections",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3793,6 +4443,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}": {
       "delete": {
         "description": "Permanently deletes the collection. Links in the collection are not deleted.",
+        "operationId": "deleteCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3881,6 +4532,7 @@
       },
       "get": {
         "description": "Returns one collection, including its current `linkCount`. A collectionId in a different space returns 404.",
+        "operationId": "getCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -3977,6 +4629,7 @@
       },
       "patch": {
         "description": "Updates `name` or `description`. Rule editing is not supported by the public API.",
+        "operationId": "updateCollection",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4110,6 +4763,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/convert-to-manual": {
       "post": {
         "description": "Converts a smart collection into a fixed collection containing its current matching links. The collection no longer changes automatically as link state changes. Rejects collections that are already fixed.",
+        "operationId": "convertCollectionToManual",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4210,6 +4864,7 @@
     "/api/v1/spaces/{spaceId}/collections/{collectionId}/links": {
       "delete": {
         "description": "Removes the listed links from the collection. Links that are not in the collection are no-ops. Smart collections reject explicit membership changes.",
+        "operationId": "removeCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4332,6 +4987,7 @@
       },
       "get": {
         "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit` (1–1000, default 50; server clamps); a cursor is only valid under the sort that issued it. Pass `include=clicks` for `totalClicks`/`lastClickAt` on every row.",
+        "operationId": "listCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4480,6 +5136,7 @@
       },
       "post": {
         "description": "Adds the listed links to the collection. Re-adding a link that is already in the collection counts as `alreadyMember`, not an error. Smart collections reject explicit membership changes.",
+        "operationId": "addCollectionLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4604,6 +5261,7 @@
     "/api/v1/spaces/{spaceId}/domains": {
       "get": {
         "description": "Returns the enabled short domains this space can use. Pass a returned `hostname` or `id` as the `domain` field when creating a link, or omit `domain` to use the space's default domain.",
+        "operationId": "listDomains",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4663,6 +5321,7 @@
     "/api/v1/spaces/{spaceId}/links": {
       "get": {
         "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, clamped to 1000. Pass `include=clicks` to get `totalClicks` and `lastClickAt` on every row (click-based sorts include them automatically).",
+        "operationId": "listLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -4809,6 +5468,7 @@
       },
       "post": {
         "description": "Creates a short link in the named space. `domain` is an optional hostname or `dom_*` id (e.g. \"zlnk.to\", from `GET …/domains`); omit it to use the space's default domain. `collection` is an optional `col_*` id or exact collection name; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions. When `path` is omitted, Zebra allocates one under the requested namespace, or the root namespace by default.",
+        "operationId": "createLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5051,6 +5711,7 @@
     "/api/v1/spaces/{spaceId}/links/bulk": {
       "delete": {
         "description": "Deletes up to 250 links by id. Rows fail independently: an id that is missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
+        "operationId": "bulkDeleteLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5162,6 +5823,7 @@
       },
       "patch": {
         "description": "Updates multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch, using the same body fields as single-link PATCH. Rows fail independently with per-row error envelopes.",
+        "operationId": "bulkUpdateLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5391,6 +6053,7 @@
       },
       "post": {
         "description": "Creates up to 250 links. Each row gets its own result; a malformed URL or unavailable custom path fails only that row. Set `collection` to a `col_*` id or exact collection name to add every created link to that collection; duplicate names require an id. Rule-based collections returned by the API do not accept explicit link additions.\n\nBulk creation validates URL shape and path availability only. It does not probe each target URL, so no `targetReachable` field is returned. `title` is used when supplied.\n\nThe batch counts atomically against the space's link-volume limits: a batch that would cross the per-minute or monthly cap is rejected whole with HTTP 429 and zero links created. Per-minute rejections carry a `Retry-After` header; `error.details.remaining` reports the headroom left in the window so a smaller batch can be sized.",
+        "operationId": "bulkCreateLinks",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5624,9 +6287,231 @@
         ]
       }
     },
+    "/api/v1/spaces/{spaceId}/links/lookup": {
+      "get": {
+        "description": "Resolves a short link's identity to exactly one link — for acting on a link you only have the short URL for. Pass `url` (a full short URL or `host/path`), or `domain`+`key`, or a bare `key` when the space uses a single domain. Deterministic, never fuzzy: it returns the one match or a 404. A link on a domain since disabled still resolves. A bare `key` while the space uses more than one domain returns `AMBIGUOUS_DOMAIN` (the candidate domains ride in `details.domains`).",
+        "operationId": "lookupLink",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          },
+          {
+            "description": "A full short URL or `host/path` (e.g. `zbrah.link/launch`). Mutually exclusive with `domain`/`key`.",
+            "in": "query",
+            "name": "url",
+            "required": false,
+            "schema": {
+              "description": "A full short URL or `host/path` (e.g. `zbrah.link/launch`). Mutually exclusive with `domain`/`key`.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Short-domain hostname or `dom_*` id. Pairs with `key`.",
+            "in": "query",
+            "name": "domain",
+            "required": false,
+            "schema": {
+              "description": "Short-domain hostname or `dom_*` id. Pairs with `key`.",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The link's path/key (with or without a leading slash). Resolves without `domain` only when the space uses a single domain.",
+            "in": "query",
+            "name": "key",
+            "required": false,
+            "schema": {
+              "description": "The link's path/key (with or without a leading slash). Resolves without `domain` only when the space uses a single domain.",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupLinkResponse"
+                }
+              }
+            },
+            "description": "The resolved link."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing/conflicting query, unparseable `url`, or `AMBIGUOUS_DOMAIN` (a bare key while the space uses more than one domain)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "No link matches."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Resolve a short URL to its link",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/links/query": {
+      "post": {
+        "description": "Find links by any combination of filters — destination host, short domain, status, click thresholds, date windows, attribution, and more. POST (not GET) because of the nested and array-valued filters. An empty body matches every link. Results page via `limit`/`offset` and report the true `total`. `negate` inverts named structured dimensions, so this returns the same links as a smart collection built from the same filter. Weighs more than a plain read against the per-minute rate budget.",
+        "operationId": "queryLinks",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "byDestination": {
+                  "summary": "Links pointing at a destination",
+                  "value": {
+                    "limit": 20,
+                    "targetHost": [
+                      "cnn.com"
+                    ]
+                  }
+                },
+                "staleLinks": {
+                  "summary": "Active links not clicked in the last 30 days",
+                  "value": {
+                    "clicked": "30d",
+                    "negate": [
+                      "clicked"
+                    ],
+                    "status": "active"
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/QueryLinksInput"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryLinksResponse"
+                }
+              }
+            },
+            "description": "Matching links plus the true total."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unknown domain in the filter, or invalid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed (e.g. `query` in `negate`, out-of-range limit)."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Query links by filter",
+        "tags": [
+          "Links"
+        ]
+      }
+    },
     "/api/v1/spaces/{spaceId}/links/{linkId}": {
       "delete": {
         "description": "Permanently deletes the named link. A linkId in a different space returns 404.",
+        "operationId": "deleteLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5715,6 +6600,7 @@
       },
       "get": {
         "description": "Returns one link with canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. A linkId that exists in a different space returns 404.",
+        "operationId": "getLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -5793,6 +6679,7 @@
       },
       "patch": {
         "description": "Patches the named link. Every body field is optional — omitting one leaves that field unchanged. `title: null` clears the title; `title: undefined` (omitting it) doesn't touch it. A linkId that exists in a different space returns 404 (existence is not leaked).",
+        "operationId": "updateLink",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6016,6 +6903,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants": {
       "get": {
         "description": "Returns the link's named QR designs in display order, plus the space default style. The FIRST variant is the link's effective default — what renders when no `variant` is specified anywhere. Each variant carries its stable public `imageUrls`. A link with zero variants still renders a code (the space default, else the stock look) — fetch it from the link's `/qr/image` endpoint, or export it for a public URL.",
+        "operationId": "listQrVariants",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6094,6 +6982,7 @@
       },
       "post": {
         "description": "Adds a named design to the link. `style` is the sparse design vocabulary (canonical JSON); omit it (or send null) for a design that renders the space default look.",
+        "operationId": "createQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6466,6 +7355,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}": {
       "delete": {
         "description": "Deletes the named design. A link with zero remaining variants still renders its default code.",
+        "operationId": "deleteQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6564,6 +7454,7 @@
         ]
       },
       "get": {
+        "operationId": "getQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -6653,6 +7544,7 @@
       },
       "patch": {
         "description": "Patches the named design. Omit a field to leave it unchanged; `style: null` clears the design back to the space default look.",
+        "operationId": "updateQrVariant",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7033,6 +7925,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr-variants/{variantId}/image": {
       "get": {
         "description": "Renders one named design at any size/format, encoding the link's canonical short URL. Live: restyling the variant in the studio changes what it renders next. Authenticated — for a key-free URL to embed or hand off, use the variant's stable `imageUrls`.",
+        "operationId": "getQrVariantImage",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7167,6 +8060,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr/export": {
       "post": {
         "description": "Resolves a design, refreshes its stable public files, and returns their URLs — key-free, CDN-served, \u003cimg\u003e-embeddable, one PNG and one SVG per design. The URLs are permanent and always serve the design's latest saved look: saving in the studio rewrites the same files in place (also returned as `imageUrls` on the variant endpoints, so most callers never need this endpoint after the first materialization). Need a copy frozen in time? Download the file. Without `variant`, the link's effective default design exports — its first saved variant, else the space default/stock look. The image encodes only the link's public short URL.",
+        "operationId": "exportLinkQrImages",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7294,6 +8188,7 @@
     "/api/v1/spaces/{spaceId}/links/{linkId}/qr/image": {
       "get": {
         "description": "Renders the link's code at any size/format — the endpoint a publishing pipeline pairs with link creation. Without `variant`, the link's effective default design renders: its first saved variant, else the space default, else the stock look (what the studio shows first). The image always encodes the link's canonical short URL. Authenticated and rendered per request — for a key-free URL to embed or hand off, use the design's stable `imageUrls` (variant endpoints / `/qr/export`).",
+        "operationId": "getLinkQrImage",
         "parameters": [
           {
             "description": "Space id (prefixed ULID).",
@@ -7429,7 +8324,7 @@
   "servers": [
     {
       "description": "API host",
-      "url": "https://app.zeblink.io"
+      "url": "http://localhost:3000"
     }
   ],
   "webhooks": {}
