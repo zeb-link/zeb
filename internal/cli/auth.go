@@ -98,10 +98,10 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 					"spaces":      me.AccessibleSpaces,
 				})
 			}
-			fmt.Println(heading("Logged in"))
-			fmt.Printf("User: %s\n", me.User.Email)
+			section("Logged in")
+			field("User", me.User.Email, 14)
 			if selectedSpace != "" {
-				fmt.Printf("Active space: %s\n", selectedSpace)
+				field("Active space", selectedSpace, 14)
 			}
 			return nil
 		},
@@ -119,7 +119,7 @@ func newLogoutCommand() *cobra.Command {
 			if err := config.ClearCredentials(); err != nil {
 				return err
 			}
-			fmt.Println("Logged out")
+			done("Logged out")
 			return nil
 		},
 	}
@@ -150,15 +150,15 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 					"spaces":      me.AccessibleSpaces,
 				})
 			}
-			fmt.Println(heading("Current identity"))
-			fmt.Printf("Email: %s\n", me.User.Email)
+			section("Current identity")
+			field("Email", me.User.Email, 19)
 			if me.User.Name != nil {
-				fmt.Printf("Name: %s\n", *me.User.Name)
+				field("Name", *me.User.Name, 19)
 			}
-			fmt.Printf("User ID: %s\n", me.User.ID)
-			fmt.Printf("API key: %s\n", me.APIKey.Prefix)
-			fmt.Printf("Active space: %s\n", emptyLabel(spaceID))
-			fmt.Printf("Accessible spaces: %d\n", len(me.AccessibleSpaces))
+			field("User ID", me.User.ID, 19)
+			field("API key", me.APIKey.Prefix, 19)
+			field("Active space", emptyLabel(spaceID), 19)
+			field("Accessible spaces", fmt.Sprintf("%d", len(me.AccessibleSpaces)), 19)
 			return nil
 		},
 	}

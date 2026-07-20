@@ -31,8 +31,14 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   `--min-unique`/`--max-unique`, `--in-collection`/`--uncollected`), `--not`
   for negation, free-text `[text]`, or a raw `--filter '<json>'`. `--save-as`
   persists the filter as a smart collection. Returns `{links, total}`.
-- `zeb links resolve <short-url|code>` maps a short link back to its record via
+- `zeb links lookup <short-url|code>` maps a short link back to its record via
   `GET /links/lookup` (a full URL, or a code with `--domain`).
+- `zeb analytics` queries click analytics via `POST /analytics/query` — the
+  counterpart to `zeb links query`. It SHARES the object-scope flags (which
+  links) via `addObjectScopeFlags` and adds click dimensions (`--country`,
+  `--browser`, `--device-type`, bot dims, …) plus `--group-by`/`--measure`/
+  `--range`. `--json` returns the raw aggregate; omit `--group-by` for a single
+  total. Gated on the ANALYTICS_VIEW plan feature server-side.
 - `zeb links get/update/delete` manage single links; delete accepts many ids
   and runs through the bulk endpoint (chunked at 250, per-row results).
 - `zeb qr <link-id>` returns a link's QR code: its stable public image URLs
@@ -92,7 +98,7 @@ and the global `zeb` command points at the updated binary.
   message is not actionable.
 - Add TUI pagination and collection filtering now that command-line
   pagination semantics are settled.
-- Add analytics commands when Core exposes analytics over REST.
+- Broaden analytics output (compact/table rendering; a `--csv` for breakdowns).
 
 ## Deliberately Not Wired
 

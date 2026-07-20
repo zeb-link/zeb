@@ -3,11 +3,10 @@
 package gallery
 
 import (
-	"strings"
-
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/zeb-link/zeb/internal/tui/intro"
+	"github.com/zeb-link/zeb/internal/ui/layout"
 	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
@@ -28,7 +27,7 @@ func New(frame int) Model {
 func Preview(frame int, width int) string {
 	model := New(frame)
 	model.width = width
-	return model.View()
+	return model.render()
 }
 
 func (m Model) Init() tea.Cmd {
@@ -40,7 +39,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			return m, tea.Quit
@@ -49,7 +48,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
+	v := tea.NewView(m.render())
+	v.AltScreen = true
+	return v
+}
+
+func (m Model) render() string {
 	width := m.width
 	if width < 72 {
 		width = 72
@@ -61,61 +66,32 @@ func (m Model) View() string {
 	content := lipgloss.JoinVertical(lipgloss.Left, title, help, "", tiles)
 
 	if m.height > 0 {
-		remaining := m.height - lipgloss.Height(content)
-		if remaining > 0 {
-			content += strings.Repeat("\n", remaining)
-		}
+		content = layout.FillHeight(width, m.height, content)
 	}
 	return "\n" + content
 }
 
 func (m Model) renderTiles(width int) string {
-	var tiles []string
+	tiles := make([]string, 0)
 	for _, variant := range intro.Variants() {
 		tiles = append(tiles, renderTile(variant, m.frame))
 	}
-
-	columns := 3
-	if width < 118 {
-		columns = 2
-	}
-	if width < 80 {
-		columns = 1
-	}
-	if columns == 1 {
-		return lipgloss.JoinVertical(lipgloss.Left, tiles...)
-	}
-
-	var rows []string
-	for i := 0; i < len(tiles); i += columns {
-		rowTiles := tiles[i:min(i+columns, len(tiles))]
-		parts := make([]string, 0, len(rowTiles)*2)
-		for idx, tile := range rowTiles {
-			if idx > 0 {
-				parts = append(parts, "  ")
-			}
-			parts = append(parts, tile)
-		}
-		rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Top, parts...))
-	}
-	return lipgloss.JoinVertical(lipgloss.Left, rows...)
+	return layout.Grid(tiles, tileWidth, tileGap, width)
 }
+
+const (
+	tileWidth = 36
+	tileGap   = 2
+)
 
 func renderTile(variant intro.Variant, frame int) string {
 	body := variant.RenderCompactFrame(frame)
 	return lipgloss.NewStyle().
-		Width(36).
+		Width(tileWidth).
 		Height(13).
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("238")).
+		BorderForeground(theme.Dim).
 		Padding(1, 1).
 		MarginBottom(1).
 		Render(body)
-}
-
-func min(a int, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
@@ -30,7 +30,7 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 				return nil
 			}
 			if galleryMode {
-				_, err := tea.NewProgram(gallery.New(galleryFrame), tea.WithAltScreen()).Run()
+				_, err := tea.NewProgram(gallery.New(galleryFrame)).Run()
 				return err
 			}
 			if preview {
@@ -52,7 +52,7 @@ func newTUICommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			final, err := tea.NewProgram(shell.New(variant, data), tea.WithAltScreen()).Run()
+			final, err := tea.NewProgram(shell.New(variant, data)).Run()
 			if err != nil {
 				return err
 			}

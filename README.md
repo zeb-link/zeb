@@ -48,7 +48,8 @@ binary, and `make uninstall-local` to remove it.
 zeb https://example.com                 # create a short link
 zeb links                               # list links
 zeb links query --status active --min-clicks 100   # filter links
-zeb links resolve zbrah.link/abc        # short link -> its record
+zeb links lookup zbrah.link/abc        # short link -> its record
+zeb analytics --group-by country --range 7d   # click analytics
 zeb tui                                 # interactive browser
 zeb --help
 ```
@@ -90,8 +91,24 @@ zeb links query "newsletter" --created 7d --json
 zeb links query --status inactive --save-as "Inactive"        # persist as a smart collection
 ```
 
-`zeb links resolve <short-url|code>` goes the other way — from a short link to
+`zeb links lookup <short-url|code>` goes the other way — from a short link to
 its record (a full URL, or a code with `--domain`). Both take `--json`.
+
+## Analytics
+
+`zeb analytics` is the click counterpart to `zeb links query`. It uses the
+**same object-scope flags** to pick which links to count, then filters and
+groups the clicks:
+
+```bash
+zeb analytics --group-by country --range 7d              # top countries this week
+zeb analytics --status active --not clicked --clicked 30d --group-by browser
+zeb analytics --is-bot --group-by botType --json         # the AI/bot traffic mix
+zeb analytics --target-host cnn.com                      # one total for a destination
+```
+
+Omit `--group-by` for a single total; add it for a breakdown. `--measure`
+counts `clicks` (default) or `uniqueClicks`. `--json` returns the raw aggregate.
 
 ## QR codes
 
@@ -145,10 +162,11 @@ zeb links [--sort …] [--cursor …] [--all] [--status …] [--limit …]
 zeb links --collection active
 zeb links create <url...>
 zeb links query [text] [--status …] [--target-host …] [--created …] [--min-clicks …] [--not …] [--filter '<json>'] [--save-as <name>]
-zeb links resolve <short-url|code> [--domain <hostname>]
+zeb links lookup <short-url|code> [--domain <hostname>]
 zeb links get <link-id>
 zeb links update <link-id> [--target …] [--title …] [--description …] [--path …] [--active|--inactive]
 zeb links delete <link-id...>
+zeb analytics [text] [--status …] [--target-host …] [--not …] [--country …] [--browser …] [--is-bot] [--group-by …] [--measure …] [--range …] [--collection <id>] [--filter '<json>']
 zeb <url...>
 zeb qr <link-id>
 zeb qr <link-id> --download <file> [--format png|svg] [--size <px>] [--variant <id>]

@@ -6,9 +6,11 @@ package cli
 import (
 	"fmt"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 func newHealthCommand(root *rootOptions) *cobra.Command {
@@ -33,7 +35,7 @@ func newHealthCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"ok": response.OK, "api": response.API, "apiUrl": apiURL})
 			}
-			fmt.Printf("%s %s (%s)\n", checkOKStyle.Render("✓"), apiURL, response.API)
+			lipgloss.Println("  " + theme.GoodText.Render("✓") + " " + theme.BodyText.Render(apiURL) + " " + theme.FaintText.Render("("+response.API+")"))
 			return nil
 		},
 	}

@@ -176,6 +176,65 @@ type LookupLinkResponse struct {
 	Link Link `json:"link"`
 }
 
+// AnalyticsQueryInput — the analytics query body. Two halves: object SCOPE
+// (which links to count clicks for — the same vocabulary as LinkFilter's object
+// dims) and click MEASUREMENT (which clicks), plus groupBy/measure/range.
+// Mirrors Core's QueryAnalyticsInput. Contract: docs/ANALYTICS-QUERY-SYSTEM.md.
+type AnalyticsQueryInput struct {
+	// Object scope — which links.
+	Query         string   `json:"query,omitempty"`
+	Status        string   `json:"status,omitempty"`
+	Created       string   `json:"created,omitempty"`
+	Edited        string   `json:"edited,omitempty"`
+	CreatedVia    string   `json:"createdVia,omitempty"`
+	HasCollection *bool    `json:"hasCollection,omitempty"`
+	Schedule      string   `json:"schedule,omitempty"`
+	Attribution   string   `json:"attribution,omitempty"`
+	TargetHost    []string `json:"targetHost,omitempty"`
+	CollectionID  string   `json:"collectionId,omitempty"`
+	LinkID        string   `json:"linkId,omitempty"`
+	Negate        []string `json:"negate,omitempty"`
+	// Click measurement — which clicks.
+	Country        []string `json:"country,omitempty"`
+	Continents     []string `json:"continents,omitempty"`
+	Region         []string `json:"region,omitempty"`
+	City           []string `json:"city,omitempty"`
+	Browser        []string `json:"browser,omitempty"`
+	OS             []string `json:"os,omitempty"`
+	DeviceType     []string `json:"deviceType,omitempty"`
+	ReferrerDomain []string `json:"referrerDomain,omitempty"`
+	ShortDomain    []string `json:"shortDomain,omitempty"`
+	FromQr         *bool    `json:"fromQr,omitempty"`
+	IsBot          *bool    `json:"isBot,omitempty"`
+	BotType        []string `json:"botType,omitempty"`
+	BotName        []string `json:"botName,omitempty"`
+	// Aggregation.
+	GroupBy string `json:"groupBy,omitempty"`
+	Measure string `json:"measure,omitempty"`
+	Range   string `json:"range,omitempty"`
+	From    string `json:"from,omitempty"`
+	To      string `json:"to,omitempty"`
+	Limit   int    `json:"limit,omitempty"`
+}
+
+// AnalyticsRow is one breakdown row (or the single total when key is null).
+type AnalyticsRow struct {
+	Key          *string `json:"key"`
+	Clicks       int     `json:"clicks"`
+	UniqueClicks int     `json:"uniqueClicks"`
+}
+
+// AnalyticsQueryResponse — aggregate rows plus the configured/tooLarge flags.
+type AnalyticsQueryResponse struct {
+	Configured bool           `json:"configured"`
+	TooLarge   bool           `json:"tooLarge"`
+	Range      string         `json:"range"`
+	GroupBy    *string        `json:"groupBy"`
+	Measure    *string        `json:"measure"`
+	Message    string         `json:"message,omitempty"`
+	Rows       []AnalyticsRow `json:"rows"`
+}
+
 type ListLinksResponse struct {
 	Links      []Link  `json:"links"`
 	NextCursor *string `json:"nextCursor"`
@@ -410,6 +469,12 @@ func (c *Client) LookupLink(ctx context.Context, spaceID string, shortURL string
 	}
 	var response LookupLinkResponse
 	err := c.DoJSON(ctx, http.MethodGet, path, nil, &response)
+	return response, err
+}
+
+func (c *Client) QueryAnalytics(ctx context.Context, spaceID string, input AnalyticsQueryInput) (AnalyticsQueryResponse, error) {
+	var response AnalyticsQueryResponse
+	err := c.DoJSON(ctx, http.MethodPost, "/spaces/"+url.PathEscape(spaceID)+"/analytics/query", input, &response)
 	return response, err
 }
 

@@ -20,6 +20,10 @@ A Go CLI covering nearly the full Core REST v1 surface:
   collection), resolve (`/links/lookup`, short URL/code → record), create
   (single with reachability probe; multi via the bulk endpoint), get, update,
   delete (bulk, chunked at 250).
+- `zeb analytics`: click analytics via `/analytics/query` — the counterpart to
+  `links query`. Shares the object-scope flags (`addObjectScopeFlags`, used by
+  both) and adds click dims + `--group-by`/`--measure`/`--range`. Gated on the
+  ANALYTICS_VIEW feature server-side.
 - `zeb <url...>` root shorthand for create.
 - Config commands for inspecting `~/.zlink`; `zeb status` for context and
   `zeb status --check` for API-validated context; `zeb health` for a ping.

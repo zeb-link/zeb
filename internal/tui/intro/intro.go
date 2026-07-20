@@ -5,11 +5,12 @@ package intro
 
 import (
 	"fmt"
+	"image/color"
 	"math/rand"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/zeb-link/zeb/internal/ui/brand"
 	"github.com/zeb-link/zeb/internal/ui/theme"
 )
@@ -246,36 +247,36 @@ func renderBlockCell(cell blockCell, mode blockMode) string {
 		}
 		color := blockBaseColor(cell.ch)
 		if cell.index > cell.reveal-4 {
-			color = theme.Accent2
+			color = theme.Bone
 		}
 		return blockGlyph(cell.ch, color, true)
 	case blockScan:
 		distance := abs(cell.x - cell.scanX)
 		switch {
 		case distance == 0:
-			return blockGlyph(cell.ch, theme.Accent2, true)
+			return blockGlyph(cell.ch, theme.Bone, true)
 		case distance <= 2:
-			return blockGlyph(cell.ch, theme.Accent, true)
+			return blockGlyph(cell.ch, theme.Link, true)
 		default:
 			return blockGlyph(cell.ch, blockBaseColor(cell.ch), true)
 		}
 	case blockGlitch:
 		if cell.frame < FrameCount-3 && (cell.x*7+cell.y*11+cell.frame*5)%19 < 3 {
-			return blockGlyph(glitchGlyph(cell), theme.Accent2, true)
+			return blockGlyph(glitchGlyph(cell), theme.Bone, true)
 		}
 		if cell.frame < FrameCount-5 && (cell.x+cell.y+cell.frame)%7 == 0 {
-			return blockGlyph(cell.ch, theme.Accent, true)
+			return blockGlyph(cell.ch, theme.Link, true)
 		}
 		return blockGlyph(cell.ch, blockBaseColor(cell.ch), true)
 	case blockPulse:
 		wave := (cell.x + cell.y + cell.frame) % 8
 		switch {
 		case wave == 0:
-			return blockGlyph(cell.ch, theme.Accent2, true)
+			return blockGlyph(cell.ch, theme.Bone, true)
 		case wave <= 2:
-			return blockGlyph(cell.ch, theme.Accent, true)
+			return blockGlyph(cell.ch, theme.Link, true)
 		case wave == 5:
-			return blockGlyph(cell.ch, lipgloss.Color("245"), true)
+			return blockGlyph(cell.ch, theme.Faint, true)
 		default:
 			return blockGlyph(cell.ch, blockBaseColor(cell.ch), true)
 		}
@@ -285,7 +286,7 @@ func renderBlockCell(cell blockCell, mode blockMode) string {
 		}
 		color := blockBaseColor(cell.ch)
 		if cell.x+cell.y >= cell.wipeMax-1 {
-			color = theme.Accent
+			color = theme.Link
 		}
 		return blockGlyph(cell.ch, color, true)
 	default:
@@ -293,21 +294,21 @@ func renderBlockCell(cell blockCell, mode blockMode) string {
 	}
 }
 
-func blockBaseColor(ch rune) lipgloss.Color {
+func blockBaseColor(ch rune) color.Color {
 	switch ch {
 	case '█':
-		return theme.White
+		return theme.Bone
 	case '▄':
-		return lipgloss.Color("250")
+		return theme.Ink
 	case '▀':
-		return lipgloss.Color("245")
+		return theme.Faint
 	default:
-		return theme.White
+		return theme.Bone
 	}
 }
 
-func blockGlyph(ch rune, color lipgloss.Color, bold bool) string {
-	style := lipgloss.NewStyle().Foreground(color)
+func blockGlyph(ch rune, col color.Color, bold bool) string {
+	style := lipgloss.NewStyle().Foreground(col)
 	if bold {
 		style = style.Bold(true)
 	}

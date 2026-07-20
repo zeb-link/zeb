@@ -1,6 +1,6 @@
-// Link query + resolve commands. `zeb links query` exposes the full filter
+// Link query + lookup commands. `zeb links query` exposes the full filter
 // vocabulary (the same LinkFilter the dashboard search, smart collections, and
-// the assistant use) over POST /links/query; `zeb links resolve` maps a short
+// the assistant use) over POST /links/query; `zeb links lookup` maps a short
 // URL/code back to its link via GET /links/lookup. Both honor --json/--agent
 // for machine-readable output.
 package cli
@@ -10,8 +10,10 @@ import (
 	"fmt"
 	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 // Value hints mirror the API vocabulary for help text; the server stays the
@@ -29,54 +31,50 @@ var (
 		"uniqueClicks",
 	}
 	// The per-dimension flag names, used to reject combining them with --filter.
-	dimensionFlagNames = []string{
-		"status", "created", "edited", "clicked", "schedule", "created-via",
-		"attribution", "in-collection", "uncollected", "short-domain",
-		"target-host", "min-clicks", "max-clicks", "min-unique", "max-unique",
-		"not",
+	// The link-ONLY dimension flags (the shared object-scope ones live in
+	// objectScopeFlagNames). Used with --filter to reject mixing raw JSON with
+	// per-dimension flags.
+	linkOnlyDimensionFlagNames = []string{
+		"clicked", "short-domain", "min-clicks", "max-clicks",
+		"min-unique", "max-unique",
 	}
 )
 
 type queryLinksFlags struct {
-	Status       string
-	Created      string
-	Edited       string
-	Clicked      string
-	Schedule     string
-	CreatedVia   string
-	Attribution  string
-	InCollection bool
-	Uncollected  bool
-	ShortDomain  []string
-	TargetHost   []string
-	MinClicks    int
-	MaxClicks    int
-	MinUnique    int
-	MaxUnique    int
-	Not          []string
-	Filter       string
-	SaveAs       string
-	Limit        int
-	Offset       int
+	objectScopeFlags // status/created/edited/schedule/created-via/attribution/in-collection/uncollected/target-host/not — shared with `zeb analytics`
+	Clicked          string
+	ShortDomain      []string
+	MinClicks        int
+	MaxClicks        int
+	MinUnique        int
+	MaxUnique        int
+	Filter           string
+	SaveAs           string
+	Limit            int
+	Offset           int
 }
 
 func newLinksQueryCommand(root *rootOptions) *cobra.Command {
 	flags := &queryLinksFlags{}
 	cmd := &cobra.Command{
 		Use:   "query [text]",
-		Short: "Find links by filter",
+		Short: "Find links by filter (destination, clicks, dates, attribution, …)",
 		Long: "Find links by any combination of filter dimensions — the same vocabulary the\n" +
-			"dashboard search and smart collections use.\n\n" +
+			"dashboard search and smart collections use. This is the FIND counterpart to\n" +
+			"`zeb links` (which only browses/lists).\n\n" +
 			"Dimensions AND-combine; list flags (--target-host, --short-domain, --not) OR\n" +
 			"within a dimension; --not inverts a dimension. The optional [text] is a\n" +
 			"free-text match over each link's path, title, and destination.\n\n" +
-			"Returns a page of links plus the true uncapped match count. Use --json (or\n" +
-			"--agent) for machine-readable {links, total}.\n\n" +
-			"Examples:\n" +
-			"  zeb links query --status active --not clicked --clicked 30d   # active, stale links\n" +
+			"Returns a page of links plus the true uncapped match count — so it also\n" +
+			"answers \"how many match?\". Use --json (or --agent) for {links, total}.\n" +
+			"Add --save-as to persist the same filter as a live smart collection.",
+		Example: "  zeb links query --target-host cnn.com                 # point at a destination\n" +
 			"  zeb links query --target-host cnn.com,bbc.com --min-clicks 100\n" +
-			"  zeb links query \"newsletter\" --created 7d --json\n" +
-			"  zeb links query --filter '{\"status\":\"inactive\"}'",
+			"  zeb links query --attribution signals                 # carry a QR signal\n" +
+			"  zeb links query --clicked 30d --not clicked           # NOT clicked in 30 days\n" +
+			"  zeb links query \"newsletter\" --created 7d --json      # free text + window\n" +
+			"  zeb links query --status inactive --save-as \"Inactive\"  # persist as a smart collection\n" +
+			"  zeb links query --filter '{\"targetHost\":[\"cnn.com\"],\"attribution\":\"signals\"}'",
 		Args: cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, err := resolveAPIContext(cmd.Context(), root)
@@ -125,22 +123,15 @@ func newLinksQueryCommand(root *rootOptions) *cobra.Command {
 }
 
 func addQueryLinksFlags(cmd *cobra.Command, flags *queryLinksFlags) {
-	cmd.Flags().StringVar(&flags.Status, "status", "", "status: "+strings.Join(filterStatusValues, " | "))
-	cmd.Flags().StringVar(&flags.Created, "created", "", "created within a window: "+strings.Join(filterWindowValues, " | "))
-	cmd.Flags().StringVar(&flags.Edited, "edited", "", "last edited within a window: "+strings.Join(filterWindowValues, " | "))
+	// Shared object-scope flags (identical on `zeb analytics`).
+	addObjectScopeFlags(cmd, &flags.objectScopeFlags)
+	// Link-only flags.
 	cmd.Flags().StringVar(&flags.Clicked, "clicked", "", "last clicked within a window: "+strings.Join(filterWindowValues, " | "))
-	cmd.Flags().StringVar(&flags.Schedule, "schedule", "", "schedule state: "+strings.Join(filterScheduleValues, " | "))
-	cmd.Flags().StringVar(&flags.CreatedVia, "created-via", "", "creation source: "+strings.Join(filterCreatedViaValues, " | "))
-	cmd.Flags().StringVar(&flags.Attribution, "attribution", "", "attribution carried: "+strings.Join(filterAttributionVals, " | "))
-	cmd.Flags().BoolVar(&flags.InCollection, "in-collection", false, "only links that are in at least one collection")
-	cmd.Flags().BoolVar(&flags.Uncollected, "uncollected", false, "only links that are in no collection")
 	cmd.Flags().StringSliceVar(&flags.ShortDomain, "short-domain", nil, "the link's own domain hostname(s); repeatable or comma-separated")
-	cmd.Flags().StringSliceVar(&flags.TargetHost, "target-host", nil, "destination hostname(s); repeatable or comma-separated")
 	cmd.Flags().IntVar(&flags.MinClicks, "min-clicks", 0, "more than N total clicks")
 	cmd.Flags().IntVar(&flags.MaxClicks, "max-clicks", 0, "fewer than N total clicks")
 	cmd.Flags().IntVar(&flags.MinUnique, "min-unique", 0, "more than N unique clicks")
 	cmd.Flags().IntVar(&flags.MaxUnique, "max-unique", 0, "fewer than N unique clicks")
-	cmd.Flags().StringSliceVar(&flags.Not, "not", nil, "invert a dimension; repeatable. Fields: "+strings.Join(filterNegatableFields, ", "))
 	cmd.Flags().StringVar(&flags.Filter, "filter", "", "raw LinkFilter JSON (exclusive with the per-dimension flags and text)")
 	cmd.Flags().StringVar(&flags.SaveAs, "save-as", "", "persist this filter as a smart collection with this name (its membership stays live) instead of listing")
 	cmd.Flags().IntVarP(&flags.Limit, "limit", "l", 20, "page size (server range 1-100)")
@@ -181,17 +172,11 @@ func buildQueryInput(cmd *cobra.Command, flags *queryLinksFlags, args []string) 
 	f.TargetHost = flags.TargetHost
 	f.Negate = flags.Not
 
-	if flags.InCollection && flags.Uncollected {
-		return input, fmt.Errorf("--in-collection and --uncollected are mutually exclusive")
+	hc, err := flags.hasCollection()
+	if err != nil {
+		return input, err
 	}
-	if flags.InCollection {
-		yes := true
-		f.HasCollection = &yes
-	}
-	if flags.Uncollected {
-		no := false
-		f.HasCollection = &no
-	}
+	f.HasCollection = hc
 
 	clicks, err := clickThreshold(cmd, "min-clicks", "max-clicks", flags.MinClicks, flags.MaxClicks, "clicks")
 	if err != nil {
@@ -236,15 +221,18 @@ func isEmptyFilter(f api.LinkFilter) bool {
 }
 
 func printSmartCollectionCreated(created api.CreateCollectionResponse) {
-	fmt.Printf("Created smart collection %q (%s) — %d link(s).\n",
-		created.Collection.Name, created.Collection.ID, created.Collection.LinkCount)
+	done(fmt.Sprintf("Created smart collection %s (%s) — %d link(s)",
+		created.Collection.Name, created.Collection.ID, created.Collection.LinkCount))
 	if created.RulesSummary != nil && *created.RulesSummary != "" {
-		fmt.Printf("Rule: %s\n", *created.RulesSummary)
+		lipgloss.Println("  " + theme.MutedText.Render("Rule: "+*created.RulesSummary))
 	}
 }
 
 func anyDimensionFlagSet(cmd *cobra.Command) bool {
-	for _, name := range dimensionFlagNames {
+	if anyObjectScopeFlagSet(cmd) {
+		return true
+	}
+	for _, name := range linkOnlyDimensionFlagNames {
 		if cmd.Flags().Changed(name) {
 			return true
 		}
@@ -254,25 +242,29 @@ func anyDimensionFlagSet(cmd *cobra.Command) bool {
 
 func printQuerySummary(response api.QueryLinksResponse, input api.QueryLinksInput) {
 	if response.Total == 0 {
-		fmt.Println("\nNo links match.")
+		lipgloss.Println("\n" + theme.MutedText.Render("No links match."))
 		return
 	}
 	end := input.Offset + len(response.Links)
-	fmt.Printf("\n%d match(es); showing %d–%d.\n", response.Total, input.Offset+1, end)
+	lipgloss.Println("\n" + theme.MutedText.Render(fmt.Sprintf("%d match(es); showing %d–%d.", response.Total, input.Offset+1, end)))
 	if end < response.Total {
-		fmt.Printf("More: rerun with --offset %d\n", end)
+		lipgloss.Println(theme.FaintText.Render(fmt.Sprintf("More: rerun with --offset %d", end)))
 	}
 }
 
-func newLinksResolveCommand(root *rootOptions) *cobra.Command {
+func newLinksLookupCommand(root *rootOptions) *cobra.Command {
 	var domain string
 	cmd := &cobra.Command{
-		Use:   "resolve <short-url|code>",
-		Short: "Resolve a short link to its record",
-		Long: "Resolve a short link to the link it addresses — the inverse of creating one.\n\n" +
+		Use:     "lookup <short-url|code>",
+		Aliases: []string{"resolve"},
+		Short:   "Look up the link behind a short URL or code",
+		Long: "Look up the link a short URL addresses — the inverse of creating one.\n\n" +
 			"Pass a full short URL (https://zbrah.link/abc or zbrah.link/abc), or a bare\n" +
 			"code with --domain. Use --json (or --agent) for the {link} object. An unknown\n" +
 			"link exits non-zero with a machine-readable error.",
+		Example: "  zeb links lookup zbrah.link/abc\n" +
+			"  zeb links lookup https://zbrah.link/abc --json\n" +
+			"  zeb links lookup abc --domain zbrah.link",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, err := resolveAPIContext(cmd.Context(), root)
@@ -297,6 +289,6 @@ func newLinksResolveCommand(root *rootOptions) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVarP(&domain, "domain", "d", "", "domain hostname when resolving a bare code")
+	cmd.Flags().StringVarP(&domain, "domain", "d", "", "domain hostname when looking up a bare code")
 	return cmd
 }

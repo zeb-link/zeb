@@ -3199,6 +3199,337 @@
           "null"
         ]
       },
+      "QueryAnalyticsInput": {
+        "description": "Analytics query, two halves. Object SCOPE — WHICH links to count clicks for — uses the same vocabulary as link search: `status`, `created`, `edited`, `createdVia`, `hasCollection`, `schedule`, `attribution`, `targetHost`, `query`, plus `collectionId` (a collection OR attributes, not both) and `negate` (invert named scope dims). Click MEASUREMENT — `country`/`continents`/`region`/`city`, `browser`/`os`/`deviceType`, `referrerDomain`, `fromQr`, bot dims — filters the clicks. `groupBy` returns a breakdown (one row per value), `measure` counts clicks or uniqueClicks, `range` sets the window. All fields optional; an empty body is whole-workspace all-time totals.",
+        "properties": {
+          "attribution": {
+            "description": "Which attribution the link CARRIES: utm = a utm_* param on its destination URL; signals = a QR code carries signals; any = carries either (spoken to a user as \"Either\").",
+            "enum": [
+              "utm",
+              "signals",
+              "any"
+            ],
+            "type": "string"
+          },
+          "botName": {
+            "description": "Bot product name (e.g. \"GPTBot\").",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "type": "array"
+          },
+          "botType": {
+            "description": "Traffic class (ai_assistant, crawler, fetcher, …).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 15,
+            "type": "array"
+          },
+          "browser": {
+            "description": "Browser name (e.g. Chrome, Safari).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "type": "array"
+          },
+          "city": {
+            "description": "City of the click.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "collectionId": {
+            "description": "Scope to one specific collection (analytics-only). Mutually exclusive with the object-attribute filters.",
+            "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
+          },
+          "continents": {
+            "description": "Named continent groupings; expand to their countries.",
+            "items": {
+              "enum": [
+                "europe",
+                "africa",
+                "asia",
+                "north-america",
+                "south-america",
+                "oceania",
+                "antarctica"
+              ],
+              "type": "string"
+            },
+            "maxItems": 7,
+            "type": "array"
+          },
+          "country": {
+            "description": "ISO country codes of the click (e.g. US, GB).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 60,
+            "type": "array"
+          },
+          "created": {
+            "description": "Creation-time window: within the last 1h, 24h, 7d, or 30d.",
+            "enum": [
+              "1h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "type": "string"
+          },
+          "createdVia": {
+            "description": "How the link was created: web, import, chat, or api.",
+            "enum": [
+              "web",
+              "import",
+              "chat",
+              "api"
+            ],
+            "type": "string"
+          },
+          "deviceType": {
+            "description": "Device type (e.g. mobile, desktop, tablet).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "type": "array"
+          },
+          "edited": {
+            "description": "Last-edit window (1h|24h|7d|30d). Creation counts as the initial edit.",
+            "enum": [
+              "1h",
+              "24h",
+              "7d",
+              "30d"
+            ],
+            "type": "string"
+          },
+          "from": {
+            "description": "Custom window start as an ISO date or date-time. Only with range=custom.",
+            "type": "string"
+          },
+          "fromQr": {
+            "description": "true = QR scans only; false = ordinary (non-QR) clicks only.",
+            "type": "boolean"
+          },
+          "groupBy": {
+            "description": "Break the result down by this dimension (one row per value); omit for a single total. `day` is a per-day time series.",
+            "enum": [
+              "country",
+              "region",
+              "city",
+              "browser",
+              "os",
+              "deviceType",
+              "referrerDomain",
+              "fromQr",
+              "shortDomain",
+              "isBot",
+              "botType",
+              "botName",
+              "day",
+              "link"
+            ],
+            "type": "string"
+          },
+          "hasCollection": {
+            "description": "true = in at least one collection; false = uncollected.",
+            "type": "boolean"
+          },
+          "isBot": {
+            "description": "true = automated traffic only; false = humans only.",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Max breakdown rows (group-by only; default 100).",
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "measure": {
+            "description": "What to count: total clicks (default) or unique visitors.",
+            "enum": [
+              "clicks",
+              "uniqueClicks"
+            ],
+            "type": "string"
+          },
+          "negate": {
+            "description": "Object-scope dimensions to invert, e.g. [\"status\"] for clicks from links that are NOT active. Free text is not negatable.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "os": {
+            "description": "Operating system (e.g. iOS, Windows).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "type": "array"
+          },
+          "query": {
+            "description": "Free text matched against each link's short path, title, and destination URL.",
+            "maxLength": 200,
+            "type": "string"
+          },
+          "range": {
+            "description": "Time window: all (all-time, the default), 7d, 30d, 1d (last 24h), 1h, 15m, or custom (then set from/to). Use a rolling window like 7d for 'this week' / 30d for 'last 30 days'.",
+            "enum": [
+              "15m",
+              "1h",
+              "1d",
+              "7d",
+              "30d",
+              "all",
+              "custom"
+            ],
+            "type": "string"
+          },
+          "referrerDomain": {
+            "description": "Referring domain of the click.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "region": {
+            "description": "Region / state of the click.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "type": "array"
+          },
+          "schedule": {
+            "description": "upcoming = has an activation/deactivation still to fire; completed = schedule fully in the past. Unscheduled links match neither.",
+            "enum": [
+              "upcoming",
+              "completed"
+            ],
+            "type": "string"
+          },
+          "shortDomain": {
+            "description": "The link's own short-domain host(s) the click came through, as hostnames.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "status": {
+            "description": "active = live right now; inactive = off (manually or by schedule). Schedule-aware.",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "type": "string"
+          },
+          "targetHost": {
+            "description": "Where the link POINTS, its destination host (e.g. cnn.com), as hostnames. User-facing word: \"destination\" (never say \"target host\" to a user).",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "type": "array"
+          },
+          "to": {
+            "description": "Custom window end as an ISO date or date-time. Only with range=custom.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QueryAnalyticsResponse": {
+        "properties": {
+          "configured": {
+            "description": "false = the analytics backend isn't configured for this space; `rows` is empty.",
+            "type": "boolean"
+          },
+          "groupBy": {
+            "description": "The breakdown dimension, or null for a single total.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "measure": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "range": {
+            "description": "The resolved time window.",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "properties": {
+                "clicks": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "key": {
+                  "description": "The dimension value (or calendar day) for a breakdown row; null for a single total.",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "uniqueClicks": {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "key",
+                "clicks",
+                "uniqueClicks"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "tooLarge": {
+            "description": "true = the link scope was too large to resolve; relay the message, never report zero.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "configured",
+          "tooLarge",
+          "range",
+          "groupBy",
+          "measure",
+          "rows"
+        ],
+        "type": "object"
+      },
       "QueryLinksInput": {
         "allOf": [
           {
@@ -3890,6 +4221,133 @@
         "summary": "Identify the caller",
         "tags": [
           "System"
+        ]
+      }
+    },
+    "/api/v1/spaces/{spaceId}/analytics/query": {
+      "post": {
+        "description": "Filter and group CLICK analytics over a scoped set of links — the click counterpart to /links/query. POST because of the nested/array-valued filters. An empty body returns whole-workspace, all-time totals. Omit `groupBy` for a single total; set it for a breakdown (one row per value), ranked by `measure` (clicks or uniqueClicks). A too-large scope or an unconfigured backend is a flag in the 200 body, never a 4xx. Requires the ANALYTICS_VIEW plan feature; weighs more than a plain read against the per-minute rate budget.",
+        "operationId": "queryAnalytics",
+        "parameters": [
+          {
+            "description": "Space id (prefixed ULID).",
+            "in": "path",
+            "name": "spaceId",
+            "required": true,
+            "schema": {
+              "description": "Space id (prefixed ULID).",
+              "pattern": "^spc_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "botTraffic": {
+                  "summary": "The full traffic mix (humans + bots) by traffic type",
+                  "value": {
+                    "groupBy": "botType",
+                    "isBot": true
+                  }
+                },
+                "clicksForStaleActiveLinks": {
+                  "summary": "Clicks by browser for active links NOT clicked in 30 days",
+                  "value": {
+                    "clicked": "30d",
+                    "groupBy": "browser",
+                    "negate": [
+                      "clicked"
+                    ],
+                    "status": "active"
+                  }
+                },
+                "topCountriesThisWeek": {
+                  "summary": "Top countries in the last 7 days",
+                  "value": {
+                    "groupBy": "country",
+                    "range": "7d"
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/QueryAnalyticsInput"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryAnalyticsResponse"
+                }
+              }
+            },
+            "description": "Aggregate rows, or a configured/tooLarge flag."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Unknown domain in the filter, or invalid JSON."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Missing or malformed API key."
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "The space's plan does not include analytics."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Forbidden. Either the API key is not authorized for the requested space (`SPACE_NOT_ACCESSIBLE`), or its scope is too narrow for this operation (`INSUFFICIENT_SCOPE`) — a read-only key is refused on write endpoints (POST / PATCH / DELETE)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "description": "Validation failed, `query` in `negate`, or `collectionId` combined with attribute filters."
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "summary": "Query click analytics",
+        "tags": [
+          "Analytics"
         ]
       }
     },

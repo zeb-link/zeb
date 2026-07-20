@@ -31,6 +31,7 @@ var clientEndpoints = []struct {
 	{"post", "/api/v1/spaces/{spaceId}/links"},
 	{"post", "/api/v1/spaces/{spaceId}/links/query"},
 	{"get", "/api/v1/spaces/{spaceId}/links/lookup"},
+	{"post", "/api/v1/spaces/{spaceId}/analytics/query"},
 	{"get", "/api/v1/spaces/{spaceId}/links/{linkId}"},
 	{"patch", "/api/v1/spaces/{spaceId}/links/{linkId}"},
 	{"delete", "/api/v1/spaces/{spaceId}/links/{linkId}"},

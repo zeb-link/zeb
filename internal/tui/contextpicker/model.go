@@ -5,11 +5,13 @@ package contextpicker
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/ui/layout"
 	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
@@ -93,7 +95,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			m.quitting = true
@@ -115,9 +117,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	if m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 	width := m.width
 	if width < 72 {
@@ -127,7 +129,7 @@ func (m Model) View() string {
 		width = 110
 	}
 
-	title := lipgloss.NewStyle().Bold(true).Foreground(theme.White).Render("Zeb context")
+	title := theme.Title.Render("Zeb context")
 	subtitle := theme.MutedText.Render("Choose defaults for new links. Flags on create still override these values.")
 	body := lipgloss.JoinHorizontal(
 		lipgloss.Top,
@@ -137,7 +139,7 @@ func (m Model) View() string {
 	)
 	help := theme.MutedText.Render("tab section  ↑/↓ move  enter set  q quit")
 	message := theme.MutedText.Render(m.message)
-	return "\n" + lipgloss.JoinVertical(lipgloss.Left, title, subtitle, "", body, "", message, help) + "\n"
+	return tea.NewView("\n" + lipgloss.JoinVertical(lipgloss.Left, title, subtitle, "", body, "", message, help) + "\n")
 }
 
 func (m Model) Selection() Selection {
@@ -182,21 +184,23 @@ func (m *Model) applyHighlighted() {
 }
 
 func (m Model) renderDomains(width int) string {
+	active := m.activeSection == sectionDomain
 	var rows []string
-	rows = append(rows, sectionTitle("Domain", m.activeSection == sectionDomain))
+	rows = append(rows, sectionTitle("Domain", active, theme.Sand))
 	for i, domain := range m.domains {
-		rows = append(rows, m.renderDomainRow(domain, i == m.domainIndex && m.activeSection == sectionDomain))
+		rows = append(rows, m.renderDomainRow(domain, i == m.domainIndex && active))
 	}
-	return panel(width, m.activeSection == sectionDomain, strings.Join(rows, "\n"))
+	return panel(width, active, theme.Sand, strings.Join(rows, "\n"))
 }
 
 func (m Model) renderCollections(width int) string {
+	active := m.activeSection == sectionCollection
 	var rows []string
-	rows = append(rows, sectionTitle("New links go to", m.activeSection == sectionCollection))
+	rows = append(rows, sectionTitle("New links go to", active, theme.Collection))
 	for i, collection := range m.collections {
-		rows = append(rows, m.renderCollectionRow(collection, i == m.collectionIndex && m.activeSection == sectionCollection))
+		rows = append(rows, m.renderCollectionRow(collection, i == m.collectionIndex && active))
 	}
-	return panel(width, m.activeSection == sectionCollection, strings.Join(rows, "\n"))
+	return panel(width, active, theme.Collection, strings.Join(rows, "\n"))
 }
 
 func (m Model) renderDomainRow(domain DomainOption, focused bool) string {
@@ -219,45 +223,32 @@ func (m Model) renderCollectionRow(collection CollectionOption, focused bool) st
 }
 
 func row(value string, meta string, active bool, focused bool, disabled bool) string {
-	cursor := "  "
-	if focused {
-		cursor = "> "
-	}
-	valueStyle := lipgloss.NewStyle().Foreground(theme.White)
+	valueStyle := lipgloss.NewStyle().Foreground(theme.Bone)
 	metaStyle := theme.MutedText
 	if disabled {
-		valueStyle = valueStyle.Foreground(theme.Muted)
-		metaStyle = metaStyle.Foreground(lipgloss.Color("240"))
+		valueStyle = lipgloss.NewStyle().Foreground(theme.Muted)
+		metaStyle = theme.FaintText
 	}
 	if active {
 		valueStyle = valueStyle.Bold(true)
 	}
 	activeMark := " "
 	if active {
-		activeMark = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).Render("●")
+		activeMark = layout.Dot(theme.Good)
 	}
-	return cursor + activeMark + " " + valueStyle.Render(value) + "  " + metaStyle.Render(meta)
+	return layout.Gutter(focused) + activeMark + " " + valueStyle.Render(value) + "  " + metaStyle.Render(meta)
 }
 
-func sectionTitle(label string, active bool) string {
+func sectionTitle(label string, active bool, tone color.Color) string {
 	style := lipgloss.NewStyle().Bold(true).Foreground(theme.Muted)
 	if active {
-		style = style.Foreground(theme.Accent2)
+		style = style.Foreground(tone)
 	}
 	return style.Render(label)
 }
 
-func panel(width int, focused bool, content string) string {
-	border := lipgloss.Color("238")
-	if focused {
-		border = theme.Accent2
-	}
-	return lipgloss.NewStyle().
-		Width(width).
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(border).
-		Padding(1, 2).
-		Render(content)
+func panel(width int, focused bool, tone color.Color, content string) string {
+	return layout.Panel(width, focused, tone, content)
 }
 
 func domainLabel(hostname string) string {

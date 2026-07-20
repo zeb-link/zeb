@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
@@ -71,7 +71,18 @@ func newLinksCommand(root *rootOptions) *cobra.Command {
 	var collection string
 	cmd := &cobra.Command{
 		Use:   "links",
-		Short: "List and manage links",
+		Short: "Browse and manage links (use `links query` to filter)",
+		Long: "Browse your links: newest first, or paged through in full.\n\n" +
+			"`zeb links` is for LISTING — it takes only --status, --collection, and\n" +
+			"--sort, and pages the whole table cheaply (--all walks every page).\n" +
+			"To FIND links by a condition — destination, clicks, dates, attribution,\n" +
+			"negation, free text — use `zeb links query` instead.\n\n" +
+			"Rule of thumb: any filter beyond status/collection/sort → `links query`.",
+		Example: "  zeb links                              # newest links\n" +
+			"  zeb links --all --json                 # every link, machine-readable\n" +
+			"  zeb links --status inactive --sort total-clicks-desc\n" +
+			"  zeb links --collection \"Campaign\"      # one collection's members\n" +
+			"  zeb links query --target-host cnn.com  # FIND by a condition (see: links query)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, err := resolveAPIContext(cmd.Context(), root)
 			if err != nil {
@@ -124,7 +135,7 @@ func newLinksCommand(root *rootOptions) *cobra.Command {
 	cmd.AddCommand(
 		newLinksCreateCommand(root),
 		newLinksQueryCommand(root),
-		newLinksResolveCommand(root),
+		newLinksLookupCommand(root),
 		newLinksGetCommand(root),
 		newLinksUpdateCommand(root),
 		newLinksDeleteCommand(root),
@@ -184,7 +195,7 @@ func printNextPageHint(response api.ListLinksResponse, command string) {
 	if response.NextCursor == nil || *response.NextCursor == "" {
 		return
 	}
-	fmt.Printf("\n%s\n", theme.MutedText.Render(
+	lipgloss.Printf("\n%s\n", theme.MutedText.Render(
 		fmt.Sprintf("More available: %s --cursor %s  (or rerun with --all)", command, *response.NextCursor),
 	))
 }
@@ -380,7 +391,7 @@ func runBulkCreate(cmd *cobra.Command, root *rootOptions, ctx apiContext, target
 	}
 	printCreateFailures(failed)
 	if len(failed) > 0 {
-		fmt.Printf("\n%s\n", theme.MutedText.Render(
+		lipgloss.Printf("\n%s\n", theme.MutedText.Render(
 			fmt.Sprintf("Created %d of %d links", len(created), len(created)+len(failed)),
 		))
 	}
@@ -411,7 +422,7 @@ func bulkCreateOutcome(created []api.CreateLinkResponse, failed []createFailure)
 
 func printCreateFailures(failed []createFailure) {
 	for _, failure := range failed {
-		fmt.Printf("%s %s\n  %s\n",
+		lipgloss.Printf("%s %s\n  %s\n",
 			unreachableStyle.Render("✗"),
 			linkTargetStyle.Render(truncate(failure.TargetURL, 92)),
 			theme.MutedText.Render(fmt.Sprintf("%s · %s", failure.Error.Code, failure.Error.Message)),
@@ -499,11 +510,11 @@ func newLinksUpdateCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
-			fmt.Println(createdHeadingStyle.Render("Updated"))
-			fmt.Println()
+			lipgloss.Println(createdHeadingStyle.Render("Updated"))
+			lipgloss.Println()
 			printLinkDetail(response.Link)
 			if response.PathChanged {
-				fmt.Printf("\n%s\n", theme.MutedText.Render("The short URL changed — the previous path no longer redirects."))
+				lipgloss.Printf("\n%s\n", theme.MutedText.Render("The short URL changed — the previous path no longer redirects."))
 			}
 			return nil
 		},
@@ -569,16 +580,16 @@ func newLinksDeleteCommand(root *rootOptions) *cobra.Command {
 			}
 			for _, row := range results {
 				if row.Success {
-					fmt.Printf("%s %s\n", activeDotStyle.Render("✓"), theme.MutedText.Render(row.LinkID))
+					lipgloss.Printf("%s %s\n", activeDotStyle.Render("✓"), theme.MutedText.Render(row.LinkID))
 					continue
 				}
 				detail := "delete failed"
 				if row.Error != nil {
 					detail = fmt.Sprintf("%s · %s", row.Error.Code, row.Error.Message)
 				}
-				fmt.Printf("%s %s  %s\n", unreachableStyle.Render("✗"), row.LinkID, theme.MutedText.Render(detail))
+				lipgloss.Printf("%s %s  %s\n", unreachableStyle.Render("✗"), row.LinkID, theme.MutedText.Render(detail))
 			}
-			fmt.Printf("\n%s\n", createdHeadingStyle.Render(fmt.Sprintf("Deleted %d of %d", deleted, len(results))))
+			lipgloss.Printf("\n%s\n", createdHeadingStyle.Render(fmt.Sprintf("Deleted %d of %d", deleted, len(results))))
 			return deleteOutcome(results, deleted)
 		},
 	}
@@ -633,13 +644,13 @@ func printCreatedLinks(created []api.CreateLinkResponse, collectionID string, co
 	if len(created) == 1 {
 		countLabel = "link"
 	}
-	fmt.Println(createdHeadingStyle.Render(fmt.Sprintf("Created %d %s", len(created), countLabel)))
-	fmt.Println()
+	lipgloss.Println(createdHeadingStyle.Render(fmt.Sprintf("Created %d %s", len(created), countLabel)))
+	lipgloss.Println()
 	for _, response := range created {
 		link := response.Link
 		short := displayShortLink(link)
-		fmt.Printf("%s %s %s\n", linkShortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(link.TargetURL))
-		fmt.Printf("  %s\n", createdMetaFooter(link, response.TargetReachable, collectionID, collectionLabel))
+		lipgloss.Printf("%s %s %s\n", linkShortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(link.TargetURL))
+		lipgloss.Printf("  %s\n", createdMetaFooter(link, response.TargetReachable, collectionID, collectionLabel))
 	}
 }
 
@@ -697,16 +708,16 @@ func printLinkContext(cfg config.Config, collectionID string, collectionLabel st
 	if domain == "" {
 		domain = "server default"
 	}
-	fmt.Println(heading("Links"))
+	lipgloss.Println(heading("Links"))
 	contextLabel := theme.MutedText.Render("New links:")
-	domainLabel := theme.Command.Render(domain)
+	domainLabel := theme.BodyText.Render(domain)
 	collectionText := "no collection"
 	if cfg.ActiveCollection != "" {
 		collectionText = cfg.ActiveCollection
 	}
-	fmt.Printf("%s  domain %s  %s  collection %s\n", contextLabel, domainLabel, theme.MutedText.Render("·"), theme.Command.Render(collectionText))
-	fmt.Printf("%s %s\n", theme.MutedText.Render("Showing:"), showingLabel(collectionID, collectionLabel, flags))
-	fmt.Println()
+	lipgloss.Printf("%s  domain %s  %s  collection %s\n", contextLabel, domainLabel, theme.MutedText.Render("·"), theme.CollectionText.Render(collectionText))
+	lipgloss.Printf("%s %s\n", theme.MutedText.Render("Showing:"), showingLabel(collectionID, collectionLabel, flags))
+	lipgloss.Println()
 }
 
 // showingLabel describes exactly what the list below contains — collection
@@ -729,12 +740,12 @@ func showingLabel(collectionID string, collectionLabel string, flags listLinksFl
 
 func printLinks(links []api.Link) {
 	if len(links) == 0 {
-		fmt.Println("No links found.")
+		lipgloss.Println("No links found.")
 		return
 	}
 	for idx, link := range links {
 		if idx > 0 {
-			fmt.Println()
+			lipgloss.Println()
 		}
 		printLink(link)
 	}
@@ -745,15 +756,15 @@ func printLink(link api.Link) {
 	target := truncate(link.TargetURL, 92)
 	dot, status := linkStatus(link.IsActive)
 
-	fmt.Printf("%s %s %s %s\n", dot, linkShortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(target))
+	lipgloss.Printf("%s %s %s %s\n", dot, linkShortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(target))
 	if link.Title != nil && strings.TrimSpace(*link.Title) != "" {
-		fmt.Printf("  %s\n", linkTitleStyle.Render(truncate(strings.TrimSpace(*link.Title), 110)))
+		lipgloss.Printf("  %s\n", linkTitleStyle.Render(truncate(strings.TrimSpace(*link.Title), 110)))
 	}
 	meta := []string{theme.MutedText.Render(link.ID), status}
 	if link.TotalClicks != nil {
 		meta = append(meta, theme.MutedText.Render(clicksLabel(*link.TotalClicks)))
 	}
-	fmt.Printf("  %s\n", strings.Join(meta, theme.MutedText.Render(" · ")))
+	lipgloss.Printf("  %s\n", strings.Join(meta, theme.MutedText.Render(" · ")))
 }
 
 func clicksLabel(count int) string {
@@ -765,9 +776,9 @@ func clicksLabel(count int) string {
 
 func printLinkDetail(link api.Link) {
 	printLink(link)
-	fmt.Printf("  %s\n", theme.MutedText.Render("created "+link.CreatedAt))
+	lipgloss.Printf("  %s\n", theme.MutedText.Render("created "+link.CreatedAt))
 	if link.Description != nil && strings.TrimSpace(*link.Description) != "" {
-		fmt.Printf("  %s\n", linkTitleStyle.Render(strings.TrimSpace(*link.Description)))
+		lipgloss.Printf("  %s\n", linkTitleStyle.Render(strings.TrimSpace(*link.Description)))
 	}
 }
 
@@ -806,17 +817,15 @@ func truncate(value string, limit int) string {
 	return string(runes[:limit-1]) + "…"
 }
 
+// Link rendering styles, resolved from the active theme by applyCLIStyles (in
+// help.go) so they track the detected light/dark palette rather than freezing
+// at the package-load default.
 var (
-	activeDotStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
-	inactiveDotStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
-	activeStatusStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
-	inactiveStatusStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
-	createdHeadingStyle    = lipgloss.NewStyle().Bold(true).Foreground(theme.White)
-	createdDomainStyle     = lipgloss.NewStyle().Foreground(theme.Command.GetForeground())
-	createdCollectionStyle = lipgloss.NewStyle().Foreground(theme.White)
-	linkShortStyle         = lipgloss.NewStyle().Foreground(theme.White)
-	linkTargetStyle        = lipgloss.NewStyle().Foreground(theme.Ink)
-	linkTitleStyle         = lipgloss.NewStyle().Foreground(theme.Muted)
-	reachableStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
-	unreachableStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
+	activeDotStyle, inactiveDotStyle           lipgloss.Style
+	activeStatusStyle, inactiveStatusStyle     lipgloss.Style
+	createdHeadingStyle                        lipgloss.Style
+	createdDomainStyle, createdCollectionStyle lipgloss.Style
+	linkShortStyle, linkTargetStyle            lipgloss.Style
+	linkTitleStyle                             lipgloss.Style
+	reachableStyle, unreachableStyle           lipgloss.Style
 )

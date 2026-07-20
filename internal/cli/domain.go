@@ -5,8 +5,10 @@ package cli
 import (
 	"fmt"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 func newDomainsCommand(root *rootOptions) *cobra.Command {
@@ -29,17 +31,17 @@ func newDomainsCommand(root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(heading("Domains"))
+			section("Domains")
 			for _, domain := range response.Domains {
-				current := ""
-				if domain.Hostname == cfg.ActiveDomain {
-					current = "  active"
-				}
-				tier := ""
+				meta := domain.Type
 				if domain.Tier != nil {
-					tier = " · " + *domain.Tier
+					meta += " · " + *domain.Tier
 				}
-				fmt.Printf("%s  %s%s%s\n", domain.Hostname, domain.Type, tier, current)
+				row := "  " + theme.CommandText.Render(domain.Hostname) + "  " + theme.MutedText.Render(meta)
+				if domain.Hostname == cfg.ActiveDomain {
+					row += "  " + theme.GoodText.Render("active")
+				}
+				lipgloss.Println(row)
 			}
 			return nil
 		},
@@ -58,7 +60,7 @@ func newDomainCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeDomain": nullString(cfg.ActiveDomain)})
 			}
-			fmt.Printf("Active domain: %s\n", emptyLabel(cfg.ActiveDomain))
+			field("Active domain", emptyLabel(cfg.ActiveDomain), 14)
 			return nil
 		},
 	}
@@ -109,7 +111,7 @@ func newDomainUseCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]string{"activeDomain": hostname})
 			}
-			fmt.Printf("Active domain set to %s\n", hostname)
+			done("Active domain set to " + hostname)
 			return nil
 		},
 	}
@@ -131,7 +133,7 @@ func newDomainClearCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeDomain": nil})
 			}
-			fmt.Println("Active domain cleared; server default will be used.")
+			done("Active domain cleared; server default will be used.")
 			return nil
 		},
 	}

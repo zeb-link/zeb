@@ -12,8 +12,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 // specRelPath is where the snapshot lives inside the zeb repo. Sync resolves
@@ -75,8 +77,8 @@ func newSpecSyncCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]string{"url": specURL, "output": output})
 			}
-			fmt.Printf("Synced %s\n", output)
-			fmt.Printf("Source: %s\n", specURL)
+			done("Synced " + output)
+			lipgloss.Println("  " + theme.MutedText.Render("Source: "+specURL))
 			return nil
 		},
 	}
@@ -102,7 +104,7 @@ func newSpecPathCommand(root *rootOptions) *cobra.Command {
 				if root.JSON {
 					return writeJSON(map[string]any{"path": nil, "inRepo": false, "note": note})
 				}
-				fmt.Println(note)
+				lipgloss.Println(theme.MutedText.Render(note))
 				return nil
 			}
 			if root.JSON {

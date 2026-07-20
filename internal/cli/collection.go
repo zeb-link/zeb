@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
@@ -54,7 +54,7 @@ func newCollectionCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": nullString(cfg.ActiveCollection)})
 			}
-			fmt.Printf("Active collection: %s\n", emptyLabel(cfg.ActiveCollection))
+			lipgloss.Printf("Active collection: %s\n", emptyLabel(cfg.ActiveCollection))
 			return nil
 		},
 	}
@@ -131,7 +131,7 @@ func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": collection.ID, "collection": collection})
 			}
-			fmt.Printf("Active collection set to %s (%s)\n", collection.Name, collection.ID)
+			lipgloss.Printf("Active collection set to %s (%s)\n", collection.Name, collection.ID)
 			return nil
 		},
 	}
@@ -256,9 +256,9 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 					"activeCollection": nullString(activeCollection),
 				})
 			}
-			fmt.Printf("Created collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
+			lipgloss.Printf("Created collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
 			if use {
-				fmt.Printf("Active collection set to %s\n", response.Collection.ID)
+				lipgloss.Printf("Active collection set to %s\n", response.Collection.ID)
 			}
 			return nil
 		},
@@ -304,7 +304,7 @@ func newCollectionUpdateCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
-			fmt.Printf("Updated collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
+			lipgloss.Printf("Updated collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
 			return nil
 		},
 	}
@@ -349,9 +349,9 @@ func newCollectionDeleteCommand(root *rootOptions) *cobra.Command {
 					"activeCollectionCleared": clearedActive,
 				})
 			}
-			fmt.Printf("Deleted collection %s (%s)\n", resolved.Name, response.DeletedCollectionID)
+			lipgloss.Printf("Deleted collection %s (%s)\n", resolved.Name, response.DeletedCollectionID)
 			if clearedActive {
-				fmt.Println("Active collection cleared; new links get no collection.")
+				lipgloss.Println("Active collection cleared; new links get no collection.")
 			}
 			return nil
 		},
@@ -380,7 +380,7 @@ func newCollectionConvertCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
-			fmt.Printf("Converted %s to a manual collection; its current links are now direct members.\n", response.Collection.Name)
+			lipgloss.Printf("Converted %s to a manual collection; its current links are now direct members.\n", response.Collection.Name)
 			return nil
 		},
 	}
@@ -417,7 +417,7 @@ func newCollectionAddCommand(root *rootOptions) *cobra.Command {
 			if response.AlreadyMember > 0 {
 				note = fmt.Sprintf(" (%d already in it)", response.AlreadyMember)
 			}
-			fmt.Printf("Added %d links to %s%s\n", response.Added, resolved.Name, note)
+			lipgloss.Printf("Added %d links to %s%s\n", response.Added, resolved.Name, note)
 			return nil
 		},
 	}
@@ -452,7 +452,7 @@ func newCollectionRemoveCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"collection": resolved, "removed": response.Removed})
 			}
-			fmt.Printf("Removed %d links from %s\n", response.Removed, resolved.Name)
+			lipgloss.Printf("Removed %d links from %s\n", response.Removed, resolved.Name)
 			return nil
 		},
 	}
@@ -476,7 +476,7 @@ func newCollectionClearCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": nil})
 			}
-			fmt.Println("Active collection cleared.")
+			lipgloss.Println("Active collection cleared.")
 			return nil
 		},
 	}
@@ -496,9 +496,9 @@ func resolveCollection(collections []api.Collection, input string) (api.Collecti
 }
 
 func printCollections(collections []api.Collection, activeCollection string) {
-	fmt.Println(collectionHeading())
+	lipgloss.Println(collectionHeading())
 	if len(collections) == 0 {
-		fmt.Println("No collections found.")
+		lipgloss.Println("No collections found.")
 		return
 	}
 	for _, collection := range collections {
@@ -508,15 +508,15 @@ func printCollections(collections []api.Collection, activeCollection string) {
 
 func printCollection(collection api.Collection, active bool) {
 	dot, status := collectionStatus(collection, active)
-	fmt.Printf("%s %s %s\n", dot, collectionNameStyle.Render(collection.Name), theme.MutedText.Render(collectionLinkCountLabel(collection.LinkCount)))
+	lipgloss.Printf("%s %s %s\n", dot, collectionNameStyle.Render(collection.Name), theme.MutedText.Render(collectionLinkCountLabel(collection.LinkCount)))
 	if description := collectionDescription(collection); description != "" {
-		fmt.Printf("  %s\n", collectionDescriptionStyle.Render(truncate(description, 110)))
+		lipgloss.Printf("  %s\n", collectionDescriptionStyle.Render(truncate(description, 110)))
 	}
 	meta := []string{theme.MutedText.Render(collection.ID)}
 	if status != "" {
 		meta = append(meta, status)
 	}
-	fmt.Printf("  %s\n\n", strings.Join(meta, theme.MutedText.Render(" · ")))
+	lipgloss.Printf("  %s\n\n", strings.Join(meta, theme.MutedText.Render(" · ")))
 }
 
 func collectionStatus(collection api.Collection, active bool) (string, string) {
@@ -555,8 +555,8 @@ func collectionHeading() string {
 var (
 	collectionNameStyle        = linkShortStyle
 	collectionDescriptionStyle = linkTitleStyle
-	collectionHeadingStyle     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("183"))
-	collectionDotStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color("141"))
-	collectionSmartStyle       = lipgloss.NewStyle().Foreground(theme.Accent2)
-	collectionActiveStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
+	collectionHeadingStyle     lipgloss.Style
+	collectionDotStyle         lipgloss.Style
+	collectionSmartStyle       lipgloss.Style
+	collectionActiveStyle      lipgloss.Style
 )

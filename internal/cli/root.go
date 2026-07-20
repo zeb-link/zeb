@@ -13,10 +13,11 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zeb-link/zeb/internal/api"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 // errAlreadyReported signals that a command has already written its complete
@@ -34,6 +35,7 @@ type rootOptions struct {
 }
 
 func Execute(version string) {
+	resolveTheme()
 	opts := &rootOptions{Version: version}
 	cmd := newRootCommand(opts)
 	cmd.SetArgs(expandRootURLShorthand(cmd, os.Args[1:]))
@@ -96,11 +98,32 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 	createOptions := &createLinksOptions{}
 	cmd := &cobra.Command{
 		Use:   "zeb [url...]",
-		Short: "Manage Zebra spaces from the terminal",
-		Long:  "Manage Zebra spaces from the terminal.\n\nRun `zeb <url>` to create a short link, or use subcommands for listing links, choosing domains, and choosing collections.",
+		Short: "Zebra from the terminal — create, find, and manage short links",
+		Long: "Zeb is the command-line client for Zebra: create and manage short links,\n" +
+			"collections, QR codes, and analytics from the terminal or a script.\n\n" +
+			"Common flows:\n" +
+			"  create   zeb <url>                    make a short link (bare URL = fast path)\n" +
+			"  browse   zeb links                    list / page your links\n" +
+			"  find     zeb links query …            filter by destination, clicks, dates, …\n" +
+			"  lookup   zeb links lookup <url>       a short URL/code → its link\n" +
+			"  collect  zeb links query … --save-as  a filter → a live smart collection\n" +
+			"  measure  zeb analytics …              click analytics over the same filters\n" +
+			"  qr       zeb qr <link-id>             a link's QR image / public URLs\n\n" +
+			"Browse vs. find: `zeb links` only lists (status/collection/sort); any other\n" +
+			"filter → `zeb links query`. The two share nothing but the noun.\n\n" +
+			"Agent-friendly: every command takes --json (alias --agent) — success AND\n" +
+			"errors are JSON on stdout, and the exit code signals failure. No prompts.\n" +
+			"Run `zeb examples` for a copy-paste cookbook, or `zeb <cmd> --help` for more.",
+		Example: "  zeb https://example.com                         # create a short link\n" +
+			"  zeb links --all --json                          # every link, machine-readable\n" +
+			"  zeb links query --target-host cnn.com --min-clicks 100\n" +
+			"  zeb links lookup zbrah.link/abc                 # short URL -> its link\n" +
+			"  zeb links query --attribution signals --save-as \"QR links\"\n" +
+			"  zeb analytics --group-by country --range 7d",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				printMinimalRoot()
+				return nil
 			}
 			return runCreateLinks(cmd, opts, createOptions, args)
 		},
@@ -131,6 +154,7 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 	addCreateLinkFlags(cmd, createOptions)
 
 	cmd.AddCommand(
+		newAnalyticsCommand(opts),
 		newAuthCommand(opts),
 		// `zeb login` is the front-door spelling; `zeb auth login` stays for
 		// symmetry with logout/whoami.
@@ -139,6 +163,7 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		newCollectionsCommand(opts),
 		newConfigCommand(opts),
 		newContextCommand(opts),
+		newExamplesCommand(opts),
 		newDomainCommand(opts),
 		newDomainsCommand(opts),
 		newHealthCommand(opts),
@@ -151,6 +176,7 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		newVersionCommand(opts),
 	)
 	cmd.Version = opts.Version
+	installRootHelp(cmd)
 	return cmd
 }
 
@@ -175,7 +201,7 @@ func writeJSON(value any) error {
 }
 
 func heading(text string) string {
-	return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("212")).Render(text)
+	return lipgloss.NewStyle().Bold(true).Foreground(theme.Sand).Render(text)
 }
 
 func expandRootURLShorthand(cmd *cobra.Command, args []string) []string {

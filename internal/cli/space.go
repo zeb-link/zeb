@@ -4,9 +4,11 @@ package cli
 import (
 	"fmt"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 func newSpaceCommand(root *rootOptions) *cobra.Command {
@@ -34,7 +36,7 @@ func newSpaceCurrentCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]string{"activeSpace": spaceID})
 			}
-			fmt.Printf("Active space: %s\n", emptyLabel(spaceID))
+			field("Active space", emptyLabel(spaceID), 14)
 			return nil
 		},
 	}
@@ -56,9 +58,10 @@ func newSpaceListCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(me.AccessibleSpaces)
 			}
-			fmt.Println(heading("Spaces"))
+			section("Spaces")
 			for _, space := range me.AccessibleSpaces {
-				fmt.Printf("%s  %s  %s\n", space.ID, space.Role, space.Name)
+				lipgloss.Println("  " + theme.CommandText.Render(space.Name) + "  " +
+					theme.FaintText.Render(space.ID) + "  " + theme.MutedText.Render(space.Role))
 			}
 			return nil
 		},
@@ -94,7 +97,7 @@ func newSpaceUseCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeSpace": space.ID, "space": space})
 			}
-			fmt.Printf("Active space set to %s (%s)\n", space.Name, space.ID)
+			done(fmt.Sprintf("Active space set to %s (%s)", space.Name, space.ID))
 			return nil
 		},
 	}

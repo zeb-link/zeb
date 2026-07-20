@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/ui/theme"
@@ -64,16 +65,16 @@ func runQrExport(root *rootOptions, ctx apiContext, cmd *cobra.Command, linkID s
 	if root.JSON {
 		return writeJSON(response)
 	}
-	fmt.Println(heading("QR public URLs"))
-	fmt.Printf("%s %s\n", theme.MutedText.Render("Link:"), theme.Command.Render(linkID))
+	lipgloss.Println(heading("QR public URLs"))
+	lipgloss.Printf("%s %s\n", theme.MutedText.Render("Link:"), theme.LinkText.Render(linkID))
 	design := "effective default"
 	if response.Export.VariantName != nil && *response.Export.VariantName != "" {
 		design = *response.Export.VariantName
 	}
-	fmt.Printf("%s %s\n\n", theme.MutedText.Render("Design:"), theme.Command.Render(design))
-	fmt.Printf("PNG: %s\n", response.Export.ImageUrls.PNG)
-	fmt.Printf("SVG: %s\n", response.Export.ImageUrls.SVG)
-	fmt.Printf("\n%s\n", theme.MutedText.Render("Stable and CDN-served — embed directly; saving the design updates these files in place."))
+	lipgloss.Printf("%s %s\n\n", theme.MutedText.Render("Design:"), theme.BodyText.Render(design))
+	lipgloss.Printf("PNG: %s\n", response.Export.ImageUrls.PNG)
+	lipgloss.Printf("SVG: %s\n", response.Export.ImageUrls.SVG)
+	lipgloss.Printf("\n%s\n", theme.MutedText.Render("Stable and CDN-served — embed directly; saving the design updates these files in place."))
 	return nil
 }
 
@@ -106,9 +107,9 @@ func runQrDownload(cmd *cobra.Command, root *rootOptions, ctx apiContext, linkID
 			"contentType": contentType,
 		})
 	}
-	fmt.Printf("%s %s %s\n",
+	lipgloss.Printf("%s %s %s\n",
 		createdHeadingStyle.Render("Saved"),
-		theme.Command.Render(path),
+		theme.BodyText.Render(path),
 		theme.MutedText.Render(fmt.Sprintf("(%d bytes, %s)", len(data), contentType)),
 	)
 	return nil
@@ -149,24 +150,24 @@ func newQrVariantsCommand(root *rootOptions) *cobra.Command {
 }
 
 func printQrVariants(variants []api.QrVariant) {
-	fmt.Println(heading("QR variants"))
+	lipgloss.Println(heading("QR variants"))
 	if len(variants) == 0 {
-		fmt.Println(theme.MutedText.Render("No named variants — the link renders the space default (or stock) look."))
-		fmt.Printf("%s\n", theme.MutedText.Render("Get its public URLs with `zeb qr <link-id>` or save it with `zeb qr <link-id> --download qr.png`."))
+		lipgloss.Println(theme.MutedText.Render("No named variants — the link renders the space default (or stock) look."))
+		lipgloss.Printf("%s\n", theme.MutedText.Render("Get its public URLs with `zeb qr <link-id>` or save it with `zeb qr <link-id> --download qr.png`."))
 		return
 	}
 	for idx, variant := range variants {
 		if idx > 0 {
-			fmt.Println()
+			lipgloss.Println()
 		}
 		label := variant.Name
 		if idx == 0 {
 			label += theme.MutedText.Render("  (effective default)")
 		}
-		fmt.Printf("%s %s\n", activeDotStyle.Render("●"), linkShortStyle.Render(label))
-		fmt.Printf("  %s\n", theme.MutedText.Render(variant.ID))
+		lipgloss.Printf("%s %s\n", activeDotStyle.Render("●"), linkShortStyle.Render(label))
+		lipgloss.Printf("  %s\n", theme.MutedText.Render(variant.ID))
 		if variant.ImageUrls != nil {
-			fmt.Printf("  %s %s\n", theme.MutedText.Render("PNG:"), variant.ImageUrls.PNG)
+			lipgloss.Printf("  %s %s\n", theme.MutedText.Render("PNG:"), variant.ImageUrls.PNG)
 		}
 	}
 }

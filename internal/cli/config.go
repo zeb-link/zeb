@@ -4,8 +4,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
 )
@@ -31,11 +29,11 @@ func newConfigGetCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(cfg)
 			}
-			fmt.Println(heading("Configuration"))
-			fmt.Printf("apiUrl: %s\n", emptyLabel(cfg.APIURL))
-			fmt.Printf("activeSpace: %s\n", emptyLabel(cfg.ActiveSpace))
-			fmt.Printf("activeCollection: %s\n", emptyLabel(cfg.ActiveCollection))
-			fmt.Printf("activeDomain: %s\n", emptyLabel(cfg.ActiveDomain))
+			section("Configuration")
+			field("apiUrl", emptyLabel(cfg.APIURL), 18)
+			field("activeSpace", emptyLabel(cfg.ActiveSpace), 18)
+			field("activeCollection", emptyLabel(cfg.ActiveCollection), 18)
+			field("activeDomain", emptyLabel(cfg.ActiveDomain), 18)
 			return nil
 		},
 	}
@@ -50,7 +48,7 @@ func newConfigSetCommand() *cobra.Command {
 			if err := config.SetValue(args[0], args[1]); err != nil {
 				return err
 			}
-			fmt.Printf("Set %s\n", args[0])
+			done("Set " + args[0])
 			return nil
 		},
 	}
@@ -65,7 +63,7 @@ func newConfigUnsetCommand() *cobra.Command {
 			if err := config.UnsetValue(args[0]); err != nil {
 				return err
 			}
-			fmt.Printf("Unset %s\n", args[0])
+			done("Unset " + args[0])
 			return nil
 		},
 	}
@@ -96,10 +94,10 @@ func newConfigPathCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(paths)
 			}
-			fmt.Println(heading("Config paths"))
-			fmt.Printf("Config dir: %s\n", paths["configDir"])
-			fmt.Printf("Config file: %s\n", paths["configFile"])
-			fmt.Printf("Credentials file: %s\n", paths["credentialsFile"])
+			section("Config paths")
+			field("Config dir", paths["configDir"], 18)
+			field("Config file", paths["configFile"], 18)
+			field("Credentials file", paths["credentialsFile"], 18)
 			return nil
 		},
 	}

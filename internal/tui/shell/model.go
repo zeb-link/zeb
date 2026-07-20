@@ -5,16 +5,18 @@ package shell
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/tui/intro"
+	"github.com/zeb-link/zeb/internal/ui/layout"
 	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
@@ -133,7 +135,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		if m.showingIntro {
 			switch msg.String() {
 			case "ctrl+c", "esc":
@@ -307,9 +309,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	if m.showingIntro {
-		return "\n" + m.intro.RenderFrame(m.frame) + "\n"
+		return altView("\n" + m.intro.RenderFrame(m.frame) + "\n")
 	}
 
 	width := m.width
@@ -322,12 +324,18 @@ func (m Model) View() string {
 
 	content := lipgloss.JoinVertical(lipgloss.Left, header, list)
 	if m.height > 0 {
-		remaining := m.height - lipgloss.Height(content) - lipgloss.Height(footer) - 1
-		if remaining > 0 {
-			content += strings.Repeat("\n", remaining)
-		}
+		content = layout.FillHeight(width, m.height-lipgloss.Height(footer)-1, content)
 	}
-	return content + "\n" + footer
+	return altView(content + "\n" + footer)
+}
+
+// altView wraps rendered content as a full-screen (alt-screen) frame. In
+// lipgloss/bubbletea v2, alt-screen is requested per-frame via View.AltScreen
+// rather than a program option.
+func altView(content string) tea.View {
+	v := tea.NewView(content)
+	v.AltScreen = true
+	return v
 }
 
 func (m Model) ActiveDomain() string {
@@ -480,28 +488,24 @@ func (m Model) renderLinkList(width int) string {
 }
 
 func (m Model) renderLink(link api.Link, focused bool, width int) string {
-	prefix := "  "
-	if focused {
-		prefix = "> "
-	}
 	short := displayShortLink(link)
 	targetWidth := width - len(short) - 10
 	if targetWidth < 28 {
 		targetWidth = 28
 	}
 	dot, status := linkStatus(link.IsActive)
-	line := fmt.Sprintf("%s%s %s %s", prefix, dot, theme.Command.Render(short), theme.MutedText.Render("-> "+truncate(link.TargetURL, targetWidth)))
+	line := fmt.Sprintf("%s%s %s %s", layout.Gutter(focused), dot, theme.LinkText.Render(short), theme.MutedText.Render("→ "+layout.Truncate(link.TargetURL, targetWidth)))
 	title := ""
 	if link.Title != nil && strings.TrimSpace(*link.Title) != "" {
-		title = "\n  " + theme.MutedText.Render(truncate(strings.TrimSpace(*link.Title), width-8))
+		title = "\n  " + theme.MutedText.Render(layout.Truncate(strings.TrimSpace(*link.Title), width-8))
 	}
 	meta := "\n  " + theme.MutedText.Render(link.ID+" · ") + status
 	return line + title + meta + "\n"
 }
 
 func (m Model) renderFooter(width int) string {
-	domain := contextPill("Domain", domainLabel(m.domainOption().Hostname), theme.Accent2, true, m.focus == focusDomain)
-	collection := contextPill("Collection", collectionLabel(m.collectionOption()), theme.Accent, m.collectionOption().ID != "", m.focus == focusCollection)
+	domain := contextPill("Domain", domainLabel(m.domainOption().Hostname), theme.Sand, true, m.focus == focusDomain)
+	collection := contextPill("Collection", collectionLabel(m.collectionOption()), theme.Collection, m.collectionOption().ID != "", m.focus == focusCollection)
 	toolbar := lipgloss.JoinHorizontal(lipgloss.Center, domain, theme.MutedText.Render("  "), collection)
 
 	input := m.renderFooterInput()
@@ -516,7 +520,7 @@ func (m Model) renderFooter(width int) string {
 	return lipgloss.NewStyle().
 		Width(width-2).
 		Border(lipgloss.NormalBorder(), true, false, false, false).
-		BorderForeground(lipgloss.Color("238")).
+		BorderForeground(theme.Dim).
 		PaddingTop(1).
 		Render(body)
 }
@@ -570,36 +574,17 @@ func footerHelp(focus focusArea, changed bool) string {
 	}
 	parts := make([]string, 0, len(items)+1)
 	for _, item := range items {
-		parts = append(parts, helpKeyStyle.Render(item.key)+" "+helpActionStyle.Render(item.action))
+		parts = append(parts, theme.KeyText.Render(item.key)+" "+theme.MutedText.Render(item.action))
 	}
 	if changed {
-		parts = append(parts, helpSavedStyle.Render("saves on quit"))
+		parts = append(parts, theme.GoodText.Render("saves on quit"))
 	}
-	return strings.Join(parts, helpSeparatorStyle.Render("  ·  "))
+	return strings.Join(parts, lipgloss.NewStyle().Foreground(theme.Dim).Render("  ·  "))
 }
 
-func contextPill(label string, value string, color lipgloss.Color, active bool, focused bool) string {
-	border := lipgloss.Color("238")
-	if focused {
-		border = color
-	}
-	valueStyle := lipgloss.NewStyle().Foreground(theme.White)
-	if !active {
-		valueStyle = theme.MutedText
-	}
-	return lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(border).
-		Padding(0, 1).
-		Render(theme.MutedText.Render(label) + " " + valueStyle.Render(value))
+func contextPill(label string, value string, tone color.Color, active bool, focused bool) string {
+	return layout.Chip(label, value, layout.ChipOpts{Tone: tone, Active: active, Focused: focused})
 }
-
-var (
-	helpKeyStyle       = lipgloss.NewStyle().Bold(true).Foreground(theme.White)
-	helpActionStyle    = lipgloss.NewStyle().Foreground(theme.Muted)
-	helpSavedStyle     = lipgloss.NewStyle().Foreground(theme.Accent)
-	helpSeparatorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
-)
 
 func (m Model) domainOptions() []domainOption {
 	options := []domainOption{{Hostname: "", Type: "default"}}
@@ -692,9 +677,9 @@ func shortLink(hostname string, path string) string {
 
 func linkStatus(active bool) (string, string) {
 	if active {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("42")).Render("●"), lipgloss.NewStyle().Foreground(lipgloss.Color("42")).Render("active")
+		return layout.Dot(theme.Good), theme.GoodText.Render("active")
 	}
-	return lipgloss.NewStyle().Foreground(lipgloss.Color("214")).Render("●"), lipgloss.NewStyle().Foreground(lipgloss.Color("214")).Render("inactive")
+	return layout.Dot(theme.Warn), theme.WarnText.Render("inactive")
 }
 
 func domainLabel(hostname string) string {
@@ -709,13 +694,6 @@ func collectionLabel(collection collectionOption) string {
 		return "(no collection)"
 	}
 	return collection.Name
-}
-
-func truncate(value string, limit int) string {
-	if limit <= 1 || len(value) <= limit {
-		return value
-	}
-	return value[:limit-1] + "..."
 }
 
 func clamp(value int, min int, max int) int {

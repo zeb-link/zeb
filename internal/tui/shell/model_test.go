@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/tui/intro"
 )
@@ -31,17 +31,17 @@ func TestFocusCyclesForwardWithTab(t *testing.T) {
 func TestFocusCyclesBackwardWithShiftTab(t *testing.T) {
 	model := testModel()
 
-	model = updateKey(t, model, tea.KeyShiftTab)
+	model = updateShiftTab(t, model)
 	if model.focus != focusCollection {
 		t.Fatalf("focus after shift-tab from input = %v, want collection", model.focus)
 	}
 
-	model = updateKey(t, model, tea.KeyShiftTab)
+	model = updateShiftTab(t, model)
 	if model.focus != focusDomain {
 		t.Fatalf("focus after second shift-tab = %v, want domain", model.focus)
 	}
 
-	model = updateKey(t, model, tea.KeyShiftTab)
+	model = updateShiftTab(t, model)
 	if model.focus != focusInput {
 		t.Fatalf("focus after third shift-tab = %v, want input", model.focus)
 	}
@@ -89,7 +89,7 @@ func TestArrowsAffectFocusedPickerOnly(t *testing.T) {
 
 func TestFooterRendersInputBeforePickers(t *testing.T) {
 	model := testModel()
-	view := model.View()
+	view := model.View().Content
 
 	inputIndex := strings.Index(view, "zeb >")
 	domainIndex := strings.Index(view, "Domain")
@@ -176,14 +176,24 @@ func testModel() Model {
 	return model
 }
 
-func updateKey(t *testing.T, model Model, key tea.KeyType) Model {
+// updateKey sends a named key press (v2 key codes are runes, e.g. tea.KeyTab).
+func updateKey(t *testing.T, model Model, code rune) Model {
 	t.Helper()
-	return updateMsg(t, model, tea.KeyMsg{Type: key})
+	return updateMsg(t, model, tea.KeyPressMsg{Code: code})
 }
 
+// updateShiftTab sends shift+tab, which in v2 is tab with the shift modifier
+// (there is no dedicated KeyShiftTab code). Its String() renders "shift+tab".
+func updateShiftTab(t *testing.T, model Model) Model {
+	t.Helper()
+	return updateMsg(t, model, tea.KeyPressMsg{Code: tea.KeyTab, Mod: tea.ModShift})
+}
+
+// updateRunes types printable text. A single press carries the whole string in
+// Text; the textinput bubble inserts every rune of msg.Text.
 func updateRunes(t *testing.T, model Model, value string) Model {
 	t.Helper()
-	return updateMsg(t, model, tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(value)})
+	return updateMsg(t, model, tea.KeyPressMsg{Code: []rune(value)[0], Text: value})
 }
 
 func updateMsg(t *testing.T, model Model, msg tea.Msg) Model {

@@ -8,7 +8,9 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/ui/theme"
@@ -62,15 +64,14 @@ func newStatusCommand(root *rootOptions) *cobra.Command {
 				return checksOutcome(checks)
 			}
 
-			fmt.Println(heading("Current Context"))
-			fmt.Printf("API URL:  %s (%s)\n", apiURL, apiURLSource(root.APIURL, cfg))
-			fmt.Printf("Space:    %s%s\n", emptyLabel(spaceID), sourceSuffix(spaceSource(root.SpaceID, cfg)))
-			fmt.Printf("Collection: %s%s\n", emptyLabel(cfg.ActiveCollection), sourceSuffix(collectionSource(cfg)))
-			fmt.Printf("Domain:   %s%s\n", emptyLabel(cfg.ActiveDomain), sourceSuffix(domainSource(cfg)))
-			fmt.Printf("Auth:     %s\n", authLabel(credentials != nil))
+			section("Status")
+			statusRow("API URL", apiURL, apiURLSource(root.APIURL, cfg))
+			statusRow("Space", emptyLabel(spaceID), spaceSource(root.SpaceID, cfg))
+			statusRow("Collection", emptyLabel(cfg.ActiveCollection), collectionSource(cfg))
+			statusRow("Domain", emptyLabel(cfg.ActiveDomain), domainSource(cfg))
+			statusRow("Auth", authLabel(credentials != nil), "")
 			if check {
-				fmt.Println()
-				fmt.Println(heading("Checks"))
+				section("Checks")
 				for _, result := range checks {
 					printCheck(result)
 				}
@@ -157,14 +158,30 @@ func runContextChecks(cmd *cobra.Command, root *rootOptions, spaceID string, cfg
 	return checks
 }
 
-func printCheck(result contextCheck) {
-	mark := checkOKStyle.Render("✓")
-	if !result.OK {
-		mark = checkFailStyle.Render("✗")
+// statusRow prints one aligned "Label   value (source)" line: label muted,
+// value in body ink, source a faint parenthetical.
+func statusRow(label, value, source string) {
+	const w = 11
+	pad := w - len(label)
+	if pad < 1 {
+		pad = 1
 	}
-	fmt.Printf("%s %s  %s\n", mark, result.Name, theme.MutedText.Render(result.Note))
+	line := "  " + theme.MutedText.Render(label) + strings.Repeat(" ", pad) + theme.BodyText.Render(value)
+	if source != "" {
+		line += " " + theme.FaintText.Render("("+source+")")
+	}
+	lipgloss.Println(line)
+}
+
+func printCheck(result contextCheck) {
+	mark := lipgloss.NewStyle().Bold(true).Foreground(theme.Good).Render("✓")
+	if !result.OK {
+		mark = lipgloss.NewStyle().Bold(true).Foreground(theme.Bad).Render("✗")
+	}
+	line := "  " + mark + " " + theme.BodyText.Render(result.Name) + "  " + theme.MutedText.Render(result.Note)
+	lipgloss.Println(line)
 	if result.Hint != "" {
-		fmt.Printf("    %s\n", theme.MutedText.Render("fix: "+result.Hint))
+		lipgloss.Println("    " + theme.FaintText.Render("fix: "+result.Hint))
 	}
 }
 
@@ -239,8 +256,3 @@ func nullString(value string) any {
 	}
 	return value
 }
-
-var (
-	checkOKStyle   = activeDotStyle
-	checkFailStyle = unreachableStyle
-)
