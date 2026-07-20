@@ -64,8 +64,15 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   the hand-written client or the `--sort` help text diverges from the
   snapshot, and when the spec grows operations the CLI has not considered.
 - `zeb tui` is an API-backed link browser/create surface with the launch intro,
-  live links, URL command input, and footer controls for active create domain /
-  collection.
+  a scrolling link list (the window follows the selection and the next page
+  loads by cursor as you near the end of what is loaded), free-text search
+  through the command input (a URL creates, anything else searches via
+  POST /links/query with offset paging), and footer controls for the active
+  domain and collection. The selected collection both receives new links and
+  scopes the browsed list. A sort control cycles the four API orderings with
+  an ascending/descending toggle, and enter on an empty command line (or c
+  from the footer controls) copies the selected short URL to the clipboard
+  (OSC 52 + pbcopy).
 
 ## Local Distribution
 
@@ -96,8 +103,9 @@ and the global `zeb` command points at the updated binary.
 - Add compact/table output for `zeb links` once the default rich list settles.
 - Translate more API error codes into user-facing advice where the raw
   message is not actionable.
-- Add TUI pagination and collection filtering now that command-line
-  pagination semantics are settled.
+- TUI pagination, free-text search, and collection filtering shipped; a next
+  step is domain-scoped browsing in the TUI (the query endpoint already takes
+  shortDomain).
 - Broaden analytics output (compact/table rendering; a `--csv` for breakdowns).
 
 ## Deliberately Not Wired

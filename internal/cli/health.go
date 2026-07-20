@@ -35,7 +35,9 @@ func newHealthCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"ok": response.OK, "api": response.API, "apiUrl": apiURL})
 			}
-			lipgloss.Println("  " + theme.GoodText.Render("✓") + " " + theme.BodyText.Render(apiURL) + " " + theme.FaintText.Render("("+response.API+")"))
+			section("Health")
+			lipgloss.Println("  " + theme.GoodText.Render("✓ reachable") + "  " + theme.BodyText.Render(apiURL) + " " + theme.FaintText.Render("("+response.API+")"))
+			air()
 			return nil
 		},
 	}

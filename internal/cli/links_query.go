@@ -104,6 +104,7 @@ func newLinksQueryCommand(root *rootOptions) *cobra.Command {
 					return writeJSON(created)
 				}
 				printSmartCollectionCreated(created)
+				air()
 				return nil
 			}
 			response, err := ctx.Client.QueryLinks(cmd.Context(), ctx.SpaceID, input)
@@ -115,6 +116,7 @@ func newLinksQueryCommand(root *rootOptions) *cobra.Command {
 			}
 			printLinks(response.Links)
 			printQuerySummary(response, input)
+			air()
 			return nil
 		},
 	}
@@ -286,6 +288,7 @@ func newLinksLookupCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(response)
 			}
 			printLinkDetail(response.Link)
+			air()
 			return nil
 		},
 	}

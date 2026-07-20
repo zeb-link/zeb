@@ -6,9 +6,11 @@ import (
 	"fmt"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/config"
 	"github.com/zeb-link/zeb/internal/tui/contextpicker"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 )
 
 func newContextCommand(root *rootOptions) *cobra.Command {
@@ -56,7 +58,8 @@ func newContextCommand(root *rootOptions) *cobra.Command {
 				changed = true
 			}
 			if !changed {
-				fmt.Println("Context unchanged.")
+				lipgloss.Println(theme.MutedText.Render("Context unchanged."))
+				air()
 				return nil
 			}
 			if err := config.SaveConfig(cfg); err != nil {
@@ -69,19 +72,20 @@ func newContextCommand(root *rootOptions) *cobra.Command {
 }
 
 func printContextSaved(selection contextpicker.Selection) {
-	fmt.Println("Context saved")
+	done("Context saved")
 	if selection.DomainChanged {
+		value := theme.BodyText.Render(selection.Domain)
 		if selection.Domain == "" {
-			fmt.Println("Domain: server default")
-		} else {
-			fmt.Printf("Domain: %s\n", selection.Domain)
+			value = theme.FaintText.Render("server default")
 		}
+		lipgloss.Println("  " + theme.MutedText.Render("Domain      ") + value)
 	}
 	if selection.CollectionChanged {
+		value := theme.CollectionText.Render(selection.CollectionName) + " " + theme.GhostText.Render("("+selection.CollectionID+")")
 		if selection.CollectionID == "" {
-			fmt.Println("Collection: none")
-		} else {
-			fmt.Printf("Collection: %s (%s)\n", selection.CollectionName, selection.CollectionID)
+			value = theme.FaintText.Render("none")
 		}
+		lipgloss.Println("  " + theme.MutedText.Render("Collection  ") + value)
 	}
+	air()
 }

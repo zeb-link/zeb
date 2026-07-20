@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.3.0 - 2026-07-20
+
+### Fixed
+
+- `zeb tui` was unusable with more than a screen of links: it drew every
+  loaded link at once, so the list overflowed the terminal and the command
+  input and footer controls were pushed off screen. The list is now a
+  scrolling window that follows the selection (arrows, pgup/pgdn, home/end).
+
+### Added
+
+- TUI: the next page of links loads in the background as you scroll toward
+  the end of what is loaded, the same cursor paging the command line uses.
+- TUI: free-text search from the command input. A URL still creates a link;
+  any other text searches all links, with the match total in the header and
+  more results loading as you scroll. Esc clears the search.
+- TUI: picking a collection in the footer now also scopes the list to that
+  collection, in addition to being where new links go.
+- TUI: enter on an empty command line (or c while a footer control is
+  focused) copies the selected short URL to the clipboard, using OSC 52 plus
+  pbcopy on macOS. The footer help shows which enter you are about to get.
+- TUI: a third footer control sorts the list the same four ways as the web
+  app (created, edited, clicked, total clicks) with an ascending toggle, and
+  rows now show click counts.
+- TUI: the selected row lights up with a muted background wash and brighter
+  text instead of only the gutter tick.
+- Bare `zeb` and `zeb help` now mention `zeb tui`.
+
+### Changed
+
+- Inactive links now read as switched off everywhere: tomato dot and label,
+  and the short URL drops the live emerald for plain ink.
+- Every human-readable response now uses the shared palette and ends with a
+  blank line before the prompt. That covers errors and hints (suggested
+  commands are highlighted like in `zeb examples`), confirmations from the
+  collection, space, domain, config and spec commands, the login prompts,
+  the context picker summary, version, and health. Output still strips color
+  when piped and follows light and dark terminals.
+
 ## 0.2.0 - 2026-07-20
 
 ### Changed

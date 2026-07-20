@@ -76,6 +76,7 @@ func newStatusCommand(root *rootOptions) *cobra.Command {
 					printCheck(result)
 				}
 			}
+			air()
 			return checksOutcome(checks)
 		},
 	}

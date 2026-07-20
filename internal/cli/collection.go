@@ -54,7 +54,8 @@ func newCollectionCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": nullString(cfg.ActiveCollection)})
 			}
-			lipgloss.Printf("Active collection: %s\n", emptyLabel(cfg.ActiveCollection))
+			field("Active collection", emptyLabel(cfg.ActiveCollection), 18)
+			air()
 			return nil
 		},
 	}
@@ -131,7 +132,8 @@ func newCollectionUseCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": collection.ID, "collection": collection})
 			}
-			lipgloss.Printf("Active collection set to %s (%s)\n", collection.Name, collection.ID)
+			doneStyled(theme.BodyText.Render("Active collection set to "), theme.CollectionText.Render(collection.Name), " ", theme.GhostText.Render("("+collection.ID+")"))
+			air()
 			return nil
 		},
 	}
@@ -206,6 +208,7 @@ func newCollectionLinksCommand(root *rootOptions) *cobra.Command {
 			printLinkContext(cfg, collection.ID, collection.Name, *flags)
 			printLinks(response.Links)
 			printNextPageHint(response, fmt.Sprintf("zeb collection links %q", collection.Name))
+			air()
 			return nil
 		},
 	}
@@ -256,10 +259,11 @@ func newCollectionCreateCommand(root *rootOptions) *cobra.Command {
 					"activeCollection": nullString(activeCollection),
 				})
 			}
-			lipgloss.Printf("Created collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
+			doneStyled(theme.BodyText.Render("Created collection "), theme.CollectionText.Render(response.Collection.Name), " ", theme.GhostText.Render("("+response.Collection.ID+")"))
 			if use {
-				lipgloss.Printf("Active collection set to %s\n", response.Collection.ID)
+				lipgloss.Println("  " + theme.MutedText.Render("It is now the active collection; new links go there."))
 			}
+			air()
 			return nil
 		},
 	}
@@ -304,7 +308,8 @@ func newCollectionUpdateCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
-			lipgloss.Printf("Updated collection %s (%s)\n", response.Collection.Name, response.Collection.ID)
+			doneStyled(theme.BodyText.Render("Updated collection "), theme.CollectionText.Render(response.Collection.Name), " ", theme.GhostText.Render("("+response.Collection.ID+")"))
+			air()
 			return nil
 		},
 	}
@@ -349,10 +354,11 @@ func newCollectionDeleteCommand(root *rootOptions) *cobra.Command {
 					"activeCollectionCleared": clearedActive,
 				})
 			}
-			lipgloss.Printf("Deleted collection %s (%s)\n", resolved.Name, response.DeletedCollectionID)
+			doneStyled(theme.BodyText.Render("Deleted collection "), theme.CollectionText.Render(resolved.Name), " ", theme.GhostText.Render("("+response.DeletedCollectionID+")"))
 			if clearedActive {
-				lipgloss.Println("Active collection cleared; new links get no collection.")
+				lipgloss.Println("  " + theme.MutedText.Render("It was the active collection; new links now get no collection."))
 			}
+			air()
 			return nil
 		},
 	}
@@ -380,7 +386,8 @@ func newCollectionConvertCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
-			lipgloss.Printf("Converted %s to a manual collection; its current links are now direct members.\n", response.Collection.Name)
+			doneStyled(theme.BodyText.Render("Converted "), theme.CollectionText.Render(response.Collection.Name), theme.BodyText.Render(" to a manual collection; its current links are now direct members."))
+			air()
 			return nil
 		},
 	}
@@ -417,7 +424,8 @@ func newCollectionAddCommand(root *rootOptions) *cobra.Command {
 			if response.AlreadyMember > 0 {
 				note = fmt.Sprintf(" (%d already in it)", response.AlreadyMember)
 			}
-			lipgloss.Printf("Added %d links to %s%s\n", response.Added, resolved.Name, note)
+			doneStyled(theme.BodyText.Render(fmt.Sprintf("Added %d links to ", response.Added)), theme.CollectionText.Render(resolved.Name), theme.MutedText.Render(note))
+			air()
 			return nil
 		},
 	}
@@ -452,7 +460,8 @@ func newCollectionRemoveCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"collection": resolved, "removed": response.Removed})
 			}
-			lipgloss.Printf("Removed %d links from %s\n", response.Removed, resolved.Name)
+			doneStyled(theme.BodyText.Render(fmt.Sprintf("Removed %d links from ", response.Removed)), theme.CollectionText.Render(resolved.Name))
+			air()
 			return nil
 		},
 	}
@@ -476,7 +485,8 @@ func newCollectionClearCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeCollection": nil})
 			}
-			lipgloss.Println("Active collection cleared.")
+			done("Active collection cleared.")
+			air()
 			return nil
 		},
 	}
@@ -498,7 +508,8 @@ func resolveCollection(collections []api.Collection, input string) (api.Collecti
 func printCollections(collections []api.Collection, activeCollection string) {
 	lipgloss.Println(collectionHeading())
 	if len(collections) == 0 {
-		lipgloss.Println("No collections found.")
+		lipgloss.Println(theme.MutedText.Render("No collections found."))
+		air()
 		return
 	}
 	for _, collection := range collections {

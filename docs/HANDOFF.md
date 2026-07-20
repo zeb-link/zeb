@@ -109,10 +109,23 @@ Core's `path` field and is kept as an old-CLI muscle-memory alias.
 ## TUI Notes
 
 Bubble Tea owns terminal input while a TUI is running. `zeb tui` has a real
-command input: type an HTTP URL and press enter to create a link through Core.
-Use `tab`/`shift+tab` to move focus between the command input and the footer
-context controls; `c` and `d` context shortcuts are only active while footer
-controls are focused.
+command input with two intents: an http(s) URL creates a link through Core,
+any other text runs a free-text search (POST /links/query, offset paging;
+esc clears it). The list is a scrolling window that follows the selection
+(up/down, pgup/pgdn, home/end) and fetches the next cursor page in the
+background as the selection nears the end of the loaded rows; stale async
+responses are dropped via a load sequence number. `tab`/`shift+tab` move
+focus between the command input and the footer context controls. The
+collection control is both the create context and the browse filter: cycling
+it reloads the list scoped to that collection. The footer controls run in
+tab order sort → collection → domain (most-reached-for first). Sort covers
+created / edited / clicked / total clicks (←/→ to pick, ↑/↓ for direction);
+search results ignore it because the query endpoint has no sort.
+Enter on an empty command line (or c while a footer control is focused)
+copies the selected short URL to the clipboard, via OSC 52 through the
+terminal plus pbcopy on macOS. The selected row gets a Panel2 background
+wash with lifted text tones; the wash is applied per segment because nesting
+pre-rendered ANSI inside a background style breaks at inner resets.
 
 `zeb tui` randomly picks a launch intro from `internal/tui/intro` (five
 `block-*` variants; the unused variant experiments were deleted 2026-07-07).

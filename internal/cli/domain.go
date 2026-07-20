@@ -4,6 +4,8 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"unicode/utf8"
 
 	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
@@ -32,17 +34,25 @@ func newDomainsCommand(root *rootOptions) *cobra.Command {
 				return err
 			}
 			section("Domains")
+			col := 0
+			for _, domain := range response.Domains {
+				if width := utf8.RuneCountInString(domain.Hostname); width > col {
+					col = width
+				}
+			}
 			for _, domain := range response.Domains {
 				meta := domain.Type
 				if domain.Tier != nil {
 					meta += " · " + *domain.Tier
 				}
-				row := "  " + theme.CommandText.Render(domain.Hostname) + "  " + theme.MutedText.Render(meta)
+				pad := strings.Repeat(" ", col-utf8.RuneCountInString(domain.Hostname)+2)
+				row := "  " + theme.CommandText.Render(domain.Hostname) + pad + theme.MutedText.Render(meta)
 				if domain.Hostname == cfg.ActiveDomain {
 					row += "  " + theme.GoodText.Render("active")
 				}
 				lipgloss.Println(row)
 			}
+			air()
 			return nil
 		},
 	}
@@ -61,6 +71,7 @@ func newDomainCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(map[string]any{"activeDomain": nullString(cfg.ActiveDomain)})
 			}
 			field("Active domain", emptyLabel(cfg.ActiveDomain), 14)
+			air()
 			return nil
 		},
 	}
@@ -112,6 +123,7 @@ func newDomainUseCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(map[string]string{"activeDomain": hostname})
 			}
 			done("Active domain set to " + hostname)
+			air()
 			return nil
 		},
 	}
@@ -134,6 +146,7 @@ func newDomainClearCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(map[string]any{"activeDomain": nil})
 			}
 			done("Active domain cleared; server default will be used.")
+			air()
 			return nil
 		},
 	}

@@ -9,9 +9,11 @@ import (
 	"os"
 	"strings"
 
+	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
 	"github.com/zeb-link/zeb/internal/api"
 	"github.com/zeb-link/zeb/internal/config"
+	"github.com/zeb-link/zeb/internal/ui/theme"
 	"golang.org/x/term"
 )
 
@@ -103,6 +105,7 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 			if selectedSpace != "" {
 				field("Active space", selectedSpace, 14)
 			}
+			air()
 			return nil
 		},
 	}
@@ -120,6 +123,7 @@ func newLogoutCommand() *cobra.Command {
 				return err
 			}
 			done("Logged out")
+			air()
 			return nil
 		},
 	}
@@ -159,6 +163,7 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 			field("API key", me.APIKey.Prefix, 19)
 			field("Active space", emptyLabel(spaceID), 19)
 			field("Accessible spaces", fmt.Sprintf("%d", len(me.AccessibleSpaces)), 19)
+			air()
 			return nil
 		},
 	}
@@ -177,7 +182,7 @@ func loginAPIURL(root *rootOptions) (string, bool) {
 }
 
 func readSecret(label string) (string, error) {
-	fmt.Printf("%s: ", label)
+	lipgloss.Print(theme.KeyText.Render(label) + theme.MutedText.Render(" > "))
 	if term.IsTerminal(int(os.Stdin.Fd())) {
 		value, err := term.ReadPassword(int(os.Stdin.Fd()))
 		fmt.Println()
@@ -189,11 +194,13 @@ func readSecret(label string) (string, error) {
 }
 
 func chooseSpace(spaces []api.SpaceSummary) (string, error) {
-	fmt.Println("Accessible spaces:")
+	section("Accessible spaces")
 	for idx, space := range spaces {
-		fmt.Printf("  %d. %s (%s, %s)\n", idx+1, space.Name, space.ID, space.Role)
+		lipgloss.Println("  " + theme.KeyText.Render(fmt.Sprintf("%d.", idx+1)) + " " +
+			theme.CommandText.Render(space.Name) + "  " +
+			theme.GhostText.Render(space.ID) + " " + theme.SubtleText.Render("· "+space.Role))
 	}
-	fmt.Print("Choose active space number (empty to skip): ")
+	lipgloss.Print("\n" + theme.KeyText.Render("Active space number") + theme.MutedText.Render(" (empty to skip) > "))
 	reader := bufio.NewReader(os.Stdin)
 	value, err := reader.ReadString('\n')
 	if err != nil {

@@ -77,8 +77,9 @@ func newSpecSyncCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]string{"url": specURL, "output": output})
 			}
-			done("Synced " + output)
-			lipgloss.Println("  " + theme.MutedText.Render("Source: "+specURL))
+			doneStyled(theme.BodyText.Render("Synced "), theme.Title.Render(output))
+			lipgloss.Println("  " + theme.MutedText.Render("Source: ") + theme.LinkText.Render(specURL))
+			air()
 			return nil
 		},
 	}
@@ -105,12 +106,13 @@ func newSpecPathCommand(root *rootOptions) *cobra.Command {
 					return writeJSON(map[string]any{"path": nil, "inRepo": false, "note": note})
 				}
 				lipgloss.Println(theme.MutedText.Render(note))
+				air()
 				return nil
 			}
 			if root.JSON {
 				return writeJSON(map[string]any{"path": path, "inRepo": true})
 			}
-			fmt.Println(path)
+			lipgloss.Println(theme.BodyText.Render(path))
 			return nil
 		},
 	}

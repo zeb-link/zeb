@@ -72,9 +72,10 @@ func runQrExport(root *rootOptions, ctx apiContext, cmd *cobra.Command, linkID s
 		design = *response.Export.VariantName
 	}
 	lipgloss.Printf("%s %s\n\n", theme.MutedText.Render("Design:"), theme.BodyText.Render(design))
-	lipgloss.Printf("PNG: %s\n", response.Export.ImageUrls.PNG)
-	lipgloss.Printf("SVG: %s\n", response.Export.ImageUrls.SVG)
+	lipgloss.Printf("%s %s\n", theme.KeyText.Render("PNG"), theme.LinkText.Render(response.Export.ImageUrls.PNG))
+	lipgloss.Printf("%s %s\n", theme.KeyText.Render("SVG"), theme.LinkText.Render(response.Export.ImageUrls.SVG))
 	lipgloss.Printf("\n%s\n", theme.MutedText.Render("Stable and CDN-served — embed directly; saving the design updates these files in place."))
+	air()
 	return nil
 }
 
@@ -107,11 +108,13 @@ func runQrDownload(cmd *cobra.Command, root *rootOptions, ctx apiContext, linkID
 			"contentType": contentType,
 		})
 	}
-	lipgloss.Printf("%s %s %s\n",
-		createdHeadingStyle.Render("Saved"),
-		theme.BodyText.Render(path),
+	doneStyled(
+		theme.BodyText.Render("Saved "),
+		theme.Title.Render(path),
+		" ",
 		theme.MutedText.Render(fmt.Sprintf("(%d bytes, %s)", len(data), contentType)),
 	)
+	air()
 	return nil
 }
 
@@ -144,6 +147,7 @@ func newQrVariantsCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(response)
 			}
 			printQrVariants(response.QrVariants)
+			air()
 			return nil
 		},
 	}
@@ -167,7 +171,7 @@ func printQrVariants(variants []api.QrVariant) {
 		lipgloss.Printf("%s %s\n", activeDotStyle.Render("●"), linkShortStyle.Render(label))
 		lipgloss.Printf("  %s\n", theme.MutedText.Render(variant.ID))
 		if variant.ImageUrls != nil {
-			lipgloss.Printf("  %s %s\n", theme.MutedText.Render("PNG:"), variant.ImageUrls.PNG)
+			lipgloss.Printf("  %s %s\n", theme.MutedText.Render("PNG:"), theme.LinkText.Render(variant.ImageUrls.PNG))
 		}
 	}
 }

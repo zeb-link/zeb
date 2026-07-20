@@ -1,6 +1,6 @@
 {
   "name": "@zeb-link/zeb",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Zeb, the command-line client for Zebra, the short link operating system. Create and manage short links, collections, domains, and spaces from the terminal.",
   "bin": {
     "zeb": "bin/zeb.js"
@@ -31,11 +31,11 @@
     "node": ">=16"
   },
   "optionalDependencies": {
-    "@zeb-link/zeb-darwin-arm64": "0.2.0",
-    "@zeb-link/zeb-darwin-x64": "0.2.0",
-    "@zeb-link/zeb-linux-arm64": "0.2.0",
-    "@zeb-link/zeb-linux-x64": "0.2.0",
-    "@zeb-link/zeb-win32-arm64": "0.2.0",
-    "@zeb-link/zeb-win32-x64": "0.2.0"
+    "@zeb-link/zeb-darwin-arm64": "0.3.0",
+    "@zeb-link/zeb-darwin-x64": "0.3.0",
+    "@zeb-link/zeb-linux-arm64": "0.3.0",
+    "@zeb-link/zeb-linux-x64": "0.3.0",
+    "@zeb-link/zeb-win32-arm64": "0.3.0",
+    "@zeb-link/zeb-win32-x64": "0.3.0"
   }
 }

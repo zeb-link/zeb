@@ -2,7 +2,8 @@
 package cli
 
 import (
-	"fmt"
+	"strings"
+	"unicode/utf8"
 
 	"charm.land/lipgloss/v2"
 	"github.com/spf13/cobra"
@@ -37,6 +38,7 @@ func newSpaceCurrentCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(map[string]string{"activeSpace": spaceID})
 			}
 			field("Active space", emptyLabel(spaceID), 14)
+			air()
 			return nil
 		},
 	}
@@ -59,10 +61,18 @@ func newSpaceListCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(me.AccessibleSpaces)
 			}
 			section("Spaces")
+			col := 0
 			for _, space := range me.AccessibleSpaces {
-				lipgloss.Println("  " + theme.CommandText.Render(space.Name) + "  " +
-					theme.FaintText.Render(space.ID) + "  " + theme.MutedText.Render(space.Role))
+				if width := utf8.RuneCountInString(space.Name); width > col {
+					col = width
+				}
 			}
+			for _, space := range me.AccessibleSpaces {
+				pad := strings.Repeat(" ", col-utf8.RuneCountInString(space.Name)+2)
+				lipgloss.Println("  " + theme.CommandText.Render(space.Name) + pad +
+					theme.GhostText.Render(space.ID) + "  " + theme.MutedText.Render(space.Role))
+			}
+			air()
 			return nil
 		},
 	}
@@ -97,7 +107,8 @@ func newSpaceUseCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(map[string]any{"activeSpace": space.ID, "space": space})
 			}
-			done(fmt.Sprintf("Active space set to %s (%s)", space.Name, space.ID))
+			doneStyled(theme.BodyText.Render("Active space set to "), theme.Title.Render(space.Name), " ", theme.GhostText.Render("("+space.ID+")"))
+			air()
 			return nil
 		},
 	}

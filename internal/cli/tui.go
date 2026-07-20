@@ -97,7 +97,9 @@ func loadTUIData(cmd *cobra.Command, root *rootOptions) (shell.Data, config.Conf
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
-	links, err := ctx.Client.ListLinks(cmd.Context(), ctx.SpaceID, api.ListLinksOptions{Limit: 50})
+	// The TUI browses the active collection when one is set (the same scope
+	// new links go to), so the first paint matches what the footer chip says.
+	links, err := listInitialTUILinks(cmd, ctx, collections.Collections, cfg.ActiveCollection)
 	if err != nil {
 		return shell.Data{}, config.Config{}, err
 	}
@@ -111,6 +113,20 @@ func loadTUIData(cmd *cobra.Command, root *rootOptions) (shell.Data, config.Conf
 		ActiveDomain:     cfg.ActiveDomain,
 		ActiveCollection: cfg.ActiveCollection,
 	}, cfg, nil
+}
+
+// listInitialTUILinks scopes the first page to the active collection when it
+// is a real, selectable (non-smart) collection; otherwise it lists the space.
+func listInitialTUILinks(cmd *cobra.Command, ctx apiContext, collections []api.Collection, activeCollection string) (api.ListLinksResponse, error) {
+	options := api.ListLinksOptions{Limit: 50, Sort: "creation-date-desc", IncludeClicks: true}
+	if activeCollection != "" {
+		for _, collection := range collections {
+			if collection.ID == activeCollection && collection.Type != "smart" {
+				return ctx.Client.ListCollectionLinks(cmd.Context(), ctx.SpaceID, collection.ID, options)
+			}
+		}
+	}
+	return ctx.Client.ListLinks(cmd.Context(), ctx.SpaceID, options)
 }
 
 func resolveIntroVariant(name string) (intro.Variant, error) {

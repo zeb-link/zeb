@@ -43,9 +43,10 @@ func resolveTheme() {
 // surfaces track the light/dark palette. Run after theme.Apply.
 func applyCLIStyles() {
 	activeDotStyle = theme.GoodText
-	inactiveDotStyle = theme.WarnText
+	// Inactive = switched off — the web app's tomato, not a caution amber.
+	inactiveDotStyle = theme.BadText
 	activeStatusStyle = theme.GoodText
-	inactiveStatusStyle = theme.WarnText
+	inactiveStatusStyle = theme.BadText
 	createdHeadingStyle = theme.KeyText
 	createdDomainStyle = theme.BodyText
 	createdCollectionStyle = theme.CollectionText
@@ -121,6 +122,7 @@ func printMinimalRoot() {
 		{"zeb links", "browse your links"},
 		{"zeb links query", "find links by any condition"},
 		{"zeb analytics", "click analytics"},
+		{"zeb tui", "🦓 the full-screen browser: search, copy, sort"},
 	} {
 		b.WriteString(commandLine(r[0], r[1], col) + "\n")
 	}
@@ -131,7 +133,7 @@ func printMinimalRoot() {
 	} {
 		b.WriteString(commandLine(r[0], r[1], col) + "\n")
 	}
-	b.WriteString("\n  " + theme.FaintText.Render("--agent   machine-readable JSON on every command") + "\n")
+	b.WriteString("\n  " + theme.FaintText.Render("--agent   machine-readable JSON on every command") + "\n\n")
 	lipgloss.Print(b.String())
 }
 
@@ -151,6 +153,7 @@ var rootHelpGroups = []rootHelpGroup{
 		{"zeb links query", "filter by destination, clicks, dates, attribution"},
 		{"zeb links lookup", "a short URL or code → its link"},
 		{"zeb analytics", "click analytics over the same filters"},
+		{"zeb tui", "🦓 full-screen browser — search, copy, sort, create"},
 	}},
 	{"ORGANIZE", [][2]string{
 		{"zeb collections", "list collections"},
@@ -201,7 +204,7 @@ func printRootHelp() {
 	for _, r := range rootHelpGlobals {
 		b.WriteString(commandLine(r[0], r[1], col) + "\n")
 	}
-	b.WriteString("\n  " + theme.FaintText.Render("zeb <command> --help") + theme.MutedText.Render("   details on any command") + "\n")
+	b.WriteString("\n  " + theme.FaintText.Render("zeb <command> --help") + theme.MutedText.Render("   details on any command") + "\n\n")
 	lipgloss.Print(b.String())
 }
 
@@ -224,10 +227,23 @@ func field(label, value string, col int) {
 	lipgloss.Println("  " + theme.MutedText.Render(label) + strings.Repeat(" ", pad) + theme.BodyText.Render(value))
 }
 
+// air prints the single blank line that separates a command's output from the
+// next shell prompt. Every human output path should end with it so results
+// never sit bunched against the prompt.
+func air() {
+	lipgloss.Println()
+}
+
 // done prints a success confirmation line led by a bold green check.
 func done(msg string) {
+	doneStyled(theme.BodyText.Render(msg))
+}
+
+// doneStyled is done for lines whose segments carry their own styles (e.g. a
+// violet collection name inside the confirmation).
+func doneStyled(segments ...string) {
 	check := lipgloss.NewStyle().Bold(true).Foreground(theme.Good).Render("✓")
-	lipgloss.Println(check + " " + theme.BodyText.Render(msg))
+	lipgloss.Println(check + " " + strings.Join(segments, ""))
 }
 
 // styleShell syntax-highlights one shell example line, preserving every

@@ -107,7 +107,9 @@ func newAnalyticsCommand(root *rootOptions) *cobra.Command {
 			if root.JSON {
 				return writeJSON(response)
 			}
+			section("Analytics")
 			printAnalytics(response)
+			air()
 			return nil
 		},
 	}

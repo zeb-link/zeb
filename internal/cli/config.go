@@ -34,6 +34,7 @@ func newConfigGetCommand(root *rootOptions) *cobra.Command {
 			field("activeSpace", emptyLabel(cfg.ActiveSpace), 18)
 			field("activeCollection", emptyLabel(cfg.ActiveCollection), 18)
 			field("activeDomain", emptyLabel(cfg.ActiveDomain), 18)
+			air()
 			return nil
 		},
 	}
@@ -49,6 +50,7 @@ func newConfigSetCommand() *cobra.Command {
 				return err
 			}
 			done("Set " + args[0])
+			air()
 			return nil
 		},
 	}
@@ -64,6 +66,7 @@ func newConfigUnsetCommand() *cobra.Command {
 				return err
 			}
 			done("Unset " + args[0])
+			air()
 			return nil
 		},
 	}
@@ -98,6 +101,7 @@ func newConfigPathCommand(root *rootOptions) *cobra.Command {
 			field("Config dir", paths["configDir"], 18)
 			field("Config file", paths["configFile"], 18)
 			field("Credentials file", paths["credentialsFile"], 18)
+			air()
 			return nil
 		},
 	}

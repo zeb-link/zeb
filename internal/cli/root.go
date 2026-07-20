@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -51,7 +50,7 @@ func Execute(version string) {
 		if opts.JSON || jsonRequestedIn(os.Args[1:]) {
 			writeJSONError(err)
 		} else {
-			fmt.Fprintln(os.Stderr, "zeb:", err)
+			printHumanError(err)
 		}
 		os.Exit(1)
 	}
@@ -188,7 +187,8 @@ func newVersionCommand(opts *rootOptions) *cobra.Command {
 			if opts.JSON {
 				return writeJSON(map[string]string{"version": opts.Version})
 			}
-			fmt.Printf("zeb version %s\n", opts.Version)
+			lipgloss.Println(theme.Wordmark.Render("zeb") + " " + theme.MutedText.Render("version") + " " + theme.Title.Render(opts.Version))
+			air()
 			return nil
 		},
 	}

@@ -127,6 +127,7 @@ func newLinksCommand(root *rootOptions) *cobra.Command {
 				nextPageCommand = fmt.Sprintf("zeb links --collection %q", collection)
 			}
 			printNextPageHint(response, nextPageCommand)
+			air()
 			return nil
 		},
 	}
@@ -179,7 +180,7 @@ func fetchLinks(cmd *cobra.Command, ctx apiContext, collectionID string, flags l
 		// large --all pull shows life and how to cap it, instead of appearing
 		// to hang while it walks thousands of rows.
 		if len(links) >= nextNotice {
-			fmt.Fprintln(os.Stderr, theme.MutedText.Render(
+			lipgloss.Fprintln(os.Stderr, theme.MutedText.Render(
 				fmt.Sprintf("fetched %d links so far… (Ctrl-C to stop; use --limit to cap)", len(links)),
 			))
 			nextNotice += allProgressInterval
@@ -297,8 +298,8 @@ func resolveCreateCollection(cmd *cobra.Command, ctx apiContext, options *create
 	if explicit {
 		return "", "", fmt.Errorf("%s (list collections with `zeb collections`)", reason)
 	}
-	fmt.Fprintln(os.Stderr, theme.MutedText.Render(
-		fmt.Sprintf("warning: %s; creating without a collection. Run `zeb collection clear` or `zeb context` to reset the saved default.", reason),
+	lipgloss.Fprintln(os.Stderr, theme.WarnText.Render("warning: ")+theme.SubtleText.Render(
+		fmt.Sprintf("%s; creating without a collection. Run `zeb collection clear` or `zeb context` to reset the saved default.", reason),
 	))
 	return "", "", nil
 }
@@ -325,6 +326,7 @@ func runSingleCreate(cmd *cobra.Command, root *rootOptions, ctx apiContext, opti
 		})
 	}
 	printCreatedLinks([]api.CreateLinkResponse{response}, collectionID, collectionLabel)
+	air()
 	return nil
 }
 
@@ -395,6 +397,7 @@ func runBulkCreate(cmd *cobra.Command, root *rootOptions, ctx apiContext, target
 			fmt.Sprintf("Created %d of %d links", len(created), len(created)+len(failed)),
 		))
 	}
+	air()
 	return bulkCreateOutcome(created, failed)
 }
 
@@ -452,6 +455,7 @@ func newLinksGetCommand(root *rootOptions) *cobra.Command {
 				return writeJSON(response)
 			}
 			printLinkDetail(response.Link)
+			air()
 			return nil
 		},
 	}
@@ -514,8 +518,9 @@ func newLinksUpdateCommand(root *rootOptions) *cobra.Command {
 			lipgloss.Println()
 			printLinkDetail(response.Link)
 			if response.PathChanged {
-				lipgloss.Printf("\n%s\n", theme.MutedText.Render("The short URL changed — the previous path no longer redirects."))
+				lipgloss.Printf("\n%s\n", theme.WarnText.Render("The short URL changed — the previous path no longer redirects."))
 			}
+			air()
 			return nil
 		},
 	}
@@ -590,6 +595,7 @@ func newLinksDeleteCommand(root *rootOptions) *cobra.Command {
 				lipgloss.Printf("%s %s  %s\n", unreachableStyle.Render("✗"), row.LinkID, theme.MutedText.Render(detail))
 			}
 			lipgloss.Printf("\n%s\n", createdHeadingStyle.Render(fmt.Sprintf("Deleted %d of %d", deleted, len(results))))
+			air()
 			return deleteOutcome(results, deleted)
 		},
 	}
@@ -756,7 +762,12 @@ func printLink(link api.Link) {
 	target := truncate(link.TargetURL, 92)
 	dot, status := linkStatus(link.IsActive)
 
-	lipgloss.Printf("%s %s %s %s\n", dot, linkShortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(target))
+	shortStyle := linkShortStyle
+	if !link.IsActive {
+		// Switched off — no live emerald on the URL.
+		shortStyle = theme.BodyText
+	}
+	lipgloss.Printf("%s %s %s %s\n", dot, shortStyle.Render(short), theme.MutedText.Render("->"), linkTargetStyle.Render(target))
 	if link.Title != nil && strings.TrimSpace(*link.Title) != "" {
 		lipgloss.Printf("  %s\n", linkTitleStyle.Render(truncate(strings.TrimSpace(*link.Title), 110)))
 	}
