@@ -35,7 +35,7 @@ const allProgressInterval = 1000
 var linkSortValues = []string{
 	"creation-date-desc", "creation-date-asc",
 	"edit-date-desc", "edit-date-asc",
-	"total-clicks-desc", "total-clicks-asc",
+	"clicks-desc", "clicks-asc",
 	"recent-clicks-desc", "recent-clicks-asc",
 }
 
@@ -80,7 +80,7 @@ func newLinksCommand(root *rootOptions) *cobra.Command {
 			"Rule of thumb: any filter beyond status/collection/sort → `links query`.",
 		Example: "  zeb links                              # newest links\n" +
 			"  zeb links --all --json                 # every link, machine-readable\n" +
-			"  zeb links --status inactive --sort total-clicks-desc\n" +
+			"  zeb links --status inactive --sort clicks-desc\n" +
 			"  zeb links --collection \"Campaign\"      # one collection's members\n" +
 			"  zeb links query --target-host cnn.com  # FIND by a condition (see: links query)",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -772,8 +772,8 @@ func printLink(link api.Link) {
 		lipgloss.Printf("  %s\n", linkTitleStyle.Render(truncate(strings.TrimSpace(*link.Title), 110)))
 	}
 	meta := []string{theme.MutedText.Render(link.ID), status}
-	if link.TotalClicks != nil {
-		meta = append(meta, theme.MutedText.Render(clicksLabel(*link.TotalClicks)))
+	if link.Clicks != nil {
+		meta = append(meta, theme.MutedText.Render(clicksLabel(*link.Clicks)))
 	}
 	lipgloss.Printf("  %s\n", strings.Join(meta, theme.MutedText.Render(" · ")))
 }

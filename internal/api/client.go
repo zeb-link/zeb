@@ -103,8 +103,8 @@ type Link struct {
 	CreatedAt     string  `json:"createdAt"`
 	// Present on list rows when the request used a click sort or
 	// include=clicks; nil otherwise.
-	TotalClicks *int    `json:"totalClicks,omitempty"`
-	LastClickAt *string `json:"lastClickAt,omitempty"`
+	Clicks        *int    `json:"clicks,omitempty"`
+	LastClickedAt *string `json:"lastClickedAt,omitempty"`
 }
 
 type CreateLinkInput struct {
@@ -245,7 +245,7 @@ type ListLinksOptions struct {
 	Cursor string
 	Sort   string
 	Status string
-	// IncludeClicks asks the API for totalClicks/lastClickAt on every row
+	// IncludeClicks asks the API for clicks/lastClickedAt on every row
 	// (include=clicks). Click sorts include them regardless.
 	IncludeClicks bool
 }

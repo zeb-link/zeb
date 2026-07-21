@@ -117,7 +117,7 @@ var sortFields = []sortField{
 	{key: "creation-date", label: "created"},
 	{key: "edit-date", label: "edited"},
 	{key: "recent-clicks", label: "clicked"},
-	{key: "total-clicks", label: "total clicks"},
+	{key: "clicks", label: "total clicks"},
 }
 
 type introTickMsg time.Time
@@ -960,8 +960,8 @@ func (m Model) renderLink(link api.Link, focused bool, width int) string {
 		title = "\n" + pad("  "+titleStyle.Render(layout.Truncate(strings.TrimSpace(*link.Title), width-8)))
 	}
 	metaLine := metaStyle.Render(link.ID+" · ") + status
-	if link.TotalClicks != nil {
-		metaLine += metaStyle.Render(fmt.Sprintf(" · %d clicks", *link.TotalClicks))
+	if link.Clicks != nil {
+		metaLine += metaStyle.Render(fmt.Sprintf(" · %d clicks", *link.Clicks))
 	}
 	meta := "\n" + pad("  "+metaLine)
 	return line + title + meta + "\n"

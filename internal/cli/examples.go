@@ -29,7 +29,7 @@ var exampleSections = []exampleSection{
 	{"browse", "Browse — `zeb links` (list only: status/collection/sort)",
 		"  zeb links                                            # newest first\n" +
 			"  zeb links --all --json                               # every link, machine-readable\n" +
-			"  zeb links --status inactive --sort total-clicks-desc\n" +
+			"  zeb links --status inactive --sort clicks-desc\n" +
 			"  zeb links --collection \"Campaign\"                    # one collection's members"},
 	{"find", "Find — `zeb links query` (any other filter)",
 		"  zeb links query --target-host cnn.com,bbc.com --min-clicks 100\n" +

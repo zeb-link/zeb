@@ -2113,6 +2113,10 @@
       },
       "Link": {
         "properties": {
+          "clicks": {
+            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
+            "type": "integer"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -2194,8 +2198,8 @@
           "isActive": {
             "type": "boolean"
           },
-          "lastClickAt": {
-            "description": "Most recent click; `null` = never clicked. Present alongside `totalClicks`.",
+          "lastClickedAt": {
+            "description": "Most recent click; `null` = never clicked. Present alongside `clicks`.",
             "format": "date-time",
             "type": [
               "string",
@@ -2228,10 +2232,6 @@
               "string",
               "null"
             ]
-          },
-          "totalClicks": {
-            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
-            "type": "integer"
           }
         },
         "required": [
@@ -2522,6 +2522,10 @@
       },
       "ListLinkRow": {
         "properties": {
+          "clicks": {
+            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
+            "type": "integer"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -2603,8 +2607,8 @@
           "isActive": {
             "type": "boolean"
           },
-          "lastClickAt": {
-            "description": "Most recent click; `null` = never clicked. Present alongside `totalClicks`.",
+          "lastClickedAt": {
+            "description": "Most recent click; `null` = never clicked. Present alongside `clicks`.",
             "format": "date-time",
             "type": [
               "string",
@@ -2637,10 +2641,6 @@
               "string",
               "null"
             ]
-          },
-          "totalClicks": {
-            "description": "Lifetime click total. Present on list rows when the request used a click-based `sort` or `include=clicks`.",
-            "type": "integer"
           }
         },
         "required": [
@@ -3200,7 +3200,7 @@
         ]
       },
       "QueryAnalyticsInput": {
-        "description": "Analytics query, two halves. Object SCOPE — WHICH links to count clicks for — uses the same vocabulary as link search: `status`, `created`, `edited`, `createdVia`, `hasCollection`, `schedule`, `attribution`, `targetHost`, `query`, plus `collectionId` (a collection OR attributes, not both) and `negate` (invert named scope dims). Click MEASUREMENT — `country`/`continents`/`region`/`city`, `browser`/`os`/`deviceType`, `referrerDomain`, `fromQr`, bot dims — filters the clicks. `groupBy` returns a breakdown (one row per value), `measure` counts clicks or uniqueClicks, `range` sets the window. All fields optional; an empty body is whole-workspace all-time totals.",
+        "description": "Analytics query, two halves. Object SCOPE — WHICH links to count clicks for — uses the same vocabulary as link search: `status`, `created`, `edited`, `createdVia`, `hasCollection`, `schedule`, `attribution`, `targetHost`, `query`, plus the identity scopes `linkId` / `collectionId` (one link OR one collection OR attributes, never combined) and `negate` (invert named scope dims). Click MEASUREMENT — `country`/`continents`/`region`/`city`, `browser`/`os`/`deviceType`, `referrerDomain`, `fromQr`, bot dims — filters the clicks. `groupBy` returns a breakdown (one row per value), `measure` counts clicks or uniqueClicks, `range` sets the window. All fields optional; an empty body is whole-workspace all-time totals.",
         "properties": {
           "attribution": {
             "description": "Which attribution the link CARRIES: utm = a utm_* param on its destination URL; signals = a QR code carries signals; any = carries either (spoken to a user as \"Either\").",
@@ -3248,7 +3248,7 @@
             "type": "array"
           },
           "collectionId": {
-            "description": "Scope to one specific collection (analytics-only). Mutually exclusive with the object-attribute filters.",
+            "description": "Scope to one specific collection (analytics-only). Mutually exclusive with the object-attribute filters and with linkId.",
             "pattern": "^col_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
             "type": "string"
           },
@@ -3358,6 +3358,11 @@
             "maximum": 1000,
             "minimum": 1,
             "type": "integer"
+          },
+          "linkId": {
+            "description": "Scope to one specific link by its id (analytics-only) — the click counterpart to opening that link's dashboard. Mutually exclusive with the object-attribute filters and with collectionId. Click dimensions (country, browser, …) still apply on top.",
+            "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
+            "type": "string"
           },
           "measure": {
             "description": "What to count: total clicks (default) or unique visitors.",
@@ -4379,8 +4384,8 @@
                 "creation-date-asc",
                 "edit-date-desc",
                 "edit-date-asc",
-                "total-clicks-desc",
-                "total-clicks-asc",
+                "clicks-desc",
+                "clicks-asc",
                 "recent-clicks-desc",
                 "recent-clicks-asc"
               ],
@@ -5444,7 +5449,7 @@
         ]
       },
       "get": {
-        "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit` (1–1000, default 50; server clamps); a cursor is only valid under the sort that issued it. Pass `include=clicks` for `totalClicks`/`lastClickAt` on every row.",
+        "description": "Returns links in the collection. Smart collections are evaluated against the space's current links at request time. Order via `sort` (default `creation-date-desc`; same vocabulary as the space link list). Keyset pagination uses `cursor` and `limit` (1–1000, default 50; server clamps); a cursor is only valid under the sort that issued it. Pass `include=clicks` for `clicks`/`lastClickedAt` on every row.",
         "operationId": "listCollectionLinks",
         "parameters": [
           {
@@ -5481,8 +5486,8 @@
                 "creation-date-asc",
                 "edit-date-desc",
                 "edit-date-asc",
-                "total-clicks-desc",
-                "total-clicks-asc",
+                "clicks-desc",
+                "clicks-asc",
                 "recent-clicks-desc",
                 "recent-clicks-asc"
               ],
@@ -5507,12 +5512,12 @@
             }
           },
           {
-            "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+            "description": "Extra row data. `clicks` adds `clicks` and `lastClickedAt` to every row.",
             "in": "query",
             "name": "include",
             "required": false,
             "schema": {
-              "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+              "description": "Extra row data. `clicks` adds `clicks` and `lastClickedAt` to every row.",
               "enum": [
                 "clicks"
               ],
@@ -5778,7 +5783,7 @@
     },
     "/api/v1/spaces/{spaceId}/links": {
       "get": {
-        "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, clamped to 1000. Pass `include=clicks` to get `totalClicks` and `lastClickAt` on every row (click-based sorts include them automatically).",
+        "description": "Returns links in the space. Each row includes canonical `shortUrl` for display, copy, and navigation, plus `hostname` and `path` fields for callers that store URL components separately. Order via `sort` (default `creation-date-desc`); click-based sorts order by the space's click analytics. Keyset pagination via the opaque `cursor` query param — pass back the `nextCursor` from the prior response to advance (a cursor is only valid under the sort that issued it). Defaults to 50 per page, clamped to 1000. Pass `include=clicks` to get `clicks` and `lastClickedAt` on every row (click-based sorts include them automatically).",
         "operationId": "listLinks",
         "parameters": [
           {
@@ -5829,8 +5834,8 @@
                 "creation-date-asc",
                 "edit-date-desc",
                 "edit-date-asc",
-                "total-clicks-desc",
-                "total-clicks-asc",
+                "clicks-desc",
+                "clicks-asc",
                 "recent-clicks-desc",
                 "recent-clicks-asc"
               ],
@@ -5859,12 +5864,12 @@
             }
           },
           {
-            "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+            "description": "Extra row data. `clicks` adds `clicks` and `lastClickedAt` to every row.",
             "in": "query",
             "name": "include",
             "required": false,
             "schema": {
-              "description": "Extra row data. `clicks` adds `totalClicks` and `lastClickAt` to every row.",
+              "description": "Extra row data. `clicks` adds `clicks` and `lastClickedAt` to every row.",
               "enum": [
                 "clicks"
               ],

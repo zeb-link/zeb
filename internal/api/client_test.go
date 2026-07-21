@@ -71,8 +71,8 @@ func TestDoJSONSendsAuthAndContentHeaders(t *testing.T) {
 }
 
 func TestQueryStringIncludesAllSetOptions(t *testing.T) {
-	got := queryString(ListLinksOptions{Limit: 100, Cursor: "abc", Sort: "total-clicks-desc", Status: "active"})
-	for _, part := range []string{"limit=100", "cursor=abc", "sort=total-clicks-desc", "status=active"} {
+	got := queryString(ListLinksOptions{Limit: 100, Cursor: "abc", Sort: "clicks-desc", Status: "active"})
+	for _, part := range []string{"limit=100", "cursor=abc", "sort=clicks-desc", "status=active"} {
 		if !strings.Contains(got, part) {
 			t.Errorf("query %q missing %q", got, part)
 		}
