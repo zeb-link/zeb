@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.0 - 2026-07-28
+
+### Changed
+
+- Click sorting is now `--sort clicks-asc` / `clicks-desc` (was
+  `total-clicks-*`), matching the API's naming. The JSON output fields
+  follow suit: `clicks` and `lastClickedAt`.
+- The drift tests read the live production spec instead of a vendored copy,
+  so `go test ./...` always checks the client against the API as it is
+  right now. They skip with a notice when the spec is unreachable, and
+  `ZEB_SPEC_URL` points them at a different server.
+
+### Removed
+
+- `zeb spec sync` and `zeb spec path`. The repo no longer carries an OpenAPI
+  snapshot, so there is nothing to sync and no daily sync workflow to break.
+
 ## 0.3.0 - 2026-07-20
 
 ### Fixed
