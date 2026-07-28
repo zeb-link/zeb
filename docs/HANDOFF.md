@@ -95,10 +95,11 @@ Core's `path` field and is kept as an old-CLI muscle-memory alias.
 - **URL-shorthand flag detection derives from the cobra flag set**
   (`rootFlagFor` in root.go) — never reintroduce a hardcoded flag list.
 - **Spec drift is test-enforced.** `internal/api/spec_drift_test.go` pins
-  every client endpoint to the snapshot and fails on NEW spec operations that
-  are neither wired nor recorded in `knownUnimplemented`.
+  every client endpoint to the live production spec and fails on NEW spec
+  operations that are neither wired nor recorded in `knownUnimplemented`.
   `internal/cli/sort_values_test.go` pins the `--sort` help text to the spec.
-  After `zeb spec sync`, run `go test ./...`.
+  The tests fetch the spec themselves (skip when offline; `ZEB_SPEC_URL`
+  overrides the source) — there is no vendored copy and nothing to sync.
 - **oapi-codegen deferred**: the Core spec is OpenAPI 3.1, which
   oapi-codegen does not support well; the drift tests carry the contract
   instead.

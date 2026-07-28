@@ -1,7 +1,7 @@
 # AGENTS.md
 
 This is the Go CLI for Zebra, invoked as `zeb`. It is a separate project from
-`zlink-core`.
+`zebra-core`.
 
 The product is **Zebra** (<https://zeblink.io>) — not "Zebra Link", never
 "Zeblink". `zeb` is the CLI's name and the mascot, not the brand.
@@ -13,7 +13,6 @@ go run ./cmd/zeb --help
 go run ./cmd/zeb login --api-key zeb_...
 go run ./cmd/zeb https://example.com
 go run ./cmd/zeb links create https://example.com --short-code example
-go run ./cmd/zeb spec sync
 go test ./...
 go build ./cmd/zeb
 ```
@@ -75,7 +74,10 @@ verified via the lockfile, and couples installs to GitHub's availability.
 - `internal/config` owns `~/.zlink/credentials.json` and `~/.zlink/config.json`.
 - `internal/ui` owns shared terminal brand copy and Lip Gloss styles.
 - `internal/tui` owns Bubble Tea models and renderers.
-- `internal/openapi/openapi.json` is a local snapshot of the Core OpenAPI spec.
+- `internal/openapi` fetches the live Core OpenAPI spec for the drift tests
+  (`internal/api/spec_drift_test.go`, `internal/cli/sort_values_test.go`).
+  There is no vendored spec; the tests read production (override with
+  `ZEB_SPEC_URL`) and skip when it is unreachable. See `docs/OPENAPI.md`.
 
 ## Current Auth Contract
 

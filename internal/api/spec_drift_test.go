@@ -2,15 +2,15 @@ package api
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
 	"testing"
+
+	"github.com/zeb-link/zeb/internal/openapi"
 )
 
 // clientEndpoints lists every (method, path) the hand-written client calls.
-// The test asserts each one exists in the vendored OpenAPI snapshot, so a
-// Core route rename/removal surfaces as a test failure after `zeb spec sync`
-// instead of a runtime 404. Add a row when adding a client method.
+// The test asserts each one exists in the live Core OpenAPI spec, so a Core
+// route rename/removal surfaces as a test failure instead of a runtime 404.
+// Add a row when adding a client method.
 var clientEndpoints = []struct {
 	Method string
 	Path   string
@@ -44,18 +44,21 @@ var clientEndpoints = []struct {
 
 func loadSpecPaths(t *testing.T) map[string]map[string]json.RawMessage {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("..", "openapi", "openapi.json"))
+	data, unreachable, err := openapi.FetchLiveSpec()
+	if unreachable {
+		t.Skipf("live spec unreachable (offline?): %v", err)
+	}
 	if err != nil {
-		t.Fatalf("read snapshot: %v", err)
+		t.Fatalf("fetch live spec: %v", err)
 	}
 	var spec struct {
 		Paths map[string]map[string]json.RawMessage `json:"paths"`
 	}
 	if err := json.Unmarshal(data, &spec); err != nil {
-		t.Fatalf("parse snapshot: %v", err)
+		t.Fatalf("parse live spec: %v", err)
 	}
 	if len(spec.Paths) == 0 {
-		t.Fatal("snapshot has no paths; run `zeb spec sync`")
+		t.Fatalf("live spec at %s has no paths", openapi.SpecURL())
 	}
 	return spec.Paths
 }
@@ -65,11 +68,11 @@ func TestClientEndpointsExistInSpec(t *testing.T) {
 	for _, endpoint := range clientEndpoints {
 		operations, ok := paths[endpoint.Path]
 		if !ok {
-			t.Errorf("client uses %s %s but the snapshot has no such path", endpoint.Method, endpoint.Path)
+			t.Errorf("client uses %s %s but the live spec has no such path", endpoint.Method, endpoint.Path)
 			continue
 		}
 		if _, ok := operations[endpoint.Method]; !ok {
-			t.Errorf("client uses %s %s but the snapshot path lacks that method", endpoint.Method, endpoint.Path)
+			t.Errorf("client uses %s %s but the live spec path lacks that method", endpoint.Method, endpoint.Path)
 		}
 	}
 }

@@ -59,10 +59,10 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   `zeb status --check` validates the key, space, collection, and domain
   against the API and exits non-zero on dangling context.
 - `zeb health` pings the public health endpoint.
-- `zeb spec sync` refreshes the vendored Core OpenAPI snapshot from the
-  configured API; drift tests in `internal/api` and `internal/cli` fail when
-  the hand-written client or the `--sort` help text diverges from the
-  snapshot, and when the spec grows operations the CLI has not considered.
+- Drift tests in `internal/api` and `internal/cli` fetch the live Core
+  OpenAPI spec and fail when the hand-written client or the `--sort` help
+  text diverges from it, and when the spec grows operations the CLI has not
+  considered.
 - `zeb tui` is an API-backed link browser/create surface with the launch intro,
   a scrolling link list (the window follows the selection and the next page
   loads by cursor as you near the end of what is loaded), free-text search
@@ -121,7 +121,7 @@ spec operations still trip the drift test:
 
 - OpenAPI client generation (`oapi-codegen`) was evaluated and deferred: the
   Core spec is OpenAPI 3.1, which oapi-codegen does not support well. The
-  hand-written client is instead pinned to the snapshot by drift tests.
+  hand-written client is instead pinned to the live spec by drift tests.
   Revisit if the client grows past this surface or 3.1 support matures.
 - Add snapshot tests for human command output if the formatting churn slows
   down.

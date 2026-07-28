@@ -1,54 +1,42 @@
 # OpenAPI Workflow
 
-The API serves its spec at `<api base>/openapi.json`. The sync command
-downloads it from the CLI's resolved API base when no URL is supplied:
-
-```bash
-go run ./cmd/zeb spec sync
-```
-
-Use an explicit source when needed:
-
-```bash
-go run ./cmd/zeb spec sync --url <spec url>
-```
-
-The snapshot is written to `internal/openapi/openapi.json` (resolved against
-the repo root, so the command works from any directory inside the repo).
+Production is the single source of truth. Core regenerates the spec from code
+on every deploy and serves it at `/api/v1/openapi.json`; the website docs
+fetch it live. This repo vendors nothing and syncs nothing.
 
 ## Drift Guard
 
-The hand-written client is pinned to the snapshot by tests:
+The hand-written client is pinned to the live spec by tests:
 
 - `internal/api/spec_drift_test.go` asserts every client endpoint exists in
-  the snapshot and flags NEW spec operations that are neither wired nor
-  recorded in `knownUnimplemented`.
+  the spec and flags NEW spec operations that are neither wired nor recorded
+  in `knownUnimplemented`.
 - `internal/cli/sort_values_test.go` pins the `--sort` help text to the
   spec's sort enum.
 
-After a sync, run `go test ./...`. Client generation via `oapi-codegen` was
-evaluated and deferred — the spec is OpenAPI 3.1, which it does not support.
+Both fetch the spec through `internal/openapi` (one download per test
+process, cached). `go test ./...` is the whole workflow — locally, in CI on
+every push, and in the release gate before publishing.
 
-## Automatic sync
+Behavior when the spec can't be fetched:
 
-Nobody should sync the snapshot by hand. Production is the single source of
-truth — Core regenerates the spec from code on every deploy and serves it at
-`/api/v1/openapi.json`. Consumers stay current two ways:
+- **Network failure** (offline, DNS, timeout): the tests skip with a notice.
+  A plane ride doesn't break `go test ./...`; drift simply isn't checked
+  that run.
+- **HTTP error** (the server answered, but wrongly): the tests fail. A 404
+  from production means the API surface moved — that's drift, not a
+  connectivity problem.
 
-- **The website docs fetch the live spec** (`cache: no-store`), so they reflect
-  production the instant Core deploys. No vendored copy, nothing to maintain.
-- **This CLI vendors a snapshot** — it has to, because the hand-written Go
-  client is drift-tested offline in CI. A vendored copy is the only thing that
-  can go stale, so `.github/workflows/spec-sync.yml` keeps it fresh: it runs
-  `zeb spec sync` and, when the snapshot differs from production, opens (or
-  updates) a `bot/spec-sync` PR. Routine changes are a one-click merge; a PR
-  whose body reports a drift-test failure means production grew an endpoint the
-  client hasn't considered — wire it or record `knownUnimplemented`, then push
-  to the branch.
+`ZEB_SPEC_URL` points the tests at a different Core, for example a local dev
+server:
 
-The sync workflow runs **daily** (and on demand via Actions → spec-sync → Run
-workflow), so the vendored copy is never more than about a day behind
-production. On days the spec did not change, the job does nothing. This is
-deliberately kept simple — no cross-repo tokens or deploy webhooks to maintain;
-a day's lag on an offline test artifact is harmless, and merging the bot PR is
-the only manual step.
+```bash
+ZEB_SPEC_URL=http://localhost:3000/api/v1/openapi.json go test ./...
+```
+
+When a drift test fails, production grew or changed an endpoint the client
+hasn't considered — wire it (add a client method and a `clientEndpoints`
+row) or record a `knownUnimplemented` entry with the reason.
+
+Client generation via `oapi-codegen` was evaluated and deferred — the spec is
+OpenAPI 3.1, which it does not support.

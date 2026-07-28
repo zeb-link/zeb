@@ -178,8 +178,6 @@ zeb config get
 zeb config set <key> <value>
 zeb config unset <key>
 zeb config path
-zeb spec sync
-zeb spec path
 zeb status
 zeb status --check
 zeb tui
@@ -257,20 +255,14 @@ Variants are `block-boot`, `block-scan`, `block-glitch`, `block-pulse`, and
 `block-wipe`. `zeb tui --gallery` opens a side-by-side comparison board that
 stays up until `esc` or `q`; `--gallery-frame <n>` compares a different frame.
 
-## OpenAPI snapshot
+## OpenAPI drift tests
 
-The client is hand-written against a local snapshot of the API spec:
-
-```text
-internal/openapi/openapi.json
-```
-
-Refresh it with `zeb spec sync`. The URL defaults to the configured API plus
-`/openapi.json`; pass `--url` to sync from a different Core.
-
-A drift test in `internal/api` asserts that every endpoint the client calls
-exists in the snapshot, so `zeb spec sync` followed by `go test ./...` catches
-client/API drift before it ships.
+The client is hand-written. Drift tests keep it pinned to the API: they fetch
+the live spec from production and fail when the client calls an endpoint the
+spec no longer has, when the spec grows an operation the client has not
+considered, or when the `--sort` help text diverges from the spec's enum.
+`go test ./...` runs them; they skip with a notice when the spec is
+unreachable (offline), and `ZEB_SPEC_URL` points them at a different Core.
 
 ## Project layout
 
@@ -295,7 +287,6 @@ make build          # build ./bin/zeb
 make test           # go test ./...
 make fmt            # go fmt ./...
 make vet            # go vet ./...
-make spec-sync      # refresh the OpenAPI snapshot
 make install-local  # symlink bin/zeb into ~/.local/bin
 make release-check  # test, cross-compile, assemble and dry-run the npm packages
 ```

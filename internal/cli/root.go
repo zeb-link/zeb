@@ -169,7 +169,6 @@ func newRootCommand(opts *rootOptions) *cobra.Command {
 		newLinksCommand(opts),
 		newQrCommand(opts),
 		newSpaceCommand(opts),
-		newSpecCommand(opts),
 		newStatusCommand(opts),
 		newTUICommand(opts),
 		newVersionCommand(opts),

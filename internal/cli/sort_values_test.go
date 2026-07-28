@@ -2,18 +2,21 @@ package cli
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/zeb-link/zeb/internal/openapi"
 )
 
 // The --sort help text advertises the API's sort vocabulary. The server stays
-// the validator, but the hint must not drift from the snapshot.
+// the validator, but the hint must not drift from the live spec.
 func TestLinkSortValuesMatchSpec(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "openapi", "openapi.json"))
+	data, unreachable, err := openapi.FetchLiveSpec()
+	if unreachable {
+		t.Skipf("live spec unreachable (offline?): %v", err)
+	}
 	if err != nil {
-		t.Fatalf("read snapshot: %v", err)
+		t.Fatalf("fetch live spec: %v", err)
 	}
 	var spec struct {
 		Paths map[string]map[string]struct {
@@ -26,11 +29,11 @@ func TestLinkSortValuesMatchSpec(t *testing.T) {
 		} `json:"paths"`
 	}
 	if err := json.Unmarshal(data, &spec); err != nil {
-		t.Fatalf("parse snapshot: %v", err)
+		t.Fatalf("parse live spec: %v", err)
 	}
 	operations, ok := spec.Paths["/api/v1/spaces/{spaceId}/links"]
 	if !ok {
-		t.Fatal("snapshot missing the list-links path")
+		t.Fatal("live spec missing the list-links path")
 	}
 	for _, parameter := range operations["get"].Parameters {
 		if parameter.Name != "sort" {
@@ -41,5 +44,5 @@ func TestLinkSortValuesMatchSpec(t *testing.T) {
 		}
 		return
 	}
-	t.Fatal("snapshot list-links GET has no sort parameter")
+	t.Fatal("live spec list-links GET has no sort parameter")
 }

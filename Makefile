@@ -4,7 +4,7 @@ INSTALL_DIR ?= $(HOME)/.local/bin
 VERSION ?= $(shell node -p "require('./npm/package.json').version")
 LDFLAGS := -X main.version=$(VERSION)
 
-.PHONY: build release-build npm-build npm-publish release-check install-local uninstall-local test fmt vet spec-sync clean
+.PHONY: build release-build npm-build npm-publish release-check install-local uninstall-local test fmt vet clean
 
 build:
 	go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd/zeb
@@ -35,9 +35,6 @@ fmt:
 
 vet:
 	go vet ./...
-
-spec-sync:
-	go run ./cmd/zeb spec sync
 
 clean:
 	rm -rf $(BUILD_DIR) dist npm/packages
