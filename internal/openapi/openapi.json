@@ -201,7 +201,7 @@
               ],
               "type": "object"
             },
-            "maxItems": 50,
+            "maxItems": 500,
             "minItems": 1,
             "type": "array"
           }
@@ -568,7 +568,7 @@
               "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
               "type": "string"
             },
-            "maxItems": 250,
+            "maxItems": 500,
             "minItems": 1,
             "type": "array"
           }
@@ -778,6 +778,7 @@
               ],
               "type": "object"
             },
+            "maxItems": 500,
             "minItems": 1,
             "type": "array"
           }
@@ -4778,7 +4779,7 @@
     },
     "/api/v1/spaces/{spaceId}/collections/bulk": {
       "post": {
-        "description": "Creates up to 50 normal collections in one request. Names do not have to be unique within a space. The collection cap is enforced all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
+        "description": "Creates up to 500 normal collections in one request. Names do not have to be unique within a space. The collection cap is enforced all-or-nothing: if the batch would push the space over its limit, none are created (`COLLECTION_LIMIT_REACHED`).",
         "operationId": "bulkCreateCollections",
         "parameters": [
           {
@@ -4816,7 +4817,7 @@
                       ],
                       "type": "object"
                     },
-                    "maxItems": 50,
+                    "maxItems": 500,
                     "minItems": 1,
                     "type": "array"
                   }
@@ -6173,7 +6174,7 @@
     },
     "/api/v1/spaces/{spaceId}/links/bulk": {
       "delete": {
-        "description": "Deletes up to 250 links by id. Rows fail independently: an id that is missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
+        "description": "Deletes up to 500 links by id. Rows fail independently: an id that is missing or belongs to a different space returns `LINK_NOT_FOUND` for that row only; the rest still delete. Deletion is permanent; clicks already recorded are unaffected.",
         "operationId": "bulkDeleteLinks",
         "parameters": [
           {
@@ -6198,7 +6199,7 @@
                       "pattern": "^lnk_[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$",
                       "type": "string"
                     },
-                    "maxItems": 250,
+                    "maxItems": 500,
                     "minItems": 1,
                     "type": "array"
                   }
@@ -6285,7 +6286,7 @@
         ]
       },
       "patch": {
-        "description": "Updates multiple links. Each `updates[]` row carries a `linkId` and the partial fields to patch, using the same body fields as single-link PATCH. Rows fail independently with per-row error envelopes.",
+        "description": "Updates up to 500 links. Each `updates[]` row carries a `linkId` and the partial fields to patch, using the same body fields as single-link PATCH. Rows fail independently with per-row error envelopes.",
         "operationId": "bulkUpdateLinks",
         "parameters": [
           {
@@ -6429,6 +6430,7 @@
                       ],
                       "type": "object"
                     },
+                    "maxItems": 500,
                     "minItems": 1,
                     "type": "array"
                   }
@@ -8787,7 +8789,7 @@
   "servers": [
     {
       "description": "API host",
-      "url": "http://localhost:3000"
+      "url": "https://app.zeblink.io"
     }
   ],
   "webhooks": {}

@@ -89,7 +89,11 @@ jobs:
           git checkout -B "$branch"
           git add internal/openapi/openapi.json
           git commit -m "Sync OpenAPI snapshot from production"
-          git push --force-with-lease origin "$branch"
+          # Plain --force: the branch is bot-owned and rebuilt from main every
+          # run. --force-with-lease can never succeed here — the fresh checkout
+          # has no remote-tracking ref for the branch, so any pre-existing
+          # remote copy makes the lease check fail ("stale info").
+          git push --force origin "$branch"
           if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
             gh pr edit "$branch" --body-file pr-body.md
           else
