@@ -219,9 +219,26 @@ type AnalyticsQueryInput struct {
 
 // AnalyticsRow is one breakdown row (or the single total when key is null).
 type AnalyticsRow struct {
-	Key          *string `json:"key"`
+	Key *string `json:"key"`
+	// Readable name for Key on the dimensions whose key is an id (shortDomain,
+	// link): a hostname or a short link. Absent on dimensions whose key already
+	// reads as itself, and on an id whose row no longer exists — so render Key
+	// as the fallback, never a blank.
+	Label        *string `json:"label,omitempty"`
 	Clicks       int     `json:"clicks"`
 	UniqueClicks int     `json:"uniqueClicks"`
+}
+
+// Display returns what to print for this row: the readable label when the API
+// sent one, else the raw key, else the single-total placeholder.
+func (r AnalyticsRow) Display() string {
+	if r.Label != nil && *r.Label != "" {
+		return *r.Label
+	}
+	if r.Key != nil && *r.Key != "" {
+		return *r.Key
+	}
+	return "(none)"
 }
 
 // AnalyticsQueryResponse — aggregate rows plus the configured/tooLarge flags.

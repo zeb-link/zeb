@@ -316,11 +316,7 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 	}
 	lipgloss.Println(theme.Heading.Render(fmt.Sprintf("%-28s %10s %10s", strings.ToUpper(*r.GroupBy), "clicks", "unique")))
 	for _, row := range r.Rows {
-		key := "(none)"
-		if row.Key != nil && *row.Key != "" {
-			key = *row.Key
-		}
-		lipgloss.Println(theme.CommandText.Render(fmt.Sprintf("%-28s", key)) + " " +
+		lipgloss.Println(theme.CommandText.Render(fmt.Sprintf("%-28s", row.Display())) + " " +
 			theme.BodyText.Render(fmt.Sprintf("%10d", row.Clicks)) + " " +
 			theme.MutedText.Render(fmt.Sprintf("%10d", row.UniqueClicks)))
 	}

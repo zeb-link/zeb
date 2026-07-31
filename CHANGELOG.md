@@ -1,6 +1,24 @@
 # Changelog
 
-## 0.4.0 - 2026-07-28
+## 0.4.1 - 2026-07-31
+
+### Fixed
+
+- Analytics breakdowns grouped by `shortDomain` or `link` printed raw ids
+  (`dom_01ky1s1t1v...`, `lnk_01kyb6ks1f...`) instead of hostnames and short
+  links. The API sends a readable `label` alongside the key on those two
+  dimensions; the client was dropping it. Rows now show the label and fall
+  back to the key when the API omits one, which it does for dimensions whose
+  key already reads as itself and for an id whose row is gone.
+
+### Added
+
+- A drift test that checks the response structs against the live spec, not
+  just the endpoint list. Every field the client decodes must still exist
+  upstream, so a rename or removal fails the suite instead of silently
+  decoding to a zero value. Structs that mirror a whole schema also fail
+  when the API grows a field they do not carry, which is the case that
+  missed `label`.
 
 ### Changed
 
