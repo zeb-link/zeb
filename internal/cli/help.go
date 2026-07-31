@@ -63,14 +63,14 @@ func applyCLIStyles() {
 
 func init() { applyCLIStyles() }
 
-const tagline = "The shortlink operating system"
+const tagline = "The short link operating system"
 
 // brandHeader renders the identity block — both lines inside one box so they
 // left-align and read as a header:
 //
 //	┌─────────────────────────────────┐
 //	│ Zeb from Links by Zebra         │
-//	│ The shortlink operating system  │
+//	│ The short link operating system │
 //	└─────────────────────────────────┘
 //
 // Only "Zeb" and "Zebra" wear the brand emerald; "from" recedes to the comment
