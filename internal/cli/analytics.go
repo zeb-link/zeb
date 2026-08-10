@@ -320,10 +320,13 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 		// would give the withheld name away. Printing that 0 would read as
 		// "no visitors", so the column shows nothing instead.
 		unique := fmt.Sprintf("%10d", row.UniqueClicks)
+		name := theme.CommandText
 		if row.Veiled() {
 			unique = fmt.Sprintf("%10s", "-")
+			// Dots are not a value; they must not carry the weight one does.
+			name = theme.MutedText
 		}
-		lipgloss.Println(theme.CommandText.Render(fmt.Sprintf("%-28s", row.Display())) + " " +
+		lipgloss.Println(name.Render(fmt.Sprintf("%-28s", row.Display(*r.GroupBy))) + " " +
 			theme.BodyText.Render(fmt.Sprintf("%10d", row.Clicks)) + " " +
 			theme.MutedText.Render(unique))
 	}

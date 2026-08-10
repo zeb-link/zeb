@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.1 - 2026-08-10
+
+### Changed
+
+- An analytics row whose value is withheld now prints as a run of dots, the
+  same treatment the dashboard uses, instead of the word "Withheld". The run
+  is drawn from the row's opaque id, never from the hidden value, so its width
+  says nothing about the width of the name underneath, and it holds still
+  across reads so a row stays recognizable while it waits. Country codes are
+  two characters everywhere, so their runs are two dots: that width is common
+  knowledge and pretending it varied would be the only invented thing on the
+  row. `--json` is unchanged and still reports the disclosure state as data,
+  never as dots.
+
 ## 0.5.0 - 2026-08-10
 
 ### Changed

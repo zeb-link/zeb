@@ -249,15 +249,45 @@ func (r AnalyticsRow) Veiled() bool {
 	return r.Disclosure == "veiled"
 }
 
+// Mask lengths, matching the dashboard's VeiledValue. A run's length must
+// never echo the hidden value's own length, so it is derived from VeilID
+// instead — except where every value of the dimension is the same length
+// anyway, where the true length is common knowledge and a run that pretended
+// to vary would be the only lie in the picture.
+const (
+	maskMinDots = 5
+	maskMaxDots = 9
+	// ISO 3166 country codes are two letters everywhere, always.
+	maskCountryDots = 2
+)
+
+// maskDots renders the run for a veiled value of dimension. Seeded from VeilID
+// so a value keeps its run across reads, the way the dashboard seats a run per
+// row and holds it.
+func maskDots(dimension string, veilID string) string {
+	if dimension == "country" {
+		return strings.Repeat("•", maskCountryDots)
+	}
+	var hash uint32 = 2166137
+	for i := 0; i < len(veilID); i++ {
+		hash ^= uint32(veilID[i])
+		hash *= 16777619
+	}
+	span := uint32(maskMaxDots - maskMinDots + 1)
+	return strings.Repeat("•", maskMinDots+int(hash%span))
+}
+
 // Display returns what to print for this row: the readable label when the API
 // sent one, else the raw key, else the single-total placeholder. A veiled row
-// says so instead, with the coarser place it sits in when the API named one.
-func (r AnalyticsRow) Display() string {
+// renders as a run of dots instead, with the coarser place it sits in when the
+// API named one. The dimension picks the run's length rule.
+func (r AnalyticsRow) Display(dimension string) string {
 	if r.Veiled() {
+		dots := maskDots(dimension, r.VeilID)
 		if r.Context != "" {
-			return "Withheld (" + r.Context + ")"
+			return dots + " (" + r.Context + ")"
 		}
-		return "Withheld"
+		return dots
 	}
 	if r.Label != nil && *r.Label != "" {
 		return *r.Label
