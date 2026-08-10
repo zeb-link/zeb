@@ -19,8 +19,8 @@ type exampleSection struct {
 
 var exampleSections = []exampleSection{
 	{"setup", "Setup — stateless (for agents & scripts)",
-		"  export ZLINK_API_KEY=zeb_...        # no `zeb login` needed; --api-key also works\n" +
-			"  export ZLINK_SPACE=spc_...          # find yours with: zeb auth whoami --json\n" +
+		"  export ZEB_API_KEY=zeb_...          # no `zeb login` needed; --api-key also works\n" +
+			"  export ZEB_SPACE=spc_...            # find yours with: zeb auth whoami --json\n" +
 			"  zeb status --check --json           # preflight: verify key + space (non-zero if bad)"},
 	{"create", "Create links",
 		"  zeb https://example.com                              # fast path (bare URL)\n" +

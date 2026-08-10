@@ -18,7 +18,7 @@ func newContextCommand(root *rootOptions) *cobra.Command {
 		Use:   "context",
 		Short: "Pick active domain and collection",
 		Long: "Pick active domain and collection for new links.\n\n" +
-			"This writes the same ~/.zlink config used by normal commands. " +
+			"This writes the same ~/.zeb config used by normal commands. " +
 			"Create flags like --domain, --collection, and --no-collection still override it.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, err := resolveAPIContext(cmd.Context(), root)

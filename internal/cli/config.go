@@ -1,4 +1,4 @@
-// Config commands expose the local ~/.zlink files.
+// Config commands expose the local ~/.zeb files.
 // They are intentionally boring so scripts and future TUI screens can rely
 // on the same values.
 package cli

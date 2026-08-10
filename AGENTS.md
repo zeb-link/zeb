@@ -71,7 +71,7 @@ verified via the lockfile, and couples installs to GitHub's availability.
   context selection, but it is not a dashboard replacement.
 - `internal/api` is the one place that should set auth headers and perform HTTP
   requests.
-- `internal/config` owns `~/.zlink/credentials.json` and `~/.zlink/config.json`.
+- `internal/config` owns `~/.zeb/credentials.json` and `~/.zeb/config.json`.
 - `internal/ui` owns shared terminal brand copy and Lip Gloss styles.
 - `internal/tui` owns Bubble Tea models and renderers.
 - `internal/openapi` fetches the live Core OpenAPI spec for the drift tests
@@ -84,8 +84,8 @@ verified via the lockfile, and couples installs to GitHub's availability.
 API key resolution:
 
 1. `--api-key`
-2. `ZLINK_API_KEY`
-3. `~/.zlink/credentials.json`
+2. `ZEB_API_KEY`
+3. `~/.zeb/credentials.json`
 
 API URL: the built-in production default in `internal/config` (change it
 there and rebuild when the dedicated API domain lands). Login defines the
@@ -95,8 +95,8 @@ override is intentionally undocumented — read `internal/config/config.go`.
 Space resolution:
 
 1. `--space`
-2. `ZLINK_SPACE`
-3. `activeSpace` in `~/.zlink/config.json`
+2. `ZEB_SPACE`
+3. `activeSpace` in `~/.zeb/config.json`
 
 The Core REST paths use `/api/v1/spaces/{spaceId}/...`; the `/me` response
 returns `accessibleSpaces`, which `internal/api` exposes as `AccessibleSpaces`.

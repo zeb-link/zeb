@@ -1,6 +1,6 @@
 // Package contextpicker renders the live context picker used by `zeb context`.
 // It updates the same active domain and collection values that normal commands
-// read from ~/.zlink/config.json.
+// read from ~/.zeb/config.json.
 package contextpicker
 
 import (

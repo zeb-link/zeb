@@ -1,6 +1,4 @@
-// Package config owns CLI credential and context files.
-// It preserves the existing ~/.zlink location so the Go CLI can share
-// auth state with earlier local tools while it is being developed.
+// Package config owns CLI credential and context files, kept in ~/.zeb.
 package config
 
 import (
@@ -13,11 +11,11 @@ import (
 )
 
 const (
-	envAPIKey     = "ZLINK_API_KEY"
-	envAPIURL     = "ZLINK_API_URL"
-	envCollection = "ZLINK_COLLECTION"
-	envDomain     = "ZLINK_DOMAIN"
-	envSpace      = "ZLINK_SPACE"
+	envAPIKey     = "ZEB_API_KEY"
+	envAPIURL     = "ZEB_API_URL"
+	envCollection = "ZEB_COLLECTION"
+	envDomain     = "ZEB_DOMAIN"
+	envSpace      = "ZEB_SPACE"
 )
 
 // defaultAPIURL is the production API every user lands on out of the box.
@@ -26,7 +24,7 @@ const (
 // existing installs pick the new value up on their next build.
 //
 // Development override (owner-only, intentionally undocumented): the hidden
-// `--api-url` flag or ZLINK_API_URL, e.g. `zeb login --api-url
+// `--api-url` flag or ZEB_API_URL, e.g. `zeb login --api-url
 // http://localhost:3000`.
 const defaultAPIURL = "https://app.zeblink.io/api/v1"
 
@@ -53,7 +51,7 @@ func Dir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".zlink"), nil
+	return filepath.Join(home, ".zeb"), nil
 }
 
 func CredentialsPath() (string, error) {

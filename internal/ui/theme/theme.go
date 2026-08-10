@@ -9,7 +9,7 @@
 //
 // Direction — warm-ink monochrome with the product's feature colors carrying
 // meaning: emerald = links + wordmark, violet = collections, amber = caution,
-// red = error, a distinct green = success. Dark values match zlink-web's dark
+// red = error, a distinct green = success. Dark values match zebra-web's dark
 // mode; light values are their readable-on-white counterparts.
 package theme
 

@@ -227,11 +227,38 @@ type AnalyticsRow struct {
 	Label        *string `json:"label,omitempty"`
 	Clicks       int     `json:"clicks"`
 	UniqueClicks int     `json:"uniqueClicks"`
+	// Disclosure is "clear" or "veiled", and only on the dimensions that gate
+	// (city, region, country, referrerDomain). A veiled row withholds the
+	// value's NAME until enough distinct visitors share it: Key is null, Clicks
+	// is exact, and UniqueClicks is 0 because the visitor count is the evidence
+	// that would give the name away. Never render a veiled row as a named value
+	// and never render its zero as a count.
+	Disclosure string `json:"disclosure,omitempty"`
+	// VeilID is a stable opaque id on every gated row, so a row can be followed
+	// across reads and windows until it reveals. Never the value itself.
+	VeilID string `json:"veilId,omitempty"`
+	// Level and Context name the deepest coarser place that has its own crowd
+	// on a veiled geo row ("Capital Region, DK", "DK"). Absent when nothing
+	// coarser cleared.
+	Level   string `json:"level,omitempty"`
+	Context string `json:"context,omitempty"`
+}
+
+// Veiled reports whether this row's value is withheld for want of a crowd.
+func (r AnalyticsRow) Veiled() bool {
+	return r.Disclosure == "veiled"
 }
 
 // Display returns what to print for this row: the readable label when the API
-// sent one, else the raw key, else the single-total placeholder.
+// sent one, else the raw key, else the single-total placeholder. A veiled row
+// says so instead, with the coarser place it sits in when the API named one.
 func (r AnalyticsRow) Display() string {
+	if r.Veiled() {
+		if r.Context != "" {
+			return "Withheld (" + r.Context + ")"
+		}
+		return "Withheld"
+	}
 	if r.Label != nil && *r.Label != "" {
 		return *r.Label
 	}
@@ -241,15 +268,20 @@ func (r AnalyticsRow) Display() string {
 	return "(none)"
 }
 
-// AnalyticsQueryResponse — aggregate rows plus the configured/tooLarge flags.
+// AnalyticsQueryResponse — aggregate rows plus the configured, tooLarge, and
+// veiled flags, each of which means "no number", never "zero".
 type AnalyticsQueryResponse struct {
-	Configured bool           `json:"configured"`
-	TooLarge   bool           `json:"tooLarge"`
-	Range      string         `json:"range"`
-	GroupBy    *string        `json:"groupBy"`
-	Measure    *string        `json:"measure"`
-	Message    string         `json:"message,omitempty"`
-	Rows       []AnalyticsRow `json:"rows"`
+	Configured bool `json:"configured"`
+	TooLarge   bool `json:"tooLarge"`
+	// Veiled is true when the query narrowed by a value too few distinct
+	// visitors share, so no number comes back and Rows is empty. Relay Message;
+	// reporting zero would be a lie about the underlying data.
+	Veiled  bool           `json:"veiled"`
+	Range   string         `json:"range"`
+	GroupBy *string        `json:"groupBy"`
+	Measure *string        `json:"measure"`
+	Message string         `json:"message,omitempty"`
+	Rows    []AnalyticsRow `json:"rows"`
 }
 
 type ListLinksResponse struct {

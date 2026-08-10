@@ -10,7 +10,7 @@ spaces from the terminal, or from a script.
 
 Zeb is a Go binary with a Cobra command surface and a Bubble Tea TUI for the
 interactive flows. It talks to the Zebra REST API and stores credentials in
-`~/.zlink`.
+`~/.zeb`.
 
 ## Install
 
@@ -72,7 +72,7 @@ zeb links create https://example.com --short-code launch
 The domain and collection a new link lands in resolve in this order:
 
 1. Explicit flag: `--domain` / `--collection`
-2. Environment: `ZLINK_DOMAIN` / `ZLINK_COLLECTION`
+2. Environment: `ZEB_DOMAIN` / `ZEB_COLLECTION`
 3. Local active config: `zeb domain use ...` / `zeb collection use ...`
 4. Server default, for domain only
 
@@ -189,14 +189,14 @@ zeb tui --preview
 API key resolution:
 
 1. `--api-key`
-2. `ZLINK_API_KEY`
-3. `~/.zlink/credentials.json`
+2. `ZEB_API_KEY`
+3. `~/.zeb/credentials.json`
 
 Space resolution:
 
 1. `--space`
-2. `ZLINK_SPACE`
-3. `activeSpace` from `~/.zlink/config.json`
+2. `ZEB_SPACE`
+3. `activeSpace` from `~/.zeb/config.json`
 
 `zeb login` validates the key against `GET /api/v1/me`, stores it, and sets an
 active space — automatically when the key has exactly one accessible space,
@@ -207,8 +207,8 @@ otherwise from a prompt.
 Zeb is built to be driven by an agent or script with no interactive steps.
 
 ```bash
-export ZLINK_API_KEY=zeb_...     # no `zeb login` needed; --api-key also works
-export ZLINK_SPACE=spc_...       # find yours with `zeb auth whoami --json`
+export ZEB_API_KEY=zeb_...       # no `zeb login` needed; --api-key also works
+export ZEB_SPACE=spc_...         # find yours with `zeb auth whoami --json`
 zeb status --check --json        # preflight: validates the key + space, exits non-zero if either is bad
 zeb links --limit 50 --json      # read a page; follow .nextCursor to paginate (or --all)
 zeb https://example.com --json   # create; read .created[].link.shortUrl
@@ -242,7 +242,7 @@ flows; it is not a terminal rebuild of the dashboard.
 with a command input and a footer context toolbar. Type an HTTP URL and press
 enter to create a real short link. Press `tab` to focus the footer controls, then
 `d` cycles the create domain, `c` cycles the create collection, and `r` refreshes
-links. Context changes are saved back to `~/.zlink/config.json` on exit.
+links. Context changes are saved back to `~/.zeb/config.json` on exit.
 
 The launch intro is picked at random per session. Preview them with:
 
@@ -270,7 +270,7 @@ unreachable (offline), and `ZEB_SPEC_URL` points them at a different Core.
 cmd/zeb/             executable entrypoint
 internal/cli/        Cobra command registration and flag handling
 internal/api/        HTTP client primitives
-internal/config/     ~/.zlink credentials and context
+internal/config/     ~/.zeb credentials and context
 internal/tui/        Bubble Tea models and renderers
 internal/ui/         shared brand copy and Lip Gloss styles
 internal/openapi/    local Core OpenAPI snapshot

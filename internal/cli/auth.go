@@ -1,5 +1,5 @@
 // Auth commands manage the local API key and default space.
-// Login validates the key against `/api/v1/me`, then writes ~/.zlink
+// Login validates the key against `/api/v1/me`, then writes ~/.zeb
 // credentials and context files.
 package cli
 
@@ -32,7 +32,7 @@ func newLoginCommand(root *rootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Log in with your Zebra API key",
-		Long:  "Log in with your Zebra API key.\n\nPaste the key at the prompt (or pass --api-key). The key is validated and stored in ~/.zlink for future commands.",
+		Long:  "Log in with your Zebra API key.\n\nPaste the key at the prompt (or pass --api-key). The key is validated and stored in ~/.zeb for future commands.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := firstNonEmpty(apiKey, root.APIKey)
 			if key == "" {
@@ -174,7 +174,7 @@ func newWhoamiCommand(root *rootOptions) *cobra.Command {
 // config URL is deliberately ignored — logging in picks the environment
 // fresh; it never inherits a previously stored one.
 func loginAPIURL(root *rootOptions) (string, bool) {
-	override := firstNonEmpty(root.APIURL, os.Getenv("ZLINK_API_URL"))
+	override := firstNonEmpty(root.APIURL, os.Getenv("ZEB_API_URL"))
 	if override != "" {
 		return config.NormalizeAPIURL(override), true
 	}

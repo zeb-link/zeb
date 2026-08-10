@@ -25,7 +25,7 @@ A Go CLI covering nearly the full Core REST v1 surface:
   both) and adds click dims + `--group-by`/`--measure`/`--range`. Gated on the
   ANALYTICS_VIEW feature server-side.
 - `zeb <url...>` root shorthand for create.
-- Config commands for inspecting `~/.zlink`; `zeb status` for context and
+- Config commands for inspecting `~/.zeb`; `zeb status` for context and
   `zeb status --check` for API-validated context; `zeb health` for a ping.
 - Spec sync command plus drift tests binding the hand-written client to the
   vendored snapshot.
@@ -37,7 +37,7 @@ Zeb is a normal command CLI first. The TUI should stay focused on fast link
 work: review recent links, create a link from a pasted URL, and adjust create
 context. Do not turn it into a full dashboard replica.
 
-Context is shared through `~/.zlink/config.json`: `zeb domain use`,
+Context is shared through `~/.zeb/config.json`: `zeb domain use`,
 `zeb collection use`, `zeb collection none`, and the live `zeb context` picker
 all write the same `activeDomain` / `activeCollection` values. Create commands
 read those defaults automatically. Per-command flags still win:
@@ -54,8 +54,8 @@ zeb links create <url...>
 Both use the same precedence:
 
 1. `--domain` / `--collection`
-2. `ZLINK_DOMAIN` / `ZLINK_COLLECTION`
-3. `activeDomain` / `activeCollection` in `~/.zlink/config.json`
+2. `ZEB_DOMAIN` / `ZEB_COLLECTION`
+3. `activeDomain` / `activeCollection` in `~/.zeb/config.json`
 4. Server default for domain
 
 `--no-collection` bypasses the active collection. `--short-code` maps to

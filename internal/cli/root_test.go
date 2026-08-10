@@ -84,14 +84,14 @@ func TestAPIURLFlagHiddenButFunctional(t *testing.T) {
 // Login picks the environment fresh: hidden flag > env > built-in production
 // default — the STORED config URL must play no part.
 func TestLoginAPIURLResolution(t *testing.T) {
-	t.Setenv("ZLINK_API_URL", "")
+	t.Setenv("ZEB_API_URL", "")
 
 	url, overridden := loginAPIURL(&rootOptions{})
 	if overridden || url != config.DefaultAPIURL() {
 		t.Fatalf("no override: url=%q overridden=%v", url, overridden)
 	}
 
-	t.Setenv("ZLINK_API_URL", "http://localhost:3000")
+	t.Setenv("ZEB_API_URL", "http://localhost:3000")
 	url, overridden = loginAPIURL(&rootOptions{})
 	if !overridden || url != "http://localhost:3000/api/v1" {
 		t.Fatalf("env override: url=%q overridden=%v", url, overridden)

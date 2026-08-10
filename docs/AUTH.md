@@ -8,8 +8,8 @@ The CLI uses API keys. It does not manage browser sessions.
 against the Zebra API (`GET /api/v1/me`), and writes:
 
 ```text
-~/.zlink/credentials.json
-~/.zlink/config.json
+~/.zeb/credentials.json
+~/.zeb/config.json
 ```
 
 The CLI always talks to the built-in production API. Login picks the
@@ -37,11 +37,11 @@ Config:
 API key:
 
 1. `--api-key`
-2. `ZLINK_API_KEY`
+2. `ZEB_API_KEY`
 3. stored credentials
 
 Space:
 
 1. `--space`
-2. `ZLINK_SPACE`
+2. `ZEB_SPACE`
 3. `activeSpace`

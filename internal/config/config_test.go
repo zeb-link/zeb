@@ -6,12 +6,12 @@ import (
 	"testing"
 )
 
-// isolateHome points ~/.zlink at a temp dir so tests never touch real state.
+// isolateHome points ~/.zeb at a temp dir so tests never touch real state.
 func isolateHome(t *testing.T) string {
 	t.Helper()
 	home := t.TempDir()
 	t.Setenv("HOME", home)
-	for _, env := range []string{"ZLINK_API_KEY", "ZLINK_API_URL", "ZLINK_COLLECTION", "ZLINK_DOMAIN", "ZLINK_SPACE"} {
+	for _, env := range []string{"ZEB_API_KEY", "ZEB_API_URL", "ZEB_COLLECTION", "ZEB_DOMAIN", "ZEB_SPACE"} {
 		t.Setenv(env, "")
 	}
 	return home
@@ -66,7 +66,7 @@ func TestResolveAPIURLPrecedence(t *testing.T) {
 	}
 
 	// Env beats config.
-	t.Setenv("ZLINK_API_URL", "https://env.example.com")
+	t.Setenv("ZEB_API_URL", "https://env.example.com")
 	got, _ = ResolveAPIURL("")
 	if got != "https://env.example.com/api/v1" {
 		t.Fatalf("env = %q", got)
@@ -98,7 +98,7 @@ func TestResolveAPIKeyPrecedence(t *testing.T) {
 		t.Fatalf("stored = %q", got)
 	}
 
-	t.Setenv("ZLINK_API_KEY", "zeb_env")
+	t.Setenv("ZEB_API_KEY", "zeb_env")
 	got, _ = ResolveAPIKey("")
 	if got != "zeb_env" {
 		t.Fatalf("env = %q", got)
@@ -126,8 +126,8 @@ func TestResolveCollectionAndSpacePrecedence(t *testing.T) {
 		t.Fatalf("config: collection=%q space=%q", collection, space)
 	}
 
-	t.Setenv("ZLINK_COLLECTION", "col_env")
-	t.Setenv("ZLINK_SPACE", "spc_env")
+	t.Setenv("ZEB_COLLECTION", "col_env")
+	t.Setenv("ZEB_SPACE", "spc_env")
 	collection, _ = ResolveCollection("")
 	space, _ = ResolveSpace("")
 	if collection != "col_env" || space != "spc_env" {
@@ -166,7 +166,7 @@ func TestSetUnsetValueRoundTrip(t *testing.T) {
 	}
 
 	// Files land under the isolated home with owner-only permissions.
-	if _, err := os.Stat(filepath.Join(home, ".zlink", "config.json")); err != nil {
+	if _, err := os.Stat(filepath.Join(home, ".zeb", "config.json")); err != nil {
 		t.Fatalf("config file: %v", err)
 	}
 }

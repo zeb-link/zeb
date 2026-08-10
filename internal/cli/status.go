@@ -201,7 +201,7 @@ func apiURLSource(flagValue string, cfg config.Config) string {
 	if flagValue != "" {
 		return "flag"
 	}
-	if os.Getenv("ZLINK_API_URL") != "" {
+	if os.Getenv("ZEB_API_URL") != "" {
 		return "env"
 	}
 	if cfg.APIURL != "" {
@@ -214,7 +214,7 @@ func spaceSource(flagValue string, cfg config.Config) string {
 	if flagValue != "" {
 		return "flag"
 	}
-	if os.Getenv("ZLINK_SPACE") != "" {
+	if os.Getenv("ZEB_SPACE") != "" {
 		return "env"
 	}
 	if cfg.ActiveSpace != "" {

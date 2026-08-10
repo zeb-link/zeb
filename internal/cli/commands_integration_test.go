@@ -21,7 +21,7 @@ func testHarness(t *testing.T, handler http.Handler) *httptest.Server {
 	server := httptest.NewServer(handler)
 	t.Cleanup(server.Close)
 	t.Setenv("HOME", t.TempDir())
-	for _, env := range []string{"ZLINK_API_KEY", "ZLINK_API_URL", "ZLINK_COLLECTION", "ZLINK_DOMAIN", "ZLINK_SPACE"} {
+	for _, env := range []string{"ZEB_API_KEY", "ZEB_API_URL", "ZEB_COLLECTION", "ZEB_DOMAIN", "ZEB_SPACE"} {
 		t.Setenv(env, "")
 	}
 	if err := config.SaveCredentials("zeb_test"); err != nil {

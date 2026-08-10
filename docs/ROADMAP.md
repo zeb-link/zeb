@@ -54,7 +54,7 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
 - `zeb domains` / `zeb domain use` manage the default domain for new links.
 - `zeb context` is a live API-backed picker for active domain and collection.
 - `zeb auth login` validates an API key against `/api/v1/me`, stores it in
-  `~/.zlink/credentials.json`, and can set the active space.
+  `~/.zeb/credentials.json`, and can set the active space.
 - `zeb space`, `zeb config`, and `zeb status` cover local context inspection;
   `zeb status --check` validates the key, space, collection, and domain
   against the API and exits non-zero on dangling context.

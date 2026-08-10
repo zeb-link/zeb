@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.5.0 - 2026-08-10
+
+### Changed
+
+- The environment variables are now `ZEB_API_KEY`, `ZEB_SPACE`, `ZEB_DOMAIN`,
+  `ZEB_COLLECTION`, and `ZEB_API_URL`. They were `ZLINK_*`, a name from before
+  the product was called Zebra, and they were the last place that name still
+  showed. The rest of the CLI already used `ZEB_` (`ZEB_THEME`, `ZEB_SPEC_URL`,
+  `ZEB_INSTALL_MODE`); the auth and context variables now match.
+- Credentials and context live in `~/.zeb` instead of `~/.zlink`. Existing
+  installs keep working after `mv ~/.zlink ~/.zeb`, or after `zeb auth login`
+  again.
+
+### Added
+
+- Analytics rows carry the API's disclosure fields (`disclosure`, `veilId`,
+  `level`, `context`), and the response carries `veiled`. A row whose value is
+  withheld for want of a crowd now prints as `Withheld`, with the coarser place
+  it sits in when the API names one, and its unique column prints `-` rather
+  than the zero the API sends in place of the visitor count. A fully veiled
+  query relays the API's message instead of showing an empty table.
+
 ## 0.4.1 - 2026-07-31
 
 ### Fixed

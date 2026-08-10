@@ -296,7 +296,7 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 		lipgloss.Println(theme.WarnText.Render("Analytics backend isn't configured for this space."))
 		return
 	}
-	if r.TooLarge {
+	if r.TooLarge || r.Veiled {
 		lipgloss.Println(theme.MutedText.Render(r.Message))
 		return
 	}
@@ -316,8 +316,15 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 	}
 	lipgloss.Println(theme.Heading.Render(fmt.Sprintf("%-28s %10s %10s", strings.ToUpper(*r.GroupBy), "clicks", "unique")))
 	for _, row := range r.Rows {
+		// A veiled row's uniqueClicks is 0 because the visitor count is what
+		// would give the withheld name away. Printing that 0 would read as
+		// "no visitors", so the column shows nothing instead.
+		unique := fmt.Sprintf("%10d", row.UniqueClicks)
+		if row.Veiled() {
+			unique = fmt.Sprintf("%10s", "-")
+		}
 		lipgloss.Println(theme.CommandText.Render(fmt.Sprintf("%-28s", row.Display())) + " " +
 			theme.BodyText.Render(fmt.Sprintf("%10d", row.Clicks)) + " " +
-			theme.MutedText.Render(fmt.Sprintf("%10d", row.UniqueClicks)))
+			theme.MutedText.Render(unique))
 	}
 }
