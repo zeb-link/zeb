@@ -224,15 +224,19 @@ type AnalyticsRow struct {
 	// link): a hostname or a short link. Absent on dimensions whose key already
 	// reads as itself, and on an id whose row no longer exists — so render Key
 	// as the fallback, never a blank.
-	Label        *string `json:"label,omitempty"`
-	Clicks       int     `json:"clicks"`
-	UniqueClicks int     `json:"uniqueClicks"`
+	Label  *string `json:"label,omitempty"`
+	Clicks int     `json:"clicks"`
+	// UniqueClicks is a pointer on purpose: a veiled row OMITS the field (the
+	// visitor count is the evidence that would give the withheld name away),
+	// and a plain int would silently decode that absence into 0 — a value that
+	// reads as "no visitors". Nil means withheld, never zero; omitempty keeps
+	// the absence intact when --json re-marshals the response.
+	UniqueClicks *int `json:"uniqueClicks,omitempty"`
 	// Disclosure is "clear" or "veiled", and only on the dimensions that gate
 	// (city, region, country, referrerDomain). A veiled row withholds the
 	// value's NAME until enough distinct visitors share it: Key is null, Clicks
-	// is exact, and UniqueClicks is 0 because the visitor count is the evidence
-	// that would give the name away. Never render a veiled row as a named value
-	// and never render its zero as a count.
+	// is exact, and UniqueClicks is absent. Never render a veiled row as a
+	// named value and never invent a count for it.
 	Disclosure string `json:"disclosure,omitempty"`
 	// VeilID is a stable opaque id on every gated row, so a row can be followed
 	// across reads and windows until it reveals. Never the value itself.

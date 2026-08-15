@@ -5,6 +5,8 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -170,8 +172,53 @@ func printQrVariants(variants []api.QrVariant) {
 		}
 		lipgloss.Printf("%s %s\n", activeDotStyle.Render("●"), linkShortStyle.Render(label))
 		lipgloss.Printf("  %s\n", theme.MutedText.Render(variant.ID))
+		// Signals are the code's scan-time identity (a placement or campaign
+		// marker stamped on every scan). Authored in the studio; shown here so
+		// the CLI reflects what each code actually records. Rendered in stored
+		// order — never a Go map, which would shuffle them.
+		for _, pair := range orderedSignals(variant.Signals) {
+			lipgloss.Printf("  %s %s\n",
+				theme.MutedText.Render(pair[0]+":"),
+				theme.CommandText.Render(pair[1]))
+		}
 		if variant.ImageUrls != nil {
 			lipgloss.Printf("  %s %s\n", theme.MutedText.Render("PNG:"), theme.LinkText.Render(variant.ImageUrls.PNG))
 		}
 	}
+}
+
+// orderedSignals decodes a variant's signal map preserving authored order —
+// the wire sends a JSON object, whose key order is meaningful (the studio
+// lists signals in the order the owner added them) and which a Go map would
+// discard. Returns nil for an absent or empty map, so a code with no signals
+// prints none. Malformed JSON yields nil rather than an error: this is a
+// display path, and a broken map should not abort listing the variant.
+func orderedSignals(raw json.RawMessage) [][2]string {
+	if len(raw) == 0 {
+		return nil
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	// Opening brace; a non-object (e.g. `null`) has no pairs to show.
+	if tok, err := dec.Token(); err != nil {
+		return nil
+	} else if delim, ok := tok.(json.Delim); !ok || delim != '{' {
+		return nil
+	}
+	var pairs [][2]string
+	for dec.More() {
+		keyTok, err := dec.Token()
+		if err != nil {
+			return nil
+		}
+		key, ok := keyTok.(string)
+		if !ok {
+			return nil
+		}
+		var value string
+		if err := dec.Decode(&value); err != nil {
+			return nil
+		}
+		pairs = append(pairs, [2]string{key, value})
+	}
+	return pairs
 }

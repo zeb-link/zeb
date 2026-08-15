@@ -301,10 +301,14 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 		return
 	}
 	if r.GroupBy == nil {
-		// Single total.
+		// Single total. Totals are never veiled, so UniqueClicks is present
+		// on any real row; the guard covers the empty response.
 		clicks, unique := 0, 0
 		if len(r.Rows) > 0 {
-			clicks, unique = r.Rows[0].Clicks, r.Rows[0].UniqueClicks
+			clicks = r.Rows[0].Clicks
+			if r.Rows[0].UniqueClicks != nil {
+				unique = *r.Rows[0].UniqueClicks
+			}
 		}
 		lipgloss.Println("  " + theme.MutedText.Render("clicks ") + theme.CommandText.Render(fmt.Sprintf("%d", clicks)) +
 			theme.MutedText.Render("   unique ") + theme.CommandText.Render(fmt.Sprintf("%d", unique)))
@@ -316,10 +320,13 @@ func printAnalytics(r api.AnalyticsQueryResponse) {
 	}
 	lipgloss.Println(theme.Heading.Render(fmt.Sprintf("%-28s %10s %10s", strings.ToUpper(*r.GroupBy), "clicks", "unique")))
 	for _, row := range r.Rows {
-		// A veiled row's uniqueClicks is 0 because the visitor count is what
-		// would give the withheld name away. Printing that 0 would read as
-		// "no visitors", so the column shows nothing instead.
-		unique := fmt.Sprintf("%10d", row.UniqueClicks)
+		// A veiled row omits uniqueClicks because the visitor count is what
+		// would give the withheld name away. Absent means withheld, never
+		// zero, so the column shows nothing instead of a number.
+		unique := fmt.Sprintf("%10s", "-")
+		if row.UniqueClicks != nil {
+			unique = fmt.Sprintf("%10d", *row.UniqueClicks)
+		}
 		name := theme.CommandText
 		if row.Veiled() {
 			unique = fmt.Sprintf("%10s", "-")

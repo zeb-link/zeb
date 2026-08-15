@@ -17,12 +17,12 @@ func veiledRow(veilID string, context string) AnalyticsRow {
 		// A veiled row arrives with its name already gone. The label is set here
 		// anyway, so a renderer that reaches past Disclosure for something to
 		// print fails this test instead of leaking in production.
-		Label:        &key,
-		Clicks:       15295,
-		UniqueClicks: 0,
-		Disclosure:   "veiled",
-		VeilID:       veilID,
-		Context:      context,
+		Label:  &key,
+		Clicks: 15295,
+		// UniqueClicks stays nil: the wire omits the field on veiled rows.
+		Disclosure: "veiled",
+		VeilID:     veilID,
+		Context:    context,
 	}
 }
 
