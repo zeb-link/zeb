@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.3 - 2026-08-15
+
+### Security
+
+- Built against Go 1.25.13, clearing 4 reachable standard-library
+  vulnerabilities in `encoding/asn1`, `net/http`, and `crypto` paths that
+  affected every earlier binary, several reachable from the API client and
+  the live-spec fetch. Caught by the CI vulnerability scan minutes after
+  v0.5.2 published; that release carried the same fixes on the older
+  toolchain, so upgrade straight to this one. `govulncheck ./...` reports
+  no vulnerabilities.
+
 ## 0.5.2 - 2026-08-15
 
 ### Fixed
