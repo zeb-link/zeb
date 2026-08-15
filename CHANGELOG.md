@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.2 - 2026-08-15
+
+### Fixed
+
+- `--json` reported `uniqueClicks: 0` on veiled analytics rows. The API omits
+  the field on those rows, because the visitor count is the evidence that
+  would give the withheld name away, and the client's plain integer decoded
+  that absence into a zero that read as "no visitors". The field is now
+  optional end to end: absent in `--json` exactly as the API sent it, and a
+  `-` in the human table.
+
+### Added
+
+- `zeb qr variants` lists each code's signals under its name, in the order
+  they were authored in the studio. A code without signals prints as before.
+
 ## 0.5.1 - 2026-08-10
 
 ### Changed
