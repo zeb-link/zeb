@@ -273,7 +273,7 @@ internal/api/        HTTP client primitives
 internal/config/     ~/.zeb credentials and context
 internal/tui/        Bubble Tea models and renderers
 internal/ui/         shared brand copy and Lip Gloss styles
-internal/openapi/    local Core OpenAPI snapshot
+internal/openapi/    spec URL and live-spec fetch for the drift tests
 npm/                 npm package that ships the prebuilt binary
 ```
 

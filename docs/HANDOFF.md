@@ -4,7 +4,7 @@ Use this as the resume checkpoint for future agents. The live to-do list is
 `docs/ROADMAP.md`; this file explains the current shape, command model, and
 decisions that are easy to lose between sessions.
 
-Last checked against code: 2026-07-07.
+Last checked against code: 2026-08-16.
 
 ## What Exists
 
@@ -27,8 +27,10 @@ A Go CLI covering nearly the full Core REST v1 surface:
 - `zeb <url...>` root shorthand for create.
 - Config commands for inspecting `~/.zeb`; `zeb status` for context and
   `zeb status --check` for API-validated context; `zeb health` for a ping.
-- Spec sync command plus drift tests binding the hand-written client to the
-  vendored snapshot.
+- `zeb qr`: a link's QR code as public URLs, or a rendered PNG/SVG download;
+  `zeb qr variants` lists the named designs with the signals each one stamps.
+- Drift tests binding the hand-written client to the live production spec.
+  Nothing is vendored and there is no sync command.
 - Live context picker (`zeb context`) and the API-backed `zeb tui`.
 
 ## Command Model

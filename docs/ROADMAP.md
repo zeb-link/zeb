@@ -76,7 +76,8 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
 
 ## Local Distribution
 
-Use the local install target while Zeb is not published:
+Users install Zeb from npm. For development, the local install target puts the
+binary you just built on your own `PATH`:
 
 ```bash
 make install-local
@@ -113,9 +114,19 @@ and the global `zeb` command points at the updated binary.
 Recorded in `internal/api/spec_drift_test.go` (`knownUnimplemented`) so new
 spec operations still trip the drift test:
 
-- `PATCH /links/bulk` (bulk update) — no CLI verb needs it yet.
+- `PATCH /links/bulk` (bulk update) — no CLI verb needs it yet; `zeb links
+  update` covers the single case.
 - `POST /collections/bulk` — niche for a CLI; `zeb collection create` covers
   the flow.
+- `POST /links/{linkId}/qr-variants` — variant authoring is a studio flow.
+- `GET /links/{linkId}/qr-variants/{variantId}` — single-variant detail;
+  `zeb qr variants` already lists them with ids and image URLs.
+- `PATCH /links/{linkId}/qr-variants/{variantId}` — variant authoring is a
+  studio flow.
+- `DELETE /links/{linkId}/qr-variants/{variantId}` — variant authoring is a
+  studio flow.
+- `GET /links/{linkId}/qr-variants/{variantId}/image` — `zeb qr <link-id>
+  --download --variant <id>` renders any variant through `/qr/image`.
 
 ## Engineering Cleanup
 
