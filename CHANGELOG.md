@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.5.3 - 2026-08-15
+## 0.5.4 - 2026-08-18
+
+### Fixed
+
+- The main npm package pinned its platform packages at 0.5.1, so installing
+  0.5.2 or 0.5.3 handed you a 0.5.1 binary: neither the veiled-analytics fix
+  nor the Go 1.25.13 security rebuild ever ran on anyone's machine. The pins
+  now match the release version, and this is the first build since 0.5.1 that
+  actually reaches an install.
+- `zeb domains` and the context picker printed nothing where a domain's kind
+  belongs. The API reports `kind` — custom, branded, or platform — and the
+  client still read `type`, the storage field the API deliberately stopped
+  exposing because a branded domain is stored as a platform row and `type`
+  alone made an account's own host look shared. The field decoded as an empty
+  string, leaving the tier to stand on its own.
 
 ### Security
 

@@ -24,7 +24,7 @@ const (
 
 type DomainOption struct {
 	Hostname string
-	Type     string
+	Kind     string
 	Tier     *string
 }
 
@@ -65,11 +65,11 @@ func New(domains []api.Domain, collections []api.Collection, activeDomain string
 		activeCollection: activeCollection,
 		message:          "Press enter to set the highlighted value. Tab switches sections.",
 	}
-	model.domains = append(model.domains, DomainOption{Hostname: "", Type: "default"})
+	model.domains = append(model.domains, DomainOption{Hostname: "", Kind: "default"})
 	for _, domain := range domains {
 		model.domains = append(model.domains, DomainOption{
 			Hostname: domain.Hostname,
-			Type:     domain.Type,
+			Kind:     domain.Kind,
 			Tier:     domain.Tier,
 		})
 	}
@@ -205,7 +205,7 @@ func (m Model) renderCollections(width int) string {
 
 func (m Model) renderDomainRow(domain DomainOption, focused bool) string {
 	value := domainLabel(domain.Hostname)
-	meta := domain.Type
+	meta := domain.Kind
 	if domain.Tier != nil {
 		meta += " · " + *domain.Tier
 	}

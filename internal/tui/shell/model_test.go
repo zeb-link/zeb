@@ -392,7 +392,7 @@ func testModel() Model {
 			{ID: "lnk_2", TargetURL: "https://example.com/2", Hostname: "zbra.local", Path: "/two", IsActive: true},
 		},
 		Domains: []api.Domain{
-			{Hostname: "custom.example", Type: "custom"},
+			{Hostname: "custom.example", Kind: "custom"},
 		},
 		Collections: []api.Collection{
 			{ID: "col_1", Name: "Inbox", Type: "manual"},

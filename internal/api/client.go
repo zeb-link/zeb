@@ -45,10 +45,14 @@ type SpaceSummary struct {
 	Role string `json:"role"`
 }
 
+// Kind is custom / branded / platform: a branded domain is stored as a
+// platform row, so the API reports the kind rather than the storage type —
+// "platform" here means a host shared across accounts, never the account's
+// own branded one.
 type Domain struct {
 	ID       string  `json:"id"`
 	Hostname string  `json:"hostname"`
-	Type     string  `json:"type"`
+	Kind     string  `json:"kind"`
 	Tier     *string `json:"tier"`
 }
 

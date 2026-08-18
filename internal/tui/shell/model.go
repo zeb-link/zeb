@@ -1075,9 +1075,9 @@ func contextPill(label string, value string, tone color.Color, active bool, focu
 }
 
 func (m Model) domainOptions() []domainOption {
-	options := []domainOption{{Hostname: "", Type: "default"}}
+	options := []domainOption{{Hostname: "", Kind: "default"}}
 	for _, domain := range m.domains {
-		options = append(options, domainOption{Hostname: domain.Hostname, Type: domain.Type})
+		options = append(options, domainOption{Hostname: domain.Hostname, Kind: domain.Kind})
 	}
 	return options
 }
@@ -1129,7 +1129,7 @@ func (m Model) indexForCollection(collectionID string) int {
 
 type domainOption struct {
 	Hostname string
-	Type     string
+	Kind     string
 }
 
 type collectionOption struct {

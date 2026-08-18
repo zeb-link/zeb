@@ -41,7 +41,7 @@ func newDomainsCommand(root *rootOptions) *cobra.Command {
 				}
 			}
 			for _, domain := range response.Domains {
-				meta := domain.Type
+				meta := domain.Kind
 				if domain.Tier != nil {
 					meta += " · " + *domain.Tier
 				}
