@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.4 - 2026-08-18
+## 0.5.4 - 2026-10-07
 
 ### Fixed
 
@@ -25,6 +25,8 @@
   v0.5.2 published; that release carried the same fixes on the older
   toolchain, so upgrade straight to this one. `govulncheck ./...` reports
   no vulnerabilities.
+- This release itself is built with Go 1.26.8 and updated dependencies
+  (Bubble Tea, Bubbles, Lip Gloss, `golang.org/x/term`).
 
 ## 0.5.2 - 2026-08-15
 
