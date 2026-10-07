@@ -12,7 +12,8 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
 - `zeb <url...>` and `zeb links create <url...>` create links through the same
   command path. One URL uses the single-create endpoint with the reachability
   probe; two or more URLs go through `POST /links/bulk` with per-row results
-  (partial failures are reported, never hidden; batches chunk at 250).
+  (partial failures are reported, never hidden; batches chunk at
+  `bulkChunkSize`).
 - Link creation supports active domain and collection context, per-command
   overrides, custom path / old `--short-code` alias, namespace, title, and
   optional target reachability verification (single URL only).
@@ -40,7 +41,8 @@ published on npm as `@zeb-link/zeb` and releases from CI on a tag.
   `--range`. `--json` returns the raw aggregate; omit `--group-by` for a single
   total. Gated on the ANALYTICS_VIEW plan feature server-side.
 - `zeb links get/update/delete` manage single links; delete accepts many ids
-  and runs through the bulk endpoint (chunked at 250, per-row results).
+  and runs through the bulk endpoint (chunked at `bulkChunkSize`, per-row
+  results).
 - `zeb qr <link-id>` returns a link's QR code: its stable public image URLs
   (via `/qr/export`) by default, `--download` to save the rendered PNG/SVG
   (via `/qr/image`, with `--format`/`--size`/`--variant`), and `zeb qr
