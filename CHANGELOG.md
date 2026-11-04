@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.5 - 2026-11-04
+
+### Security
+
+- Built with Go 1.27.3 (was 1.26.8), clearing the standard-library
+  vulnerabilities in `net/http` and `crypto/x509` that the CI vulnerability
+  scan has flagged since 2026-10-12. Several were reachable from the API
+  client. Every 0.5.4 binary carries them; upgrade.
+
+### Changed
+
+- `charm.land/bubbletea/v2` 2.0.10 → 2.1.1, with its terminal dependencies.
+- CI and release workflows use `actions/checkout`, `setup-go` and
+  `setup-node` v7.
+
 ## 0.5.4 - 2026-10-07
 
 ### Fixed
