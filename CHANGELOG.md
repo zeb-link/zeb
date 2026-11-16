@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.6 - 2026-11-16
+
+### Security
+
+- Release binaries use Go 1.27.4. The reachable-vulnerability scan passes.
+
+### Changed
+
+- Update Lip Gloss, pflag, and terminal dependencies.
+
 ## 0.5.5 - 2026-11-04
 
 ### Security
